@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "src/tools.h"
+#include "lib/tools.h"
 
 using namespace std;
 

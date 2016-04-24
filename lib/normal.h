@@ -112,9 +112,6 @@ void normal<dim2>::orienting(const int& j0, const int& k0,
   nor[j1] = vprod( e[1]-e[0], e[2]-e[0]);
   normalize(nor[j1]);
   aux [ j1 ] = 1;  
-
-
-
   
   if( ( aux[ j0 ]== 1 && f0==f1 ) ||
       ( aux[ j0 ]==-1 && f0!=f1 ) ){
@@ -149,7 +146,6 @@ mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
   
   vector<int>      first(nbnode,end);
   vector<int>      next;
-  vector<int>      aux;  
   vector<face_t>   face;
   vector<num_t>    adj(nbelt);
   vector<N2>       num;  
@@ -180,30 +176,21 @@ mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
 	next.push_back(head);
 	head = q;
 	N2 J; J[0] = j; J[1] = k;
-	num.push_back(J);}
+	num.push_back(J);
+      }
       
     }
     
     
   }
-
-
-
   
-  /*----------------------------
-  cout << endl << "adj[433]:\t";
-  for(int k0=0; k0<3; k0++){
-    cout << adj[433][k0][0] << "\t";}
-  cout << endl;  
-  -----------------------------*/
-  
-
   
   //===============================//
   //     Breadth First Search      //
   //===============================//
   
   nor.resize(nbelt,R3());  
+  vector<int>      aux;  
   aux.resize(nbelt,0);
   
   int nb_visited = 0;

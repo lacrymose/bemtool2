@@ -243,8 +243,6 @@ typedef list_elt_<dim1>  list_elt_1D;
 typedef list_elt_<dim2>  list_elt_2D;
 
 
-
-
 //==========================//
 //  structures auxiliaires  //
 //==========================//
@@ -422,7 +420,7 @@ class mesh_{
     for(int j=0; j<nb_elt(m); j++){
       int J = geometry::push(*this,m[j]);
       num_elt.push_back(J);} }
-
+  
   friend void write(const mesh_<dim>& m, char const * const name){
         
     const vect<R3>& node = get_node();  
