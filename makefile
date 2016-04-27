@@ -2,7 +2,7 @@ INCLUDE = -I/usr/include/gmm
 LIBS    = lib/quad2D.o -lgsl -lblas
 CPP     = clang++
 
-all: prog clean
+all: prog2 clean
 
 #############################################
 

@@ -140,7 +140,6 @@ class loc_{
   vector<int>                num;
   static const int           none; 
   
-  
  public:
   
   loc_<dim>(const loc_<dim>& nl):

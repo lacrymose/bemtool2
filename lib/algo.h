@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 template <int dim>
 class adjacency{
   
@@ -18,14 +17,15 @@ class adjacency{
   typedef elt_<dim>              elt_t;
   typedef elt_<dim-1>            face_t;
   typedef array<dim+1,face_t>    face_array_t;
-  typedef array<dim+1,N2>        num_array_t;
+  typedef array<dim+1,int>       num_array_t;
   
  private:
   const mesh_<dim>&       mesh;
   const vect<elt_t>&      elt;
   vector<face_t>          face;
   vector<num_array_t>     neig;
-
+  vector<num_array_t>     back;
+  
  public:
   // Constructeur
   adjacency(const mesh_t&);
@@ -34,6 +34,10 @@ class adjacency{
   const num_array_t&
     operator[](const int& j){
     return neig[j];}
+  
+  const num_array_t&
+    operator()(const int& j){
+    return back[j];}
   
   friend const vector<face_t>&
     faces_of(const this_t& adj){
@@ -57,6 +61,7 @@ mesh(m), elt(get_elt_<dim>::apply()) {
 
   first.resize(nbnode,end);
   neig.resize(nbelt);
+  back.resize(nbelt);  
     
   for(int j=0; j<nbelt; j++){
     bool exist;
@@ -70,10 +75,10 @@ mesh(m), elt(get_elt_<dim>::apply()) {
       for(int q = head; q!=end; q=next[q]){
 	if(f==face[q]){
 	  exist=true;
-	  neig[j][k][0] = num[q][0];
-	  neig[j][k][1] = num[q][1];
-	  neig[ num[q][0] ][ num[q][1] ][0] = j;
-	  neig[ num[q][0] ][ num[q][1] ][1] = k;
+	  neig[j][k] = num[q][0];
+	  back[j][k] = num[q][1];
+	  neig[ num[q][0] ][ num[q][1] ] = j;
+	  back[ num[q][0] ][ num[q][1] ] = k;
 	  break;}
       }
       //==================================//
@@ -99,5 +104,30 @@ mesh(m), elt(get_elt_<dim>::apply()) {
 typedef adjacency<1> adjacency1D;
 typedef adjacency<2> adjacency2D;
 typedef adjacency<3> adjacency3D;
+
+template <int dim>
+class connected{
+  
+ public:
+  typedef connected<dim>    this_t;
+  typedef mesh_<dim>        mesh_t;
+  typedef elt_<dim>         elt_t;
+  typedef elt_<dim-1>       face_t;
+
+ private:
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+};
+
+
 
 #endif
