@@ -3,12 +3,12 @@
 
 #include <vector>
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include "calculus.h"
 
 using namespace std;
-
 
 //==========================//
 //        Element           //
@@ -71,6 +71,8 @@ template <int dim, class val_t = R3>
  
 };
 
+//______________________
+// Declarations de type
 typedef elt_<dim0> elt_0D; // noeud
 typedef elt_<dim1> elt_1D; // arrete
 typedef elt_<dim2> elt_2D; // triangle
@@ -88,7 +90,6 @@ inline void order(elt_<dim>& e){
   }
   
 }
-
 
 //___________________
 // Calculs de volumes
@@ -114,6 +115,103 @@ inline Real det_jac(const elt_3D& e){return abs( (vprod(e[1]-e[0],e[2]-e[0]), e[
 inline R3 center(const elt_1D& e){return (1./2.)*(e[0]+e[1]);}
 inline R3 center(const elt_2D& e){return (1./3.)*(e[0]+e[1]+e[2]);}
 inline R3 center(const elt_3D& e){return (1./4.)*(e[0]+e[1]+e[2]+e[3]);}
+
+//______________________________________________________
+// Comparaison de l'orientation de deux elements VOISINS
+// 1 = orientation identique 
+// 0 = orientation differente
+bool comp(const elt_1D& e0, const elt_1D& e1){
+  if( e0 == e1 ){ return true;  }
+  if( (&e0[0]==&e1[0]) || (&e0[1]==&e1[1]) ){ return false; }
+  if( (&e0[0]==&e1[1]) || (&e0[1]==&e1[0]) ){ return true;  }
+  cout << "\nelt.h: comparaison d'elements non voisins" << endl;
+  abort();
+}
+
+bool comp(const elt_2D& e0, const elt_2D& e1){
+  if( e0 == e1 ){ return true;  }
+  int jj[2],kk[2], n=0;
+  for(int j=0; j<3; j++){
+    for(int k=0; k<3; k++){
+      if( &e0[j]==&e1[k] ){
+	jj[n]=j; kk[n]=k; n++;}
+    }    
+  }
+  if(n!=2){cout << "\nelt.h: comparaison d'elements non voisins" << endl; abort();}
+  if( (3+jj[1]-jj[0])%3 != (3+kk[1]-kk[0])%3 ){ return true;}
+  return false;
+  
+}
+
+
+
+//=============================//
+// Calcul des vecteurs normaux
+// aux faces d'un element
+//=============================//
+
+template <int dim>
+void compute_normal_to_faces(const elt_<dim>& e, array<dim+1,R3>& n_){};
+
+
+template<>
+void  compute_normal_to_faces<dim1>(const elt_1D& e, array<2,R3>& n_){  
+  n_[0] = e[1]-e[0];
+  normalize(n_[0]);
+  n_[1] = (-1.)*n_[0];
+}
+
+
+template<>
+void  compute_normal_to_faces<dim2>(const elt_2D& e, array<3,R3>& n_){  
+  
+  R3 u1,u2;
+  for(int k=0; k<3; k++){
+
+    N2 I;
+    I[0]=(k+1)%3;
+    I[1]=(k+2)%3; 
+    elt_1D f = e[I];
+    
+    u1 = f[1]-f[0];
+    normalize(u1);
+    
+    n_[k] = f[0]-e[k];
+    n_[k] = n_[k] - (n_[k],u1)*u1;
+    normalize(n_[k]);
+    
+  }  
+  
+}
+
+
+template<>
+void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
+  
+  R3 u1,u2;
+  for(int k=0; k<4; k++){
+    
+    N3 I;
+    I[0]=(k+1)%4;
+    I[1]=(k+2)%4;
+    I[2]=(k+3)%4;
+    elt_2D f = e[I];
+    
+    u1 = f[1]-f[0];
+    normalize(u1);
+    u2 = f[2]-f[0];
+    u2 = u2 - (u2,u1)*u1;
+    normalize(u2);
+    
+    n_[k] = f[0]-e[k];
+    n_[k] = n_[k] -(n_[k],u1)*u1 -(n_[k],u2)*u2;
+    normalize(n_[k]);
+    
+  }
+  
+}
+
+
 
 
 #endif

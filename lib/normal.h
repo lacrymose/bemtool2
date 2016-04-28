@@ -125,6 +125,10 @@ void normal<dim2>::orienting(const int& j0, const int& k0,
 
 
 
+
+
+
+
 //===========================//
 // Constructeur de la normale
 // par Breadth First Search
@@ -242,72 +246,6 @@ mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
 typedef normal<1> nrml_1D;
 typedef normal<2> nrml_2D;
 
-
-//=============================//
-// Calcul des vecteurs normaux
-// aux faces d'un element
-//=============================//
-
-template <int dim>
-void compute_normal_to_faces(const elt_<dim>& e, array<dim+1,R3>& n_){};
-
-
-template<>
-void  compute_normal_to_faces<dim1>(const elt_1D& e, array<2,R3>& n_){  
-  n_[0] = e[1]-e[0];
-  normalize(n_[0]);
-  n_[1] = (-1.)*n_[0];
-}
-
-
-template<>
-void  compute_normal_to_faces<dim2>(const elt_2D& e, array<3,R3>& n_){  
-  
-  R3 u1,u2;
-  for(int k=0; k<3; k++){
-
-    N2 I;
-    I[0]=(k+1)%3;
-    I[1]=(k+2)%3; 
-    elt_1D f = e[I];
-    
-    u1 = f[1]-f[0];
-    normalize(u1);
-    
-    n_[k] = f[0]-e[k];
-    n_[k] = n_[k] - (n_[k],u1)*u1;
-    normalize(n_[k]);
-    
-  }  
-  
-}
-
-
-template<>
-void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
-  
-  R3 u1,u2;
-  for(int k=0; k<4; k++){
-    
-    N3 I;
-    I[0]=(k+1)%4;
-    I[1]=(k+2)%4;
-    I[2]=(k+3)%4;
-    elt_2D f = e[I];
-    
-    u1 = f[1]-f[0];
-    normalize(u1);
-    u2 = f[2]-f[0];
-    u2 = u2 - (u2,u1)*u1;
-    normalize(u2);
-    
-    n_[k] = f[0]-e[k];
-    n_[k] = n_[k] -(n_[k],u1)*u1 -(n_[k],u2)*u2;
-    normalize(n_[k]);
-    
-  }
-  
-}
 
 
 
