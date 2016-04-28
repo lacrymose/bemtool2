@@ -144,6 +144,16 @@ bool comp(const elt_2D& e0, const elt_2D& e1){
 }
 
 
+//=====================================//
+// Calcul du vecteur normal a un element
+//=====================================//
+
+R3 normal_to(const elt_1D& e){
+  R3 e2; e2[2]=1.; return vprod(e2, e[1]-e[0]);}
+
+R3 normal_to(const elt_2D& e){
+  return vprod(e[1]-e[0],e[2]-e[1]);}
+
 
 //=============================//
 // Calcul des vecteurs normaux
@@ -211,7 +221,30 @@ void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
   
 }
 
+//===========================//
+// Routine auxiliaire
+// calculer la puissance
+// d'une surface/courbe
+//===========================//
 
+Real solid_angle(const R3& p, const elt_1D& e){
+  R2x2 M;
+  for(int j=0; j<2; j++){
+    for(int k=0;k<2;k++){
+      M(j,k) = e[k][j] - p[j];
+    }
+  }
+  return det(M);  
+}
 
+Real solid_angle(const R3& p, const elt_2D& e){
+  R3x3 M;
+  for(int j=0; j<3; j++){
+    for(int k=0;k<3;k++){
+      M(j,k) = e[k][j] - p[j];
+    }
+  }
+  return (-1.)*det(M);  
+}
 
 #endif

@@ -7,7 +7,6 @@
 #include "calculus.h"
 #include "mesh.h"
 
-
 using namespace std;
 
 template <typename m_t>
@@ -200,12 +199,6 @@ connected<m_t>::connected(const mesh_t& m): mesh(m) {
       }
     }
   }
-  
-  
-  
-  
-  
-  
   
   
 }

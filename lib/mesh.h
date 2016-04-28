@@ -275,6 +275,14 @@ void load_node(const char* filename){
   
 }
 
+//============================//
+//  Type pour gere si un      //
+//  domaine est borne ou non  //
+//============================//
+
+enum boundedness{ yes, no };
+static const boundedness unbounded = no;
+
 
 //==========================//
 //         Maillage         //
@@ -299,7 +307,7 @@ class mesh_{
   //_______________
   // Donnee membres
   vector<int>           num_elt;
-  
+  bool                  bounded;    
   
   // Pas de constructeur par recopie
   mesh_<dim>(const mesh_<dim>&);
@@ -310,7 +318,7 @@ class mesh_{
   
  public:
   
-  mesh_<dim>(): node(get_node()), elt(get_elt_<dim>::apply()){};
+  mesh_<dim>(): node(get_node()), elt(get_elt_<dim>::apply()), bounded(true){};
   template <class m_t> friend void load(m_t&, int);
   template <class m_t> friend int  nb_elt (const m_t&);
   const elt_t& operator[](const int& j) const { return elt[num_elt[j]];};  
@@ -320,8 +328,13 @@ class mesh_{
       int J = geometry::push(*this,m[j]);
       num_elt.push_back(J);} }
   
+  void operator=(const boundedness& b){
+    if(b==no){bounded=false;} }
+  
+  bool is_bounded() const {return bounded;}
+  
   friend void write(const mesh_<dim>& m, char const * const name){
-        
+    
     const vect<R3>& node = get_node();  
     int nb_node = size(node);
     ofstream file; file.open(name);    
@@ -343,8 +356,6 @@ class mesh_{
     file.close();
     
   }
-  
-  
   
 };
 

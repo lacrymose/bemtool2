@@ -5,7 +5,7 @@
 #include <queue>
 #include <cassert>
 #include "mesh.h"
-
+#include "algo.h"
 
 //==========================//
 //       Normale            //
@@ -31,9 +31,9 @@ class normal{
   
   //_______________
   // Donnee membres
+  vector<bool>              orientation;
   vector<R3>                nor;
   static const R3           none;
-  
   
  public:
   
@@ -56,13 +56,6 @@ class normal{
   
   inline friend const mesh_t& mesh_of(const this_t& N) {
     return N.mesh;}
-
-  
- private:
-  
-  void orienting(const int&, const int&,
-		 const int&, const int&,
-		 vector<int>&);
   
 };
 
@@ -70,183 +63,114 @@ template<int dim>
 const R3 normal<dim>::none = 0.;
 
 //===========================//
-// Orientation des elements
-// de proche en proche
-
-template<>
-void normal<dim1>::orienting(const int& j0, const int& k0,
-			     const int& j1, const int& k1, vector<int>& aux){
-  
-  const elt_1D& e = mesh[j1];
-
-  nor[ j1 ][0] = - e[1][1] + e[0][1];
-  nor[ j1 ][1] =   e[1][0] - e[0][0];
-  nor[ j1 ][2] =   0.;
-  normalize(nor[j1]);
-  aux [ j1 ] = 1;
-  
-  if( ( aux[ j0 ]== 1 && k0==k1 ) ||
-      ( aux[ j0 ]==-1 && k0!=k1 ) ){
-    
-    aux[ j1 ] = -1;
-    nor[ j1 ] = (-1.)*nor[ j1 ];
-    
-  }
-  
-  
-}
-
-
-template<>
-void normal<dim2>::orienting(const int& j0, const int& k0,
-			     const int& j1, const int& k1, vector<int>& aux){
-  N2 I;
-  
-  I[0] = (k0+1)%3; I[1] = (k0+2)%3;
-  elt_1D f0 = mesh[ j0 ][I];
-  
-  I[0] = (k1+1)%3; I[1] = (k1+2)%3;
-  elt_1D f1 = mesh[ j1 ][I];
-  
-  const elt_2D& e = mesh[j1];
-  nor[j1] = vprod( e[1]-e[0], e[2]-e[0]);
-  normalize(nor[j1]);
-  aux [ j1 ] = 1;  
-  
-  if( ( aux[ j0 ]== 1 && f0==f1 ) ||
-      ( aux[ j0 ]==-1 && f0!=f1 ) ){
-    
-    aux[ j1 ] = -1;
-    nor[ j1 ] = (-1.)*nor[ j1 ];	
-    
-  }
-  
-}
-
-
-
-
-
-
-
-//===========================//
 // Constructeur de la normale
-// par Breadth First Search
 template<int dim> normal<dim>::normal(const mesh_t& m):
 mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
   
-  typedef elt_<dim-1>      face_t;
-  typedef array<dim+1,N2>  num_t;
-    
-  //===============================//
-  //  Calcul du graphe d'adjacence
-  //  entre elements du maillage
-  //===============================//
-  
-  const R3& n0 = get_node(0);
-  int nbnode = nb_node();
-  int nbelt  = nb_elt(m);
-  int end = -1; 
-  
-  vector<int>      first(nbnode,end);
-  vector<int>      next;
-  vector<face_t>   face;
-  vector<num_t>    adj(nbelt);
-  vector<N2>       num;  
-  
-  for(int j=0; j<nbelt; j++){
-    bool exist;
-    array< dim+1 ,face_t> aux = faces_of(m[j]);    
-    
-    for(int k=0; k<dim+1; k++){
-      face_t f = aux[k]; exist = false;
-      int& head = first[&f[0]-&n0];
-      
-      //==================================//
-      for(int q = head; q!=end; q=next[q]){
-	if(f==face[q]){
-	  exist=true;
-	  adj[j][k][0] = num[q][0];
-	  adj[j][k][1] = num[q][1];
-	  adj[ num[q][0] ][ num[q][1] ][0] = j;
-	  adj[ num[q][0] ][ num[q][1] ][1] = k;
-	  break;}
-      }
-      
-      //==================================//
-      if(!exist){
-	int q = face.size();
-	face.push_back(f);
-	next.push_back(head);
-	head = q;
-	N2 J; J[0] = j; J[1] = k;
-	num.push_back(J);
-      }
-      
-    }
-    
-    
-  }
-  
-  
-  //===============================//
-  //     Breadth First Search      //
-  //===============================//
-  
-  nor.resize(nbelt,R3());  
-  vector<int>      aux;  
-  aux.resize(nbelt,0);
-  
-  int nb_visited = 0;
-  queue<int> visit;
+  int nbelt  = nb_elt(mesh);
+  bool ok = true;
+  orientation.assign(nbelt,ok);
   vector<bool> visited(nbelt,false);
   
-  // Initialisation de l'algo
-  int j0 = 0;
-  visit.push(j0);
-  orienting(j0+1,0,j0,0,aux);
-  visited[j0]=true;
+  //====================================
+  // Calcul de l'adjacence entre elements
+  adjacency<mesh_t> adj(mesh);
   
-  // Lancement de l'algo
-  while(nb_visited<nbelt){
+  //====================================
+  // Recherche des composantes connexes
+  connected<mesh_t> component(mesh);
+  int nb_component = nb_(component);
+  Real global_orientation[nb_component];
+
+  //====================================
+  // initialisation  de la recherche
+  // d'un point extremal du maillage
+  int  Iext = 0;
+  Real Ext = norm2(center( mesh[ component[Iext][0] ] ));
+  
+  //===============================//
+  //   Breadth First Search sur    //
+  //   chaque composante connexe   //
+  //===============================//
+  for(int I=0; I<nb_component; I++){
+
+    int nbe = component[I].size();
+    int nb_visited = 0;
+    queue<int> visit;
+
+    int j0 = component[I][0];
+    visit.push(j0);
+    visited[j0]=true;
     
-    // Reinitialisation dans le cas
-    // de plusieurs composantes connexes
-    if(visit.empty()){
-      while(visited[j0]){j0++;}
-      orienting(j0+1,0,j0,0,aux); }
-    
-    else{ j0 = visit.front(); visit.pop(); }
-    nb_visited++;
-    
-    // Boucle sur les voisins de
-    // l'element courant
-    for(int k0=0; k0<dim+1; k0++){
+    while(nb_visited<nbe){
       
-      const int& j1 = adj[j0][k0][0];
-      const int& k1 = adj[j0][k0][1];      
+      j0 = visit.front();
+      const elt_t& e0 = mesh[j0];
+      visit.pop();
+      nb_visited++;
       
-      // Si voisin pas deja visite:
-      // propagation de l'algo
-      if(!visited[j1]){
-		
-	visited[j1]=true;	
-	visit.push(j1);
-	orienting(j0,k0,j1,k1,aux);
+      if( norm2(center(e0)) > Ext){
+	Ext = norm2(center(e0));
+	Iext = I; }
+      
+      for(int k0=0; k0<dim+1; k0++){
+	const int& j1 = adj[j0][k0];
+	const elt_t& e1 = mesh[j1];
 	
+	if(!visited[j1]){
+	  bool same = comp(e1,e0);
+	  if(same){orientation[j1]=orientation[j0];}
+	  else{orientation[j1]=!orientation[j0];}
+	  visited[j1]=true;
+	  visit.push(j1);
+	}
       }
-      
     }
     
+    global_orientation[I] = 0.;
+    const R3& p = mesh[ component[I][0] ][0];
+    for(int j=0; j<nbe; j++){
+      j0 = component[I][j];
+      const elt_t& e = mesh[j0];
+      Real r = solid_angle(p,e);
+      if(!orientation[j0]){r = -r;}
+      global_orientation[I] += r;
+    }
+    
+    if(global_orientation[I]>0){      
+      for(int j=0; j<nbe; j++){
+	j0 = component[I][j];
+	orientation[j0] = !orientation[j0];
+      }
+    }
+        
   }
 
+  //=====================================
+  // Calcul effectif des vecteurs normaux
+  nor.resize(nbelt);
+  for(int j=0; j<nbelt; j++){
+    nor[j]=normal_to(mesh[j]);
+    normalize(nor[j]);
+    if(orientation[j]){nor[j] = (-1.)*nor[j];}
+  }
+  
+  //=====================================
+  // Si le domaine est borne la
+  // composante exterieure du bord
+  // doit etre orientee dans l'autre sens
+  if(mesh.is_bounded()){
+    for(int j=0; j<component[Iext].size(); j++){
+      int jj = component[Iext][j];
+      nor[jj] = (-1.)*nor[jj];
+    }
+  }
+  
 }
 
 
 typedef normal<1> nrml_1D;
 typedef normal<2> nrml_2D;
-
-
 
 
 
