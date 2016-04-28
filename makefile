@@ -4,7 +4,7 @@ CPP     = clang++
 FLAGS   = -O3
 
 
-all: prog2 clean
+all: clear prog2 clean
 
 #############################################
 
@@ -24,9 +24,11 @@ prog2.o: prog2.cxx
 
 #############################################
 
-
 clean:
 	rm *.o
+
+clear:
+	clear
 
 
 

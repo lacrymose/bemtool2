@@ -6,10 +6,15 @@
 #include <iostream>
 #include <fstream>
 #include "calculus.h"
+#include "elt.h"
+
 
 using namespace std;
 
 
+
+
+/*
 //==========================//
 //        Element           //
 //==========================//
@@ -115,6 +120,7 @@ inline R3 center(const elt_1D& e){return (1./2.)*(e[0]+e[1]);}
 inline R3 center(const elt_2D& e){return (1./3.)*(e[0]+e[1]+e[2]);}
 inline R3 center(const elt_3D& e){return (1./4.)*(e[0]+e[1]+e[2]+e[3]);}
 
+*/
 
 //==========================//
 //   Numerotation locale    //  
@@ -170,7 +176,7 @@ typedef loc_<dim1>  loc_1D;
 typedef loc_<dim2>  loc_2D;
 
 //==========================//
-//     Liste d'elements     //  
+//    Registre d'elements   //  
 //==========================//
 
 template <int dim>
@@ -183,7 +189,7 @@ class list_elt_{
   typedef loc_<dim>       loc_t;  
   
  private:  
-  // Liste des elements
+  // Liste des elements enregistres
   vect<elt_t>       elt;
   
   // Numerotations locales
@@ -210,7 +216,7 @@ class list_elt_{
   
 };
 
-// Ajout d'un element dans la liste
+// Enregistrement d'un element
 template <int dim>
 int list_elt_<dim>::push(const mesh_<dim>& m, elt_<dim> e){
     
@@ -242,9 +248,10 @@ typedef list_elt_<dim1>  list_elt_1D;
 typedef list_elt_<dim2>  list_elt_2D;
 
 
-//==========================//
-//  structures auxiliaires  //
-//==========================//
+//====================================//
+//  Structures auxiliaires pour       //
+//  l'acces aux registres d'elements  //
+//====================================//
 
 template <int dim> struct get_elt_{
   static inline const vect< elt_<dim> >& apply();};
