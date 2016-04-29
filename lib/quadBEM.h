@@ -10,7 +10,6 @@ using namespace std;
 template <int dim>
 class quadBEM;
 
-
 template <>
 class quadBEM<2>{
 
@@ -290,8 +289,6 @@ class quadBEM<2>{
   }  
   
 };
-
-
 
 
 

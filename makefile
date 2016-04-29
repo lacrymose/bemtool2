@@ -1,4 +1,4 @@
-INCLUDE = -I/usr/include/gmm
+INCLUDE = -I/usr/include/gmm -I/usr/include/boost/math/special_functions/
 LIBS    = lib/quad2D.o -lgsl -lblas
 CPP     = clang++
 FLAGS   = -O3
