@@ -1,10 +1,9 @@
 INCLUDE = -I/usr/include/gmm -I/usr/include/boost/math/special_functions/
 LIBS    = lib/quad2D.o -lgsl -lblas
 CPP     = clang++
-FLAGS   = -O3
+FLAGS   = -g
 
-
-all: clear prog2 clean
+all: clear prog3 clean
 
 #############################################
 
@@ -21,6 +20,14 @@ prog2: prog2.o
 
 prog2.o: prog2.cxx
 	$(CPP) -c  $(FLAGS) $(INCLUDE) prog2.cxx -o prog2.o
+
+#############################################
+
+prog3: prog3.o
+	$(CPP) $(FLAGS) $(INCLUDE) prog3.o $(LIBS) -o bin/prog3
+
+prog3.o: prog3.cxx
+	$(CPP) -c  $(FLAGS) $(INCLUDE) prog3.cxx -o prog3.o
 
 #############################################
 

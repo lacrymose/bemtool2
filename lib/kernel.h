@@ -330,10 +330,6 @@ template <class space_x, class space_y, class kernel_t> class bem{
 	}
       }
     }
-
-    cout << "px: " << px << endl;
-    cout << "py: " << py << endl;
-    
     
   }
   
@@ -341,7 +337,7 @@ template <class space_x, class space_y, class kernel_t> class bem{
   
   //=========================//
   //      Constructeur 
- bem(const Real& k, const normal_t& nx0, const normal_t& ny0, int order=5): 
+ bem(const Real& k, const normal_t& nx0, const normal_t& ny0, int order=15): 
   k2(k*k), kernel(k), qr(order), loc(get_loc_<dim>::apply()), elt(get_elt_<dim>::apply()),
     nx(nx0), meshx(mesh_of(nx0)), ny(ny0), meshy(mesh_of(ny0)) {
     phix.attach_to(mesh_of(nx0)); phiy.attach_to(mesh_of(ny0)); };  
