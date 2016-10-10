@@ -6,8 +6,10 @@
 \newcommand{\nc}{\newcommand}
 \nc{\dsp}{\displaystyle}
 \nc{\mrm}{\mathrm}
+\nc{\mL}{\mathrm{L}}
 \nc{\mH}{\mathrm{H}}
 \nc{\mD}{\mathrm{D}}
+\nc{\mB}{\mathrm{B}}
 \nc{\R}{\mathbb{R}}
 \nc{\C}{\mathbb{C}}
 \nc{\lbr}{\lbrack}
@@ -18,21 +20,26 @@
 \nc{\Green}{\mathscr{G}}
 \nc{\SL}{\mathrm{SL}}
 \nc{\DL}{\mathrm{DL}}
-
 \nc{\fre}{\mathfrak{e}}
 
+\date{}
+
+\title{Analytic expression of potential operators for Helmholtz equation in circular and spherical geometries}
 
 \begin{document}
 
+\maketitle
 
-\section{General notation}
-In this document, we give detailed expression of the boundary integral operators associated to a circle in 2-D. 
+
+\section*{Analytic solutions in 2-D}
+
+In this section, we give detailed expression of the boundary integral operators associated to a circle in 2-D. 
 Here we consider an Helmholtz equation   $-\Delta u -\kappa^{2}u = 0$ with outgoing radiation condition.
 The corresponding Green kernel is given by
 $$
 \left\{\begin{array}{l}
--\Delta \Green - \kappa^{2}\Green = \delta_{0}\quad\textrm{in}\;\R^{2}\\
-\lim_{\rho\to +\infty}\int_{\partial\mrm{D}_{\rho}}\vert \partial_{\rho}\Green - \imath\kappa \Green\vert^{2}d\sigma_{\rho} = 0\\
+-\Delta \Green - \kappa^{2}\Green = \delta_{0}\quad\textrm{in}\;\R^{2}\\[5pt]
+\lim_{\rho\to +\infty}\int_{\partial\mrm{D}_{\rho}}\vert \partial_{\rho}\Green - \imath\kappa \Green\vert^{2}d\sigma_{\rho} = 0\\[5pt]
 \textrm{where}\quad  \Green(\bx) = \frac{\imath}{4}H_{0}^{(1)}(\kappa\vert \bx\vert)
 \end{array}\right.
 $$
@@ -51,14 +58,12 @@ $$
 Let us introduce the layer potentials associated to the interior of the disc $\mD$. 
 For any trace $v\in\mH^{1/2}(\Gamma), p\in\mH^{-1/2}(\Gamma)$, their explicit expression 
 is given by:
-$$
+\begin{equation}\label{PotentialOperators}
 \begin{array}{l}
 \dsp{ \SL(p)(\bx):=\int_{\Gamma}\Green(\bx-\by)p(\by) d\sigma(\by), }\\[10pt]
 \dsp{ \DL(p)(\bx):=\int_{\Gamma}\bn(\by)\cdot(\nabla\Green)(\bx-\by)p(\by) d\sigma(\by). }
 \end{array}
-$$
-
-\section{Separation of variables}
+\end{equation}
 We are going to provide a completely explicit expression of these operators in terms 
 of Fourier harrmonics and Bessel functions. Set $\fre_{n}(\theta) = \exp(\imath n\theta)$. 
 We have 
@@ -97,11 +102,69 @@ $$
 \end{array}
 $$
 
+\section*{Analytic solutions in 3-D}
+
+Now we consider the same problem but, this time, for an Helmholtz equation in 3-D with a boundary $\Gamma = \mathbb{S}^{2}$ 
+the unit sphere. The corresponding outgoing radiating kernel satisfies the equations  
+$$
+\left\{\begin{array}{l}
+-\Delta \Green - \kappa^{2}\Green = \delta_{0}\quad \textrm{in}\;\R^{3}\\[5pt]
+\lim_{\rho\to +\infty}\int_{\partial\mB_{\rho}}\vert \partial_{\rho}\Green - \imath \kappa \Green\vert^{2} d\sigma_{\rho} = 0\\[5pt]
+\textrm{where}\quad \Green(\bx) = \exp(\imath\vert \bx\vert)/(4\pi\vert \bx\vert)
+\end{array}\right.
+$$
+Let $\mB\subset \R^{3}$ refer to the ball of center $\mathbf{0}$ and radius $1$, and $\Gamma = \partial\mB$. We use 
+the same notations regarding trace operators compared to the previous section. in particular, $\bn$ shall refer to the 
+unit vector normal to $\Gamma$ :directed toward the exterior of $\mB$. Once again, we define the potential operators 
+by (\ref{PotentialOperators})
+
+\quad\\
+Let us recall that any function $u\in \mL^{2}(\Gamma)$ can be decomposed on the orthonormal basis 
+of spherical harmonics  $\mrm{Y}_{l}^{m}, l\geq 0,\vert m\vert\leq l$ as follows
+$$
+\begin{array}{l}
+\dsp{ u(\theta,\varphi) = \sum_{l=0}^{+\infty}\sum_{-l\leq m\leq +l} u_{l,m}\mrm{Y}_{l}^{m}(\theta,\varphi)
+\quad \textrm{where}\quad u_{l,m}:=\int_{\Gamma}u(\sigma) \overline{\mrm{Y}}_{l}^{m}(\sigma) d\sigma   }\\[5pt]
+
+\dsp{ \mrm{Y}_{l}^{m}(\theta,\varphi):= (-1)^{m}\sqrt{\frac{l+1/2}{2\pi}\, \frac{(l-m)!}{(l+m)!}   }\;\mrm{P}_{l}^{m}(\cos\theta) \exp(\imath m\varphi)  }.
+\end{array}
+$$
+Here the $\mrm{P}_{l}^{m}(z)$ are associated Legendre functions. Define the spherical Bessel and Hankel functions $j_{l},h_{l}^{(1)}$
+like in paragraph 10.47 of \cite{MR2723248}. The single layer and double layer potentials admit explicit expressions 
+in terms of the spherical harmonics. On the one hand\\
+$$
+\SL(\mrm{Y}_{l}^{m})(\rho,\sigma) =
+\left\{\begin{array}{ll}
+\dsp{\imath\kappa\, j_{l}(\kappa\rho)h^{(1)}_{l}(\kappa)\mrm{Y}_{l}^{m}(\theta,\varphi)   } & \textrm{for}\;\;\rho<1\\[10pt]
+\dsp{\imath\kappa\, h^{(1)}_{l}(\kappa\rho)j_{l}(\kappa)\mrm{Y}_{l}^{m}(\theta,\varphi)   } & \textrm{for}\;\;\rho>1.
+\end{array}\right.
+$$
+And on the other hand we have 
+$$
+\DL(\mrm{Y}_{l}^{m})(\rho,\sigma) =
+\left\{\begin{array}{ll}
+\dsp{-\imath\kappa^{2}\, j_{l}(\kappa\rho)h^{(1)'}_{l}(\kappa)\mrm{Y}_{l}^{m}(\theta,\varphi)   } & \textrm{for}\;\;\rho<1\\[10pt]
+\dsp{-\imath\kappa^{2}\, h^{(1)}_{l}(\kappa\rho)j_{l}'(\kappa)\mrm{Y}_{l}^{m}(\theta,\varphi)   } & \textrm{for}\;\;\rho>1.
+\end{array}\right.
+$$
+Note that, like in the  2-D problem of the previous paragraph, we have $\int_{\Gamma}\overline{\mrm{Y}}_{p}^{q}\gamma_{D}\SL(\mrm{Y}_{l}^{m})d\sigma =$ 
+$\int_{\Gamma}\overline{\mrm{Y}}_{p}^{q}\gamma_{N}\SL(\mrm{Y}_{l}^{m})d\sigma = 0$ for $p\neq l$ or $q\neq m$, and similar identity holds for 
+$\DL$. Hence we have the following expressions for the entries of the Calderon projector
+$$
+\begin{array}{l}
+\dsp{ \int_{\Gamma}\overline{\mrm{Y}}_{l}^{m}\{\gamma_{D}\}\SL(\mrm{Y}_{l}^{m}) d\sigma = \imath\kappa \,j_{l}(\kappa)h_{l}^{(1)}(\kappa), }\\[10pt]
+\dsp{ \int_{\Gamma}\overline{\mrm{Y}}_{l}^{m}\{\gamma_{N}\}\DL(\mrm{Y}_{l}^{m}) d\sigma = -\imath\kappa^{3} \,j_{l}'(\kappa)h_{l}^{(1)'}(\kappa). }
+\end{array}
+$$
+As well as
+$$
+\begin{array}{l}
+\dsp{ \int_{\Gamma}\overline{\mrm{Y}}_{l}^{m}\{\gamma_{N}\}\SL(\mrm{Y}_{l}^{m}) d\sigma = +\imath\frac{\kappa^{2}}{2}\big( \,j_{l}'(\kappa)h_{l}^{(1)}(\kappa) +  j_{l}(\kappa)h_{l}^{(1)'}(\kappa)\,\big), }\\[10pt]
+\dsp{ \int_{\Gamma}\overline{\mrm{Y}}_{l}^{m}\{\gamma_{D}\}\DL(\mrm{Y}_{l}^{m}) d\sigma = -\imath\frac{\kappa^{2}}{2}\big( \,j_{l}'(\kappa)h_{l}^{(1)}(\kappa) +  j_{l}(\kappa)h_{l}^{(1)'}(\kappa)\,\big). }
+\end{array}
+$$
 
 
-
-
-
-
-
+\bibliography{biblio}
+\bibliographystyle{plain}
 \end{document}
