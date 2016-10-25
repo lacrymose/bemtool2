@@ -3,7 +3,7 @@
 
 #include "normal.h"
 #include "dof.h"
-#include <bessel.hpp>
+#include <boost/math/special_functions/bessel.hpp>
 
 using namespace boost::math;
 

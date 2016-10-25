@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "lib/tools.h"
+#include "bemtool2/tools.h"
 
 using namespace std;
 

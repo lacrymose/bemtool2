@@ -1,0 +1,20 @@
+### Build folders
+bin
+build
+
+### Latex
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.pdf
+
+### Doxygen
+*.in

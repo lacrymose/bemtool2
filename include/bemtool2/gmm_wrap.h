@@ -1,7 +1,7 @@
 #ifndef GMM_WRAP_H
 #define GMM_WRAP_H
 
-#include <gmm.h>
+#include <gmm/gmm.h>
 #include "calculus.h"
 
 using namespace std;
