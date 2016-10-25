@@ -1,34 +1,9 @@
 #ifndef USER_H
 #define USER_H
 
-
-#include <iostream>
-#include <fstream>
-#include <ctime>
-#include <stack>
 #include <string>
 #include <sstream>
 #include <vector>
-#include <cstdlib> // for exit()
-
-// using namespace std;
-
-////========================================================////
-///////////////===== Gestion temps ======///////////////////////
-
-std::stack<clock_t> tictoc_stack;
-
-void tic() {
-	tictoc_stack.push(clock());
-}
-
-void toc(std::vector<double>& times) {
-	double time =((double)(clock() - tictoc_stack.top())) / CLOCKS_PER_SEC;
-	std::cout << "Time elapsed: " << time << std::endl;
-	times.push_back(time);
-	tictoc_stack.pop();
-}
-
 
 
 ////========================================================////
@@ -42,21 +17,29 @@ std::string NbrToStr(nbr N){
 	return str;
 }
 
-int StrToInt(std::string str){
+template <typename T>
+T StrToNbr ( const std::string &Text )
+{
+	std::istringstream ss(Text);
+	T result;
+	return ss >> result ? result : 0;
+}
+
+inline int StrToInt(std::string str){
 	std::stringstream i(str);
 	int  N;
 	i >> N;
 	return N;
 }
 
-Real StrToReal(std::string str){
+inline Real StrToReal(std::string str){
 	std::stringstream i(str);
 	Real  N;
 	i >> N;
 	return N;
 }
 
-Cplx StrToCplx(std::string str){
+inline Cplx StrToCplx(std::string str){
 	std::stringstream i(str);
 	Cplx  N;
 	i >> N;
@@ -65,7 +48,7 @@ Cplx StrToCplx(std::string str){
 
 ////========================================================////
 ///////////////////////===== Input ======///////////////////////
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+inline std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
     std::string item;
     while (getline(ss, item, delim)) {
@@ -73,7 +56,7 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
     }
     return elems;
 }
-std::vector<std::string> split(const std::string &s, char delim) {
+inline std::vector<std::string> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
 	split(s, delim, elems);
 	return elems;

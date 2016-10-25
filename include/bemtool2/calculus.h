@@ -14,11 +14,6 @@
 #include <set>
 
 
-
-
-
-// using namespace std;
-
 template <int N> struct dim_{ };
 static const int dim0 = 0;
 static const int dim1 = 1;

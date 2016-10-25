@@ -9,12 +9,6 @@
 #include "elt.h"
 
 
-// using namespace std;
-
-
-
-
-
 //==========================//
 //   Numerotation locale    //  
 //   d'un element           //
@@ -157,6 +151,7 @@ template <int dim> struct get_loc_{
 //  Données géométriques    //
 //==========================//
 
+
 class geometry{
   
  private:
@@ -191,8 +186,8 @@ class geometry{
   friend struct get_loc_<2>;
   
 };
-
-
+  
+  
 // Initialisation et instanciation
 const char*   geometry::meshfile = 0;
 vect<R3>      geometry::node;
@@ -202,38 +197,38 @@ geometry      geom;
 
 
 // Definition des methodes
-const char*   meshfile() {return geometry::meshfile;    }
-int           nb_node () {return size(geometry::node ); }
-int           nb_elt1D() {return size(geometry::elt1D); }
-int           nb_elt2D() {return size(geometry::elt2D); }
+inline const char*   meshfile() {return geometry::meshfile;    }
+inline int           nb_node () {return size(geometry::node ); }
+inline int           nb_elt1D() {return size(geometry::elt1D); }
+inline int           nb_elt2D() {return size(geometry::elt2D); }
 
 
 // Acces aux noeuds
-const vect<R3>&    get_node()            {return geometry::node;  }
-const R3&          get_node(const int& j){return geometry::node[j];}
+inline const vect<R3>&    get_node()            {return geometry::node;  }
+inline const R3&          get_node(const int& j){return geometry::node[j];}
 template <class i_t> const subarray<const vect<R3>,i_t> get_node(const i_t& i_) {
   return subarray<const vect<R3>,i_t>(geometry::node,i_);}
 
 // Acces aux elements
-           const vect<elt_1D>& get_elt1D ()        {return get_elt(geometry::elt1D);}
-           const vect<elt_2D>& get_elt2D ()        {return get_elt(geometry::elt2D);}
-template<> const vect<elt_1D>& get_elt_<1>::apply(){return get_elt(geometry::elt1D);}
-template<> const vect<elt_2D>& get_elt_<2>::apply(){return get_elt(geometry::elt2D);}
+inline            const vect<elt_1D>& get_elt1D ()        {return get_elt(geometry::elt1D);}
+inline            const vect<elt_2D>& get_elt2D ()        {return get_elt(geometry::elt2D);}
+template<> inline const vect<elt_1D>& get_elt_<1>::apply(){return get_elt(geometry::elt1D);}
+template<> inline const vect<elt_2D>& get_elt_<2>::apply(){return get_elt(geometry::elt2D);}
 
 // Acces aux numerotations locales
-            const std::vector<loc_1D>& get_loc1D ()        {return get_loc(geometry::elt1D);}
-            const std::vector<loc_2D>& get_loc2D ()        {return get_loc(geometry::elt2D);}
-template <> const std::vector<loc_1D>& get_loc_<1>::apply(){return get_loc(geometry::elt1D);}
-template <> const std::vector<loc_2D>& get_loc_<2>::apply(){return get_loc(geometry::elt2D);}
+inline             const std::vector<loc_1D>& get_loc1D ()        {return get_loc(geometry::elt1D);}
+inline             const std::vector<loc_2D>& get_loc2D ()        {return get_loc(geometry::elt2D);}
+template <> inline const std::vector<loc_1D>& get_loc_<1>::apply(){return get_loc(geometry::elt1D);}
+template <> inline const std::vector<loc_2D>& get_loc_<2>::apply(){return get_loc(geometry::elt2D);}
 
 
 // Ajout d'elt sans doublonnage
-int geometry::push(const mesh_1D& m, elt_1D e){return elt1D.push(m,e);}
-int geometry::push(const mesh_2D& m, elt_2D e){return elt2D.push(m,e);}
+inline int geometry::push(const mesh_1D& m, elt_1D e){return elt1D.push(m,e);}
+inline int geometry::push(const mesh_2D& m, elt_2D e){return elt2D.push(m,e);}
 
 
 // Chargement des noeuds du maillage
-void load_node(const char* filename){
+inline void load_node(const char* filename){
   
    vect<R3>& node = geometry::node;
   assert(!size(node));
@@ -283,7 +278,7 @@ void load_node(const char* filename){
 enum boundedness{ yes, no };
 static const boundedness unbounded = no;
 
-
+  
 //==========================//
 //         Maillage         //
 //==========================//

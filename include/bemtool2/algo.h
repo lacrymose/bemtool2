@@ -7,7 +7,6 @@
 #include "calculus.h"
 #include "mesh.h"
 
-// using namespace std;
 
 template <typename m_t>
 class adjacency{

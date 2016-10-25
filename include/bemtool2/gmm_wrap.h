@@ -4,7 +4,6 @@
 #include <gmm/gmm.h>
 #include "calculus.h"
 
-// using namespace std;
 
 /*===========================
 ||   Interface avec gmm    ||

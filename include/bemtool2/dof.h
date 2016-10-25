@@ -7,146 +7,146 @@
 #include "mesh.h"
 #include "normal.h"
 
-//#############################//
-//   Raviart-Thomas ordre 0    //
-//#############################//
-
-class RT0{
-  
- public:
-
-  static const int dim_loc = 3;
-
-  //______________
-  // Alias de type
-  typedef mesh_2D        mesh_t;
-  typedef elt_2D         elt_t;
-  typedef loc_2D         loc_t;
-  
- private:
-  //_______________________
-  // Instance pre-existante
-  const mesh_t*          mesh;  
-  const vect<elt_t>&     elt;
-  const std::vector<loc_t>&   loc;
-  
-  //________________
-  // Donnees membres
-  vect<R3>         div;    // divergences de fct de forme
-  vect<N3>         dof;    // numerotation des dofs  
-  vect<R3x2>       jac;    // jacobien elt-ref -> elt-courant
-  vect<_3xR3>      nor;    // normale aux aretes
-  int              nb_dof; // nombre degres liberte
-  _3xR2            b;      // sommets de l'elt-ref
-  static const N3  none;
-  
-  
- public:
-  
-  RT0();
-  
-  void attach_to(const mesh_t&);
-  
-  R3 operator()(const R2& x, const int& j, const int& k){
-    return div[j][k]*( jac[j]*(x-b[k]) );}
-  
-  friend const Real& div(const RT0& phi, const int& j, const int& k){
-    return phi.div[j][k];}
-  
-  //__________
-  // Acces ddl
-  const N3& operator[](const int& j){ return dof[j];}
-  
-  const N3& operator[](const elt_2D& e){
-    const int& j = loc[ &e-&elt[0] ][*mesh];
-    if(j==-1){return none;}
-    return dof[j];}
-  
-  friend const int& nb_dof(const RT0& phi){return phi.nb_dof;}
-  
-  //_______________
-  // Calcul de flux
-  template <class fct> Cplx proj(const fct&, const int&, const int&);    
-  
-};
-
-const N3 RT0::none = -1;
-
-RT0::RT0(): elt(get_elt_<2>::apply()), loc(get_loc_<2>::apply()) { };
-
-void RT0::attach_to(const mesh_2D& m){
-  
-  mesh = &m;
-  
-  b[1][0] = 1.;
-  b[2][1] = 1.;
-  
-  int nbn = nb_node();
-  int nbt = nb_elt(m);
-  int end = -1;
-  const R3& n0 = get_node(0);
-  
-  resize(dof,nbt);
-  resize(jac,nbt);
-  resize(div,nbt);
-  resize(nor,nbt);
-  
-  std::vector<int>     first(nbn,-1);
-  std::vector<int>     next;
-  std::vector<elt_1D>  edge;
-  
-  for(int j=0; j<nbt; j++){
-    const elt_2D& t = (*mesh)[j];
-    
-    R3 u1 = t[1]-t[0], u2 = t[2]-t[0]; 
-    jac[j] = (1./norm2(vprod(u1,u2)))*mat_(u1,u2);
-    compute_normal_to_faces<2>( (*mesh)[j], nor[j]);
-    
-    for(int k=0; k<3; k++){      
-      N2 I; I[0] = (k+1)%3; I[1] = (k+2)%3;
-      elt_1D e = t[I]; order(e);
-      int& head = first[ &e[0]-&n0 ];
-      
-      //================================//
-      bool exist = false;
-      for(int q=head; q!=end; q=next[q]){
-	if(e==edge[q]){
-	  exist=true;
-	  dof[j][k]=q;
-	  div[j][k]=-1.;
-	  break;}
-      }
-      
-      //=================//
-      if(!exist){
-	int q = edge.size();
-	dof[j][k]=q;
-	div[j][k]=+1.;
-	edge.push_back(e);
-	next.push_back(head);
-	head = q;
-      }
-      
-      //=================//
-      nor[j][k] = div[j][k]*nor[j][k];
-            
-    }
-  }
-  
-  // 1 edge = 1 dof
-  nb_dof = edge.size();
-  
-}
-
-
-template <class fct>
-Cplx RT0::proj(const fct& f, const int& j, const int& k){    
-  const R3& a = (*mesh)[j][ (k+1)%3 ];
-  const R3& b = (*mesh)[j][ (k+2)%3 ];
-  R3 m = 0.5*(a+b);
-  // Quadrature sur une arete par une regle de Simpson
-  return (norm2(b-a)/6.)*( nor[j][k],(f(a) + 4.*f(m) + f(b) ) );
-}
+// //#############################//
+// //   Raviart-Thomas ordre 0    //
+// //#############################//
+// 
+// class RT0{
+//   
+//  public:
+// 
+//   static const int dim_loc = 3;
+// 
+//   //______________
+//   // Alias de type
+//   typedef mesh_2D        mesh_t;
+//   typedef elt_2D         elt_t;
+//   typedef loc_2D         loc_t;
+//   
+//  private:
+//   //_______________________
+//   // Instance pre-existante
+//   const mesh_t*          mesh;  
+//   const vect<elt_t>&     elt;
+//   const std::vector<loc_t>&   loc;
+//   
+//   //________________
+//   // Donnees membres
+//   vect<R3>         div;    // divergences de fct de forme
+//   vect<N3>         dof;    // numerotation des dofs  
+//   vect<R3x2>       jac;    // jacobien elt-ref -> elt-courant
+//   vect<_3xR3>      nor;    // normale aux aretes
+//   int              nb_dof; // nombre degres liberte
+//   _3xR2            b;      // sommets de l'elt-ref
+//   static const N3  none;
+//   
+//   
+//  public:
+//   
+//   RT0();
+//   
+//   void attach_to(const mesh_t&);
+//   
+//   R3 operator()(const R2& x, const int& j, const int& k){
+//     return div[j][k]*( jac[j]*(x-b[k]) );}
+//   
+//   friend const Real& div(const RT0& phi, const int& j, const int& k){
+//     return phi.div[j][k];}
+//   
+//   //__________
+//   // Acces ddl
+//   const N3& operator[](const int& j){ return dof[j];}
+//   
+//   const N3& operator[](const elt_2D& e){
+//     const int& j = loc[ &e-&elt[0] ][*mesh];
+//     if(j==-1){return none;}
+//     return dof[j];}
+//   
+//   friend const int& nb_dof(const RT0& phi){return phi.nb_dof;}
+//   
+//   //_______________
+//   // Calcul de flux
+//   template <class fct> Cplx proj(const fct&, const int&, const int&);    
+//   
+// };
+// 
+// const N3 RT0::none = -1;
+// 
+// RT0::RT0(): elt(get_elt_<2>::apply()), loc(get_loc_<2>::apply()) { };
+// 
+// void RT0::attach_to(const mesh_2D& m){
+//   
+//   mesh = &m;
+//   
+//   b[1][0] = 1.;
+//   b[2][1] = 1.;
+//   
+//   int nbn = nb_node();
+//   int nbt = nb_elt(m);
+//   int end = -1;
+//   const R3& n0 = get_node(0);
+//   
+//   resize(dof,nbt);
+//   resize(jac,nbt);
+//   resize(div,nbt);
+//   resize(nor,nbt);
+//   
+//   std::vector<int>     first(nbn,-1);
+//   std::vector<int>     next;
+//   std::vector<elt_1D>  edge;
+//   
+//   for(int j=0; j<nbt; j++){
+//     const elt_2D& t = (*mesh)[j];
+//     
+//     R3 u1 = t[1]-t[0], u2 = t[2]-t[0]; 
+//     jac[j] = (1./norm2(vprod(u1,u2)))*mat_(u1,u2);
+//     compute_normal_to_faces<2>( (*mesh)[j], nor[j]);
+//     
+//     for(int k=0; k<3; k++){      
+//       N2 I; I[0] = (k+1)%3; I[1] = (k+2)%3;
+//       elt_1D e = t[I]; order(e);
+//       int& head = first[ &e[0]-&n0 ];
+//       
+//       //================================//
+//       bool exist = false;
+//       for(int q=head; q!=end; q=next[q]){
+// 	if(e==edge[q]){
+// 	  exist=true;
+// 	  dof[j][k]=q;
+// 	  div[j][k]=-1.;
+// 	  break;}
+//       }
+//       
+//       //=================//
+//       if(!exist){
+// 	int q = edge.size();
+// 	dof[j][k]=q;
+// 	div[j][k]=+1.;
+// 	edge.push_back(e);
+// 	next.push_back(head);
+// 	head = q;
+//       }
+//       
+//       //=================//
+//       nor[j][k] = div[j][k]*nor[j][k];
+//             
+//     }
+//   }
+//   
+//   // 1 edge = 1 dof
+//   nb_dof = edge.size();
+//   
+// }
+// 
+// 
+// template <class fct>
+// Cplx RT0::proj(const fct& f, const int& j, const int& k){    
+//   const R3& a = (*mesh)[j][ (k+1)%3 ];
+//   const R3& b = (*mesh)[j][ (k+2)%3 ];
+//   R3 m = 0.5*(a+b);
+//   // Quadrature sur une arete par une regle de Simpson
+//   return (norm2(b-a)/6.)*( nor[j][k],(f(a) + 4.*f(m) + f(b) ) );
+// }
 
 
 

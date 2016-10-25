@@ -8,7 +8,6 @@
 #include <fstream>
 #include "calculus.h"
 
-// using namespace std;
 
 //==========================//
 //        Element           //
@@ -120,7 +119,7 @@ inline R3 center(const elt_3D& e){return (1./4.)*(e[0]+e[1]+e[2]+e[3]);}
 // Comparaison de l'orientation de deux elements VOISINS
 // 1 = orientation identique 
 // 0 = orientation differente
-bool comp(const elt_1D& e0, const elt_1D& e1){
+inline bool comp(const elt_1D& e0, const elt_1D& e1){
   if( e0 == e1 ){ return true;  }
   if( (&e0[0]==&e1[0]) || (&e0[1]==&e1[1]) ){ return false; }
   if( (&e0[0]==&e1[1]) || (&e0[1]==&e1[0]) ){ return true;  }
@@ -128,7 +127,7 @@ bool comp(const elt_1D& e0, const elt_1D& e1){
   abort();
 }
 
-bool comp(const elt_2D& e0, const elt_2D& e1){
+inline bool comp(const elt_2D& e0, const elt_2D& e1){
   if( e0 == e1 ){ return true;  }
   int jj[2],kk[2], n=0;
   for(int j=0; j<3; j++){
@@ -148,10 +147,10 @@ bool comp(const elt_2D& e0, const elt_2D& e1){
 // Calcul du vecteur normal a un element
 //=====================================//
 
-R3 normal_to(const elt_1D& e){
+inline R3 normal_to(const elt_1D& e){
   R3 e2; e2[2]=1.; return vprod(e2, e[1]-e[0]);}
 
-R3 normal_to(const elt_2D& e){
+inline R3 normal_to(const elt_2D& e){
   return vprod(e[1]-e[0],e[2]-e[1]);}
 
 
@@ -161,11 +160,11 @@ R3 normal_to(const elt_2D& e){
 //=============================//
 
 template <int dim>
-void compute_normal_to_faces(const elt_<dim>& e, array<dim+1,R3>& n_){};
+inline void compute_normal_to_faces(const elt_<dim>& e, array<dim+1,R3>& n_){};
 
 
 template<>
-void  compute_normal_to_faces<dim1>(const elt_1D& e, array<2,R3>& n_){  
+inline void  compute_normal_to_faces<dim1>(const elt_1D& e, array<2,R3>& n_){  
   n_[0] = e[1]-e[0];
   normalize(n_[0]);
   n_[1] = (-1.)*n_[0];
@@ -173,7 +172,7 @@ void  compute_normal_to_faces<dim1>(const elt_1D& e, array<2,R3>& n_){
 
 
 template<>
-void  compute_normal_to_faces<dim2>(const elt_2D& e, array<3,R3>& n_){  
+inline void  compute_normal_to_faces<dim2>(const elt_2D& e, array<3,R3>& n_){  
   
   R3 u1,u2;
   for(int k=0; k<3; k++){
@@ -196,7 +195,7 @@ void  compute_normal_to_faces<dim2>(const elt_2D& e, array<3,R3>& n_){
 
 
 template<>
-void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
+inline void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
   
   R3 u1,u2;
   for(int k=0; k<4; k++){
@@ -227,7 +226,7 @@ void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
 // d'une surface/courbe
 //===========================//
 
-Real solid_angle(const R3& p, const elt_1D& e){
+inline Real solid_angle(const R3& p, const elt_1D& e){
   R2x2 M;
   for(int j=0; j<2; j++){
     for(int k=0;k<2;k++){
@@ -237,7 +236,7 @@ Real solid_angle(const R3& p, const elt_1D& e){
   return det(M);  
 }
 
-Real solid_angle(const R3& p, const elt_2D& e){
+inline Real solid_angle(const R3& p, const elt_2D& e){
   R3x3 M;
   for(int j=0; j<3; j++){
     for(int k=0;k<3;k++){

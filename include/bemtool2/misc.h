@@ -23,8 +23,6 @@
 
 #include <ctime>
 
-// using namespace std;
-
 class progress{
   
  private:
