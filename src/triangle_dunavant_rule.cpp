@@ -8,7 +8,7 @@
 
 using namespace std;
 
-# include "triangle_dunavant_rule.hpp"
+# include "bemtool2/triangle_dunavant_rule.hpp"
 
 //****************************************************************************80
 
