@@ -27,7 +27,12 @@ public:
 };
 
 
+
+
+
 int main(){
+
+
   
   //#########################//
   Real kappa = 1.;
@@ -44,6 +49,7 @@ int main(){
   mesh_2D Omega;  
   Omega += Gamma[0];
   Omega += Gamma[1];
+ 
 
   /*  
   //#########################//
@@ -60,7 +66,7 @@ int main(){
   int nbtri = nb_elt(Omega);
   P1_2D dof; dof.attach_to(Omega);
   int nbdof = nb_dof(dof);
-  
+
   nrml_2D n_(Omega); swap(n_);
   
   //#########################//
@@ -99,9 +105,9 @@ int main(){
   R3 dir; dir[0] = 1.; planewave uinc(kappa,dir);
   vect<Cplx> U; resize(U,2*nbdof); fill(U,0.);
   for(int j=0; j<nbtri; j++){
-    
     const elt_2D& t = Omega[j];
-    const N3&     I = dof[j];    
+    const N3&     I = dof[j];
+    
     U[I] = uinc(t);
     
     C3 V;
@@ -119,6 +125,7 @@ int main(){
   mv_prod(V,A,U); Cplx sum1 = 0.;
   vect<Cplx> W; resize(W,2*nbdof); fill(W,0.);   
   mv_prod(W,M,U); Cplx sum2 = 0.;
+
 
   for(int j=0; j<2*nbdof; j++){
     sum1 += V[j]*conj(U[j]);

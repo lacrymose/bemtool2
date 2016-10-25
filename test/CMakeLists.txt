@@ -1,11 +1,24 @@
 
 
+# Intial test files
+add_executable(Prog prog.cxx)
+target_link_libraries(Prog bemtool2)
 
-add_executable(Test prog.cxx)
-target_link_libraries(Test bemtool)
+add_executable(Prog2 prog2.cxx)
+target_link_libraries(Prog2 bemtool2)
 
-# add_executable(Test1 fourier_harmonics_2D.cpp)
-# target_link_libraries(Test1 bemtool)
+add_executable(Prog3 prog3.cxx)
+target_link_libraries(Prog3 bemtool2)
+
+
+
+
+
+# add_executable(Tests_circle processing.cpp tests_circle_2D.cpp)
+# target_link_libraries(Tests_circle bemtool)
+
+add_executable(Test plane_wave_harmonics_2D.cpp)
+target_link_libraries(Test bemtool2)
 
 
 
@@ -39,9 +52,9 @@ target_link_libraries(Test bemtool)
 # add_executable(Tests_circle_2D tests_circle_2D.cpp first_kind_dirichlet_2D.cpp tests_circle_2D.hpp)
 # target_link_libraries (Tests_circle_2D  dunavant)
 
-# # Executable pour first kind neumann 2D
-# add_executable(Test_first_kind_neumann_2D first_kind_neumann_2D.cpp )
-# target_link_libraries (Test_first_kind_neumann_2D  dunavant)
+# Executable pour first kind neumann 2D
+add_executable(Test_first_kind_neumann_2D first_kind_neumann_2D.cpp )
+target_link_libraries (Test_first_kind_neumann_2D  bemtool2)
 # 
 # # Executable pour second kind dirichlet 2D
 # add_executable(Test_second_kind_dirichlet_2D second_kind_dirichlet_2D.cpp )

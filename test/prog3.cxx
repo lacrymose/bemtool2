@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "lib/tools.h"
-#include "lib/algo.h"
+#include "bemtool2/tools.h"
+#include "bemtool2/algo.h"
 
 using namespace std;
 
