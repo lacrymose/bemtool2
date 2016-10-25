@@ -17,7 +17,7 @@
 
 
 
-using namespace std;
+// using namespace std;
 
 template <int N> struct dim_{ };
 static const int dim0 = 0;
@@ -30,7 +30,7 @@ static const int dim3 = 3;
 //==========================//
 
 typedef double        Real;
-typedef complex<Real> Cplx;
+typedef std::complex<Real> Cplx;
 const   Cplx iu(0.,1.);
 const   Real pi = 3.14159265358979;
 
@@ -51,7 +51,7 @@ template <>        struct isbase<bool>         {static const bool test = true;  
 template <>        struct isbase<int>          {static const bool test = true;  };
 template <>        struct isbase<double>       {static const bool test = true;  };
 template <>        struct isbase<float>        {static const bool test = true;  };
-template <class U> struct isbase<complex<U> >  {static const bool test = true;  };
+template <class U> struct isbase<std::complex<U> >  {static const bool test = true;  };
 
 // Operateurs d'acces
 template <class r_t, bool test = isbase<r_t>::test > struct access_ {
@@ -76,10 +76,10 @@ template <class r_t>                                struct entry<r_t,true> {type
 template <class l_t, class r_t> struct res                     {typedef l_t          type;};
 template <>                     struct res< int, double >      {typedef double       type;};
 template <>                     struct res< double, int >      {typedef double       type;};
-template <class l_t>            struct res< l_t,complex<l_t> > {typedef complex<l_t> type;};
-template <class r_t>            struct res< complex<r_t>,r_t > {typedef complex<r_t> type;};
-template <class l_t>            struct res< complex<l_t>,int > {typedef complex<l_t> type;};
-template <class r_t>            struct res< int,complex<r_t> > {typedef complex<r_t> type;};
+template <class l_t>            struct res< l_t,std::complex<l_t> > {typedef std::complex<l_t> type;};
+template <class r_t>            struct res< std::complex<r_t>,r_t > {typedef std::complex<r_t> type;};
+template <class l_t>            struct res< std::complex<l_t>,int > {typedef std::complex<l_t> type;};
+template <class r_t>            struct res< int,std::complex<r_t> > {typedef std::complex<r_t> type;};
 
 
 template <class l_t, class r_t> struct resop{
@@ -123,20 +123,20 @@ template <class r_t> struct increment_loop<r_t,1>{
 
 //---------------------------//
 template <class r_t, int D = r_t::dim> struct istream_loop{
-  static inline void apply(istream& is, r_t& r_){
+  static inline void apply(std::istream& is, r_t& r_){
     is >> r_[r_t::dim-D]; istream_loop<r_t,D-1>::apply(is,r_);} };
 
 template <class r_t> struct istream_loop<r_t,1>{
-  static inline void apply(istream& is, r_t& r_){
+  static inline void apply(std::istream& is, r_t& r_){
     is >> r_[r_t::dim-1];} };
 
 //---------------------------//
 template <class r_t, int d = r_t::dim> struct ostream_loop{
-  static inline void apply(ostream& os, const r_t& r_){
+  static inline void apply(std::ostream& os, const r_t& r_){
     os<<r_[r_t::dim-d] << "\t"; ostream_loop<r_t,d-1>::apply(os,r_);} };
 
 template <class r_t> struct ostream_loop<r_t,1>{
-  static inline void apply(ostream& os, const r_t& r_){
+  static inline void apply(std::ostream& os, const r_t& r_){
     os<<r_[r_t::dim-1];} };
 
 //---------------------------//
@@ -214,15 +214,15 @@ template <class l_t, class r_t> struct plus_assign_dbloop<l_t,r_t,1,1>{
 
 //---------------------------//
 template <class r_t, int nr = r_t::nr, int nc = r_t::nc> struct ostream_dbloop{
-  static inline void apply(ostream& os, const r_t& r_){
+  static inline void apply(std::ostream& os, const r_t& r_){
     os<<r_(r_t::nr-nr,r_t::nc-nc) << "\t"; ostream_dbloop<r_t,nr,nc-1>::apply(os,r_);} };
 
 template <class r_t, int nr> struct ostream_dbloop<r_t,nr,1>{
-  static inline void apply(ostream& os, const r_t& r_){
-    os<<r_(r_t::nr-nr,r_t::nc-1) << endl; ostream_dbloop<r_t,nr-1,r_t::nc>::apply(os,r_);} };
+  static inline void apply(std::ostream& os, const r_t& r_){
+    os<<r_(r_t::nr-nr,r_t::nc-1) << std::endl; ostream_dbloop<r_t,nr-1,r_t::nc>::apply(os,r_);} };
 
 template <class r_t> struct ostream_dbloop<r_t,1,1>{
-  static inline void apply(ostream& os, const r_t& r_){
+  static inline void apply(std::ostream& os, const r_t& r_){
     os<<r_(r_t::nr-1,r_t::nc-1);} };
 
 //---------------------------//
@@ -477,10 +477,10 @@ public:
   v_t& operator[](const int& j){return a_[i_[j]];}
   const v_t& operator[](const int& j) const {return a_[i_[j]];}
   
-  friend ostream& operator<<(ostream& os, const this_t& ar){
+  friend std::ostream& operator<<(std::ostream& os, const this_t& ar){
     ostream_loop<this_t>::apply(os,ar); return os;}
   
-  friend this_t& operator>>(istream& is, this_t& ar){
+  friend this_t& operator>>(std::istream& is, this_t& ar){
     istream_loop<this_t>::apply(is,ar); return ar;}
   
   void operator++(int){increment_loop<this_t>::apply(*this);}
@@ -558,10 +558,10 @@ public:
   v_t& operator[](const int& j){return v_[j];}
   const v_t& operator[](const int& j) const {return v_[j];}
   
-  inline friend ostream& operator<<(ostream& os, const this_t& ar){
+  inline friend std::ostream& operator<<(std::ostream& os, const this_t& ar){
     ostream_loop<this_t>::apply(os,ar); return os;}  
   
-  inline friend this_t& operator>>(istream& is, this_t& ar){
+  inline friend this_t& operator>>(std::istream& is, this_t& ar){
     istream_loop<this_t>::apply(is,ar); return ar;}
   
   void operator++(int){increment_loop<this_t>::apply(*this);}
@@ -651,7 +651,7 @@ public:
 
   const v_t& operator()(const int& j, const int& k) const { return m(I[j],J[k]); }
   
-  inline friend ostream& operator<<(ostream& os, const this_t& r_){ ostream_dbloop<this_t>::apply(os,r_); return os;}
+  inline friend std::ostream& operator<<(std::ostream& os, const this_t& r_){ ostream_dbloop<this_t>::apply(os,r_); return os;}
   
 
   //==== Addition
@@ -728,7 +728,7 @@ public:
   template <class ro_t, class co_t> submat< const this_t,ro_t,co_t> 
   operator()(const ro_t& I, const co_t& J) const { return submat<this_t,ro_t,co_t>(*this,I,J);}
   
-  inline friend ostream& operator<<(ostream& os, const this_t& m){ ostream_dbloop<this_t>::apply(os,m); return os;}
+  inline friend std::ostream& operator<<(std::ostream& os, const this_t& m){ ostream_dbloop<this_t>::apply(os,m); return os;}
 
   //==== Addition
   template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
@@ -788,7 +788,7 @@ typename m_t::v_t det(const m_t& M){
       + M(0,2)*( M(1,0)*M(2,1)-M(2,0)*M(1,1) ); }
   
   if(m_t::nr > 3){
-    cout << "matrice trop grosse" << endl;
+    std::cout << "matrice trop grosse" << std::endl;
     exit(EXIT_FAILURE);}    
 }
 
@@ -822,7 +822,7 @@ mat<m_t::nr,m_t::nc,typename m_t::v_t>
     return R; }
 
   if(m_t::nr > 3){
-    cout << "matrice trop grosse" << endl;
+    std::cout << "matrice trop grosse" << std::endl;
     exit(EXIT_FAILURE);}
 
 }
@@ -955,7 +955,7 @@ typedef array<4,R4>        _4xR4;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
 
-mat<3,2,Real> matR3x2(const R3& X0, const R3& X1){
+inline mat<3,2,Real> matR3x2(const R3& X0, const R3& X1){
   R3x2 M;
   for(int j=0; j<3; j++){
     M(j,0) = X0[j];
@@ -1008,7 +1008,7 @@ template <class T> class vect {
   typedef vect<T>  this_t;
   
  private:
-  vector<T> data;
+  std::vector<T> data;
   
   // Interdit de recopier un vect
   vect<T>(const vect<T>&);
@@ -1027,9 +1027,9 @@ template <class T> class vect {
   
   const T& back() const { return data.back();}
 
-  friend vector<T>& vector_of(this_t& v){return v.data;}
+  friend std::vector<T>& vector_of(this_t& v){return v.data;}
 
-  friend const vector<T>& vector_of(const this_t& v){return v.data;}
+  friend const std::vector<T>& vector_of(const this_t& v){return v.data;}
   
   void push_back(const T& t){data.push_back(t);}
   
@@ -1042,8 +1042,8 @@ template <class T> class vect {
   
   friend void resize(this_t& v, const int& N){v.data.resize(N);}
   
-  friend ostream& operator<<(ostream& os, const this_t& v){
-    for(int j=0; j<size(v); j++){os << v[j] << endl;} return os;}
+  friend std::ostream& operator<<(std::ostream& os, const this_t& v){
+    for(int j=0; j<size(v); j++){os << v[j] << std::endl;} return os;}
   
   template <class i_t> subarray<this_t,i_t> operator[] (const i_t& i_){
     return subarray<this_t,i_t>(*this,i_);}

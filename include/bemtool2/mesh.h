@@ -9,7 +9,7 @@
 #include "elt.h"
 
 
-using namespace std;
+// using namespace std;
 
 
 
@@ -35,8 +35,8 @@ class loc_{
  private:
   
   typedef const void*        admesh_t; 
-  vector<admesh_t>           admesh;
-  vector<int>                num;
+  std::vector<admesh_t>           admesh;
+  std::vector<int>                num;
   static const int           none; 
   
  public:
@@ -86,14 +86,14 @@ class list_elt_{
   vect<elt_t>       elt;
   
   // Numerotations locales
-  vector<loc_t>     loc;
+  std::vector<loc_t>     loc;
   
   // Premier noeud de la scene
   const R3*         ad0;
   
   // Gestion des doublons
-  vector<int>       first;
-  vector<int>       next;
+  std::vector<int>       first;
+  std::vector<int>       next;
   
  public:  
   list_elt_(){};  
@@ -105,7 +105,7 @@ class list_elt_{
   
   friend int                     size(this_t& l)          {return size(l.elt);}
   friend const vect  <elt_t>&    get_elt(const this_t& l) {return l.elt;}
-  friend const vector<loc_t>&    get_loc(const this_t& l) {return l.loc;}  
+  friend const std::vector<loc_t>&    get_loc(const this_t& l) {return l.loc;}  
   
 };
 
@@ -150,7 +150,7 @@ template <int dim> struct get_elt_{
   static inline const vect< elt_<dim> >& apply();};
 
 template <int dim> struct get_loc_{
-  static inline const vector<loc_<dim> >& apply();};
+  static inline const std::vector<loc_<dim> >& apply();};
 
 
 //==========================//
@@ -185,8 +185,8 @@ class geometry{
   friend struct get_elt_<1>;
   friend struct get_elt_<2>;
   
-  friend const vector<loc_1D>&     get_loc1D();
-  friend const vector<loc_2D>&     get_loc2D();
+  friend const std::vector<loc_1D>&     get_loc1D();
+  friend const std::vector<loc_2D>&     get_loc2D();
   friend struct get_loc_<1>;
   friend struct get_loc_<2>;
   
@@ -221,10 +221,10 @@ template<> const vect<elt_1D>& get_elt_<1>::apply(){return get_elt(geometry::elt
 template<> const vect<elt_2D>& get_elt_<2>::apply(){return get_elt(geometry::elt2D);}
 
 // Acces aux numerotations locales
-            const vector<loc_1D>& get_loc1D ()        {return get_loc(geometry::elt1D);}
-            const vector<loc_2D>& get_loc2D ()        {return get_loc(geometry::elt2D);}
-template <> const vector<loc_1D>& get_loc_<1>::apply(){return get_loc(geometry::elt1D);}
-template <> const vector<loc_2D>& get_loc_<2>::apply(){return get_loc(geometry::elt2D);}
+            const std::vector<loc_1D>& get_loc1D ()        {return get_loc(geometry::elt1D);}
+            const std::vector<loc_2D>& get_loc2D ()        {return get_loc(geometry::elt2D);}
+template <> const std::vector<loc_1D>& get_loc_<1>::apply(){return get_loc(geometry::elt1D);}
+template <> const std::vector<loc_2D>& get_loc_<2>::apply(){return get_loc(geometry::elt2D);}
 
 
 // Ajout d'elt sans doublonnage
@@ -240,13 +240,13 @@ void load_node(const char* filename){
   geometry::meshfile = filename;
   
   // lecture du fichier
-  ifstream file; file.open(filename);
+  std::ifstream file; file.open(filename);
   if( file.fail() ){
-    cout << "fichier de maillage non trouve" << endl;
+    std::cout << "fichier de maillage non trouve" << std::endl;
     exit(EXIT_FAILURE);}
   
-  string line;
-  istringstream iss;
+  std::string line;
+  std::istringstream iss;
   int poubelle;
   R3 p; 
   
@@ -306,7 +306,7 @@ class mesh_{
   
   //_______________
   // Donnee membres
-  vector<int>           num_elt;
+  std::vector<int>           num_elt;
   bool                  bounded;    
   
   // Pas de constructeur par recopie
@@ -337,16 +337,16 @@ class mesh_{
     
     const vect<R3>& node = get_node();  
     int nb_node = size(node);
-    ofstream file; file.open(name);    
+    std::ofstream file; file.open(name);    
     file << "MeshVersionFormatted 1\n";
     file << "Dimension 3\n";
     file << "Vertices\n";
-    file << nb_node << endl;
+    file << nb_node << std::endl;
     for(int j=0; j<nb_node; j++){
       file << node[j] << "\t 0 \n";}
-    file << endl;
+    file << std::endl;
     file << "Triangles\n";
-    file << nb_elt(m) << endl;
+    file << nb_elt(m) << std::endl;
     for(int j=0; j<nb_elt(m); j++){  
       file << &m[j][0]-&node[0] +1 << "\t";
       file << &m[j][1]-&node[0] +1 << "\t";
@@ -375,13 +375,13 @@ void load(m_t& m, int ref = -1){
   int tag, nb_tags;
   
   // Traitement chaines caractere
-  ifstream file;
-  string line;
-  istringstream iss;
+  std::ifstream file;
+  std::string line;
+  std::istringstream iss;
   
-  file.open(filename, ifstream::in);
+  file.open(filename, std::ifstream::in);
   if( file.fail() ){
-    cout << "fichier de maillage non trouve" << endl;
+    std::cout << "fichier de maillage non trouve" << std::endl;
     exit(EXIT_FAILURE);}
   
   // Deplacement rubrique elements

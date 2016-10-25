@@ -9,5 +9,7 @@
 #include "kernel.h"
 #include "misc.h"
 #include "gmm_wrap.h"
+#include "user.h"
+#include "gmsh_calls.h"
 
 #endif

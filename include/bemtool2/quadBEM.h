@@ -4,7 +4,7 @@
 #include "quad1D.h"
 #include <iostream>
 #include <fstream>
-using namespace std;
+// using namespace std;
 
 
 template <int dim>
@@ -17,24 +17,24 @@ class quadBEM<2>{
   typedef R2   qp_t;
   
  private: 
-  vector<R2>   x_[4];
-  vector<R2>   y_[4];
-  vector<Real> w_[4];
+  std::vector<R2>   x_[4];
+  std::vector<R2>   y_[4];
+  std::vector<Real> w_[4];
   
  public:  
-  const vector<R2>&   x(const int& rule) const {return x_[rule];}
-  const vector<R2>&   y(const int& rule) const {return y_[rule];}
-  const vector<Real>& w(const int& rule) const {return w_[rule];}
+  const std::vector<R2>&   x(const int& rule) const {return x_[rule];}
+  const std::vector<R2>&   y(const int& rule) const {return y_[rule];}
+  const std::vector<Real>& w(const int& rule) const {return w_[rule];}
   
   quadBEM<2>(const int& order){
     
     R2 x,y; Real w,dw;
-    vector<Real> t,dt;
+    std::vector<Real> t,dt;
     quad1D(order,t,dt);
     int nt = t.size();
     
-    vector<R2>   qp;
-    vector<Real> qw;
+    std::vector<R2>   qp;
+    std::vector<Real> qw;
     quad2D(order,qp,qw);
     int nq = qp.size();
     
@@ -300,19 +300,19 @@ class quadBEM<1>{
   typedef Real qp_t;
   
  private: 
-  vector<Real> x_[3];
-  vector<Real> y_[3];
-  vector<Real> w_[3];
+  std::vector<Real> x_[3];
+  std::vector<Real> y_[3];
+  std::vector<Real> w_[3];
   
  public:  
-  const vector<Real>& x(const int& rule) const {return x_[rule];}
-  const vector<Real>& y(const int& rule) const {return y_[rule];}
-  const vector<Real>& w(const int& rule) const {return w_[rule];}
+  const std::vector<Real>& x(const int& rule) const {return x_[rule];}
+  const std::vector<Real>& y(const int& rule) const {return y_[rule];}
+  const std::vector<Real>& w(const int& rule) const {return w_[rule];}
   
   quadBEM<1>(const int& order){
     
     Real wxi, xxi, weta, xeta;
-    vector<Real> w1, x1, w2, x2;
+    std::vector<Real> w1, x1, w2, x2;
     int n, q, q1, q2;
     
     n = (int) ceil((order+1)/2.0); // mefiance...

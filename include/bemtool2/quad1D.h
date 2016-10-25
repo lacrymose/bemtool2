@@ -2,7 +2,7 @@
 #define QUAD_H
 
 #include "calculus.h"
-using namespace std;
+// using namespace std;
 
 
 /*=========================================
@@ -40,7 +40,7 @@ int dunavant_order_num ( int rule );
 void dunavant_rule ( int rule, int order_num, 
 		     double xy[], double w[] );
 
-void quad2D(const int& N, vector<R2>& x, vector<Real>& w){
+void quad2D(const int& N, std::vector<R2>& x, std::vector<Real>& w){
   
   int order = dunavant_order_num(N);
   x.resize(order);
@@ -62,7 +62,7 @@ void quad2D(const int& N, vector<R2>& x, vector<Real>& w){
 ||  Quadrature sur le segment unite    ||
 =======================================*/
 
-void quad1D(const int& order, vector<Real>& x, vector<Real>& w) {
+void quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w) {
   
   x.resize(order); 
   w.resize(order);
@@ -72,7 +72,7 @@ void quad1D(const int& order, vector<Real>& x, vector<Real>& w) {
   double pi = 3.141592653589793;
   
   if(order<1){
-    cerr << "quadrature doit etre d'ordre >1";
+    std::cerr << "quadrature doit etre d'ordre >1";
     exit(1);}
   
   e1 = ( double ) ( order * ( order + 1 ) );
@@ -149,12 +149,12 @@ void quad1D(const int& order, vector<Real>& x, vector<Real>& w) {
 ===========================================*/
 
 //cgauleg_redux(double *x, double *w, int q){
-void hp_quad1D(const int& order, vector<Real>& x, vector<Real>& w)
+void hp_quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w)
 {
     
   int i, j, ii, qq, n;
   Real sigma, xl, xr;
-  vector<Real> _w, _x;
+  std::vector<Real> _w, _x;
   n = order*(order+1)/2-1;
   x.resize(n); w.resize(n);
   

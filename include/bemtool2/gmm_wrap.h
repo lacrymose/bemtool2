@@ -4,7 +4,7 @@
 #include <gmm/gmm.h>
 #include "calculus.h"
 
-using namespace std;
+// using namespace std;
 
 /*===========================
 ||   Interface avec gmm    ||
@@ -15,7 +15,7 @@ template <class gmm_mat_t,class val_type>
   
  private:
   gmm_mat_t    mat;
-  vector<std::size_t> ipvt;
+  std::vector<std::size_t> ipvt;
   
  public:
   typedef gmm_mat<gmm_mat_t,val_type>   mat_t;
@@ -112,14 +112,14 @@ template <class gmm_mat_t,class val_type>
   
   friend void write(mat_t& m, char const * const name){
 
-    ofstream file; file.open(name);
+    std::ofstream file; file.open(name);
     int nb_row = nb_rows(m);
     int nb_col = nb_cols(m);
     
-    file << "# name: " << name       << endl;
-    file << "# type: complex matrix" << endl;
-    file << "# rows:   \t" << nb_row << endl;
-    file << "# columns:\t" << nb_col << endl;  
+    file << "# name: " << name       << std::endl;
+    file << "# type: complex matrix" << std::endl;
+    file << "# rows:   \t" << nb_row << std::endl;
+    file << "# columns:\t" << nb_col << std::endl;  
     
     int count = 0;
     for(int k=0; k<nb_col; k++){
@@ -127,7 +127,7 @@ template <class gmm_mat_t,class val_type>
 	file << m(j,k) << "  ";
 	count++;
 	if(count==10){
-	  file << endl; 
+	  file << std::endl; 
 	  count = 0;}
       }
     }

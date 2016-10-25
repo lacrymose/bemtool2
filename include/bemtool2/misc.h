@@ -23,7 +23,7 @@
 
 #include <ctime>
 
-using namespace std;
+// using namespace std;
 
 class progress{
   
@@ -38,31 +38,31 @@ class progress{
  progress(const char* aff,const int& l): title(aff), length(l) {
     t0 = clock();
     prg=0; it=0;
-    cout << "\r";
-    cout << title << ": \t";
-    cout << prg << "%";
-    cout.flush(); }
+    std::cout << "\r";
+    std::cout << title << ": \t";
+    std::cout << prg << "%";
+    std::cout.flush(); }
   
   void operator++(int n){
     it++;
     //    assert(int(length/100)!=0);    
     if( it%int(length/100) == 0){
-      cout << "\r";
-      cout << title << ": \t";;
-      cout << prg << "%";
+      std::cout << "\r";
+      std::cout << title << ": \t";;
+      std::cout << prg << "%";
       if(prg==0){t0 = clock();}
       prg++;
-      //      if(prg>100){cout << endl;}
-      cout.flush();
+      //      if(prg>100){std::cout << std::endl;}
+      std::cout.flush();
     }  
   }
   
   void end(){
     t0 = clock()-t0;
     time_t now; time(&now);
-    cout << "\r";
-    cout << title << ": \t";
-    cout << ((float)t0)/CLOCKS_PER_SEC << " sec." << endl;
+    std::cout << "\r";
+    std::cout << title << ": \t";
+    std::cout << ((float)t0)/CLOCKS_PER_SEC << " sec." << std::endl;
   }
   
 };

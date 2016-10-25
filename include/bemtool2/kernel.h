@@ -5,11 +5,9 @@
 #include "dof.h"
 #include <boost/math/special_functions/bessel.hpp>
 
-using namespace boost::math;
 
-
-Cplx H_0(Real x){return cyl_bessel_j(0,x)+ iu*cyl_neumann(0,x);}
-Cplx H_1(Real x){return cyl_bessel_j(1,x)+ iu*cyl_neumann(1,x);}
+Cplx H_0(Real x){return boost::math::cyl_bessel_j(0,x)+ iu*boost::math::cyl_neumann(0,x);}
+Cplx H_1(Real x){return boost::math::cyl_bessel_j(1,x)+ iu*boost::math::cyl_neumann(1,x);}
 
 /*=================================
 ||  NOYAUX INTEGRAUX PROPAGATIFS ||
@@ -288,7 +286,7 @@ template <class space_x, class space_y, class kernel_t> class bem{
   
  private:
   
-  const vector<loc_t>&   loc;  
+  const std::vector<loc_t>&   loc;  
   const vect<elt_t>&     elt;
   const normal_t&        nx; 
   const normal_t&        ny;
@@ -352,9 +350,9 @@ template <class space_x, class space_y, class kernel_t> class bem{
     x0_y0 = x[0]-y[0];      
     dx    = mat_jac(x);
     dy    = mat_jac(y);
-    const vector<qp_t>& s = qr.x(rule);
-    const vector<qp_t>& t = qr.y(rule);
-    const vector<Real>& w = qr.w(rule);
+    const std::vector<qp_t>& s = qr.x(rule);
+    const std::vector<qp_t>& t = qr.y(rule);
+    const std::vector<Real>& w = qr.w(rule);
     
     // numeros locaux des triangles
     jx    = loc[ &ex-&elt[0] ][meshx];

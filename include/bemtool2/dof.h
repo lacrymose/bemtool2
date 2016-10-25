@@ -28,7 +28,7 @@ class RT0{
   // Instance pre-existante
   const mesh_t*          mesh;  
   const vect<elt_t>&     elt;
-  const vector<loc_t>&   loc;
+  const std::vector<loc_t>&   loc;
   
   //________________
   // Donnees membres
@@ -91,9 +91,9 @@ void RT0::attach_to(const mesh_2D& m){
   resize(div,nbt);
   resize(nor,nbt);
   
-  vector<int>     first(nbn,-1);
-  vector<int>     next;
-  vector<elt_1D>  edge;
+  std::vector<int>     first(nbn,-1);
+  std::vector<int>     next;
+  std::vector<elt_1D>  edge;
   
   for(int j=0; j<nbt; j++){
     const elt_2D& t = (*mesh)[j];
@@ -176,7 +176,7 @@ class P1_{
   // Instance pre-existante
   const mesh_t*          mesh;  
   const vect<elt_t>&     elt;
-  const vector<loc_t>&   loc;
+  const std::vector<loc_t>&   loc;
   
   //_______________
   // Donnees membres
@@ -238,7 +238,7 @@ void P1_<dim>::attach_to(const mesh_t& m){
   resize(nabla,nbelt);
   nb_dof = 0;
   
-  vector<int>  num(nbnod,-1);
+  std::vector<int>  num(nbnod,-1);
   for(int j=0; j<nbelt; j++){
     
     compute_normal_to_faces<dim>( (*mesh)[j],nabla[j]);

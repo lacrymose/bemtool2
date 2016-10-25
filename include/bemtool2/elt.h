@@ -8,7 +8,7 @@
 #include <fstream>
 #include "calculus.h"
 
-using namespace std;
+// using namespace std;
 
 //==========================//
 //        Element           //
@@ -48,8 +48,8 @@ template <int dim, class val_t = R3>
  template <class i_t> subarray<const this_t,i_t> operator[] (const i_t& i_) const {
    return subarray<const this_t,i_t>(*this,i_);}  
  
- friend ostream& operator<<(ostream& os, const this_t& e){
-   for(int j=0; j<dim+1; j++){os << e[j] << endl;} return os;}
+ friend std::ostream& operator<<(std::ostream& os, const this_t& e){
+   for(int j=0; j<dim+1; j++){os << e[j] << std::endl;} return os;}
  
  friend bool operator==(const this_t& l_, const this_t& r_){
    for(int j=0; j<dim+1; j++){if( &l_[j] != &r_[j]  ){return false;}}
@@ -124,7 +124,7 @@ bool comp(const elt_1D& e0, const elt_1D& e1){
   if( e0 == e1 ){ return true;  }
   if( (&e0[0]==&e1[0]) || (&e0[1]==&e1[1]) ){ return false; }
   if( (&e0[0]==&e1[1]) || (&e0[1]==&e1[0]) ){ return true;  }
-  cout << "\nelt.h: comparaison d'elements non voisins" << endl;
+  std::cout << "\nelt.h: comparaison d'elements non voisins" << std::endl;
   abort();
 }
 
@@ -137,7 +137,7 @@ bool comp(const elt_2D& e0, const elt_2D& e1){
 	jj[n]=j; kk[n]=k; n++;}
     }    
   }
-  if(n!=2){cout << "\nelt.h: comparaison d'elements non voisins" << endl; abort();}
+  if(n!=2){std::cout << "\nelt.h: comparaison d'elements non voisins" << std::endl; abort();}
   if( (3+jj[1]-jj[0])%3 != (3+kk[1]-kk[0])%3 ){ return true;}
   return false;
   

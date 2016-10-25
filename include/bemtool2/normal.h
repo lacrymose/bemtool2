@@ -27,12 +27,12 @@ class normal{
   // Instances pre-existantes
   const mesh_t&             mesh;
   const vect<elt_t>&        elt;
-  const vector<loc_t>&      loc;
+  const std::vector<loc_t>&      loc;
   
   //_______________
   // Donnee membres
-  vector<bool>              orientation;
-  vector<R3>                nor;
+  std::vector<bool>              orientation;
+  std::vector<R3>                nor;
   static const R3           none;
   
  public:
@@ -70,7 +70,7 @@ mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
   int nbelt  = nb_elt(mesh);
   bool ok = true;
   orientation.assign(nbelt,ok);
-  vector<bool> visited(nbelt,false);
+  std::vector<bool> visited(nbelt,false);
   
   //====================================
   // Calcul de l'adjacence entre elements
@@ -96,7 +96,7 @@ mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
 
     int nbe = component[I].size();
     int nb_visited = 0;
-    queue<int> visit;
+    std::queue<int> visit;
 
     int j0 = component[I][0];
     visit.push(j0);

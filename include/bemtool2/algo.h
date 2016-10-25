@@ -7,7 +7,7 @@
 #include "calculus.h"
 #include "mesh.h"
 
-using namespace std;
+// using namespace std;
 
 template <typename m_t>
 class adjacency{
@@ -25,9 +25,9 @@ class adjacency{
  private:
   const mesh_t&           mesh;
   const vect<elt_t>&      elt;
-  vector<face_t>          face;
-  vector<num_array_t>     neig;
-  vector<num_array_t>     back;
+  std::vector<face_t>          face;
+  std::vector<num_array_t>     neig;
+  std::vector<num_array_t>     back;
   
  public:
   // Constructeur
@@ -42,7 +42,7 @@ class adjacency{
     operator()(const int& j){
     return back[j];}
   
-  friend const vector<face_t>&
+  friend const std::vector<face_t>&
     faces_of(const this_t& adj){
     return adj.face;}
   
@@ -58,9 +58,9 @@ mesh(m), elt(get_elt_<dim>::apply()) {
   int nbelt  = nb_elt(m);
   int end    = -1; 
   
-  vector<int>  first; 
-  vector<int>  next;
-  vector<N2>   num;  
+  std::vector<int>  first; 
+  std::vector<int>  next;
+  std::vector<N2>   num;  
 
   first.resize(nbnode,end);
   neig.resize(nbelt);
@@ -124,7 +124,7 @@ class connected{
   // de chaque composante.
   // num[j][k] est le no du k ieme elt du
   // la composante no. j
-  vector< vector<int> >     num;
+  std::vector< std::vector<int> >     num;
 
   // nbre de composantes
   int                       nbc; 
@@ -135,7 +135,7 @@ class connected{
  public:
   connected(const mesh_t&);
   
-  const vector<int>& operator[](const int& j){
+  const std::vector<int>& operator[](const int& j){
     return num[j];}
   
   friend const int& nb_(const this_t& component){
@@ -157,8 +157,8 @@ connected<m_t>::connected(const mesh_t& m): mesh(m) {
   adjacency<mesh_t> adj(mesh);
 
   int nb_visited = 0;
-  queue<int> visit;
-  vector<bool> visited(nbelt,false);
+  std::queue<int> visit;
+  std::vector<bool> visited(nbelt,false);
   
   // Initialisation de l'algo
   int j0 = 0;
