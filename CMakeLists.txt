@@ -4,8 +4,8 @@ Project(Bemtool)
 # Cmake files
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
 
-# Source files
-add_subdirectory(src)
+# # Source files
+# add_subdirectory(src)
 
 
 # # List the headers and add them into the project

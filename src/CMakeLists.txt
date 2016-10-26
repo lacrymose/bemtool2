@@ -14,6 +14,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include") 
 include_directories(${bemtool_dir})
 
-add_library(bemtool2 triangle_dunavant_rule.cpp gmsh_calls.cpp quad1D.cpp)
+add_library(bemtool2 triangle_dunavant_rule.cpp)
 target_include_directories(	bemtool2 PUBLIC "${bemtool_dir}"
 					PRIVATE GMM Boost)
