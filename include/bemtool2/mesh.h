@@ -97,8 +97,8 @@ class list_elt_{
     assert(first.size()==0);
     first.resize(nb_node,-1);}
   
-  friend int                     size(this_t& l)          {return size(l.elt);}
-  friend const vect  <elt_t>&    get_elt(const this_t& l) {return l.elt;}
+  friend const int                    size(const this_t& l)    {return size(l.elt);}
+  friend const vect  <elt_t>&         get_elt(const this_t& l) {return l.elt;}
   friend const std::vector<loc_t>&    get_loc(const this_t& l) {return l.loc;}  
   
 };
@@ -139,13 +139,13 @@ typedef list_elt_<dim2>  list_elt_2D;
 //  Structures auxiliaires pour       //
 //  l'acces aux registres d'elements  //
 //====================================//
+class geometry;
 
 template <int dim> struct get_elt_{
-  static inline const vect< elt_<dim> >& apply();};
+  inline const vect< elt_<dim> >& apply(const geometry& geom);};
 
 template <int dim> struct get_loc_{
-  static inline const std::vector<loc_<dim> >& apply();};
-
+  inline const std::vector<loc_<dim> >& apply(const geometry& geom);};
 
 //==========================//
 //  Données géométriques    //
@@ -156,32 +156,38 @@ class geometry{
   
  private:
   // variable  de travail
-  static const char*    meshfile;
-  static vect<R3>       node;
-  static list_elt_1D    elt1D;
-  static list_elt_2D    elt2D;
+  const char*    meshfile;
+  vect<R3>       node;
+  list_elt_1D    elt1D;
+  list_elt_2D    elt2D;
+  
+  // Interdit de recopier la geometrie
+  geometry(const geometry&);
   
  public:
-  friend void load_node(const char*);
-  static int push(const mesh_<1>&, elt_1D);
-  static int push(const mesh_<2>&, elt_2D);
+  geometry ();
   
-  friend int nb_node();
-  friend int nb_elt1D();  
-  friend int nb_elt2D(); 
   
-  friend const char*              meshfile();
-  friend const R3&                get_node(const int&);
-  friend const vect<R3>&          get_node();
-  template<class i_t> friend const subarray<const vect<R3>,i_t> get_node(const i_t&);
+  friend void load_node(geometry& , const char*);
+  int push(const mesh_<1>&, elt_1D);
+  int push(const mesh_<2>&, elt_2D);
   
-  friend const vect<elt_1D>&       get_elt1D();
-  friend const vect<elt_2D>&       get_elt2D();
+  friend const int nb_node(const geometry&);
+  friend const int nb_elt1D(const geometry&);  
+  friend const int nb_elt2D(const geometry&); 
+  
+  friend const char*              meshfile(const geometry&);
+  friend const R3&                get_node(const geometry&, const int&);
+  friend const vect<R3>&          get_node(const geometry&);
+  template<class i_t> friend const subarray<const vect<R3>,i_t> get_node(const geometry&, const i_t&);
+  
+  friend const vect<elt_1D>&       get_elt1D(const geometry&);
+  friend const vect<elt_2D>&       get_elt2D(const geometry&);
   friend struct get_elt_<1>;
   friend struct get_elt_<2>;
   
-  friend const std::vector<loc_1D>&     get_loc1D();
-  friend const std::vector<loc_2D>&     get_loc2D();
+  friend const std::vector<loc_1D>&     get_loc1D(const geometry&);
+  friend const std::vector<loc_2D>&     get_loc2D(const geometry&);
   friend struct get_loc_<1>;
   friend struct get_loc_<2>;
   
@@ -189,37 +195,38 @@ class geometry{
   
   
 // Initialisation et instanciation
-const char*   geometry::meshfile = 0;
-vect<R3>      geometry::node;
-list_elt_1D   geometry::elt1D;
-list_elt_2D   geometry::elt2D;
-geometry      geom;
-
+inline geometry::geometry(){
+  meshfile = 0;
+//   vect<R3>      geometry::node;
+//   list_elt_1D   geometry::elt1D;
+//   list_elt_2D   geometry::elt2D;
+// geometry      geom;
+}
 
 // Definition des methodes
-inline const char*   meshfile() {return geometry::meshfile;    }
-inline int           nb_node () {return size(geometry::node ); }
-inline int           nb_elt1D() {return size(geometry::elt1D); }
-inline int           nb_elt2D() {return size(geometry::elt2D); }
+inline const char*         meshfile(const geometry& geom) {return geom.meshfile;}
+inline const int           nb_node (const geometry& geom) {return size(geom.node ); }
+inline const int           nb_elt1D(const geometry& geom) {return size(geom.elt1D); }
+inline const int           nb_elt2D(const geometry& geom) {return size(geom.elt2D); }
 
 
 // Acces aux noeuds
-inline const vect<R3>&    get_node()            {return geometry::node;  }
-inline const R3&          get_node(const int& j){return geometry::node[j];}
-template <class i_t> const subarray<const vect<R3>,i_t> get_node(const i_t& i_) {
-  return subarray<const vect<R3>,i_t>(geometry::node,i_);}
+inline const vect<R3>&    get_node(const geometry& geom)            {return geom.node;  }
+inline const R3&          get_node(const geometry& geom, const int& j){return geom.node[j];}
+template <class i_t> const subarray<const vect<R3>,i_t> get_node(const geometry& geom, const i_t& i_) {
+  return subarray<const vect<R3>,i_t>(geom.node,i_);}
 
 // Acces aux elements
-inline            const vect<elt_1D>& get_elt1D ()        {return get_elt(geometry::elt1D);}
-inline            const vect<elt_2D>& get_elt2D ()        {return get_elt(geometry::elt2D);}
-template<> inline const vect<elt_1D>& get_elt_<1>::apply(){return get_elt(geometry::elt1D);}
-template<> inline const vect<elt_2D>& get_elt_<2>::apply(){return get_elt(geometry::elt2D);}
+inline            const vect<elt_1D>& get_elt1D (const geometry& geom)        {return get_elt(geom.elt1D);}
+inline            const vect<elt_2D>& get_elt2D (const geometry& geom)        {return get_elt(geom.elt2D);}
+template<> inline const vect<elt_1D>& get_elt_<1>::apply(const geometry& geom){return get_elt1D(geom);}
+template<> inline const vect<elt_2D>& get_elt_<2>::apply(const geometry& geom){return get_elt2D(geom);}
 
 // Acces aux numerotations locales
-inline             const std::vector<loc_1D>& get_loc1D ()        {return get_loc(geometry::elt1D);}
-inline             const std::vector<loc_2D>& get_loc2D ()        {return get_loc(geometry::elt2D);}
-template <> inline const std::vector<loc_1D>& get_loc_<1>::apply(){return get_loc(geometry::elt1D);}
-template <> inline const std::vector<loc_2D>& get_loc_<2>::apply(){return get_loc(geometry::elt2D);}
+inline             const std::vector<loc_1D>& get_loc1D (const geometry& geom)        {return get_loc(geom.elt1D);}
+inline             const std::vector<loc_2D>& get_loc2D (const geometry& geom)        {return get_loc(geom.elt2D);}
+template <> inline const std::vector<loc_1D>& get_loc_<1>::apply(const geometry& geom){return get_loc1D(geom);}
+template <> inline const std::vector<loc_2D>& get_loc_<2>::apply(const geometry& geom){return get_loc2D(geom);}
 
 
 // Ajout d'elt sans doublonnage
@@ -228,11 +235,11 @@ inline int geometry::push(const mesh_2D& m, elt_2D e){return elt2D.push(m,e);}
 
 
 // Chargement des noeuds du maillage
-inline void load_node(const char* filename){
+inline void load_node(geometry& geom,const char* filename){
   
-   vect<R3>& node = geometry::node;
+   vect<R3>& node = geom.node;
   assert(!size(node));
-  geometry::meshfile = filename;
+  geom.meshfile = filename;
   
   // lecture du fichier
   std::ifstream file; file.open(filename);
@@ -265,10 +272,13 @@ inline void load_node(const char* filename){
   
   file.close();
 
-  geometry::elt1D.init(nb_node(), node[0]);  
-  geometry::elt2D.init(nb_node(), node[0]);    
+  geom.elt1D.init(nb_node(geom), node[0]);  
+  geom.elt2D.init(nb_node(geom), node[0]);    
   
 }
+
+
+
 
 //============================//
 //  Type pour gere si un      //
@@ -296,12 +306,13 @@ class mesh_{
  private:
   //_________________________
   // Instances pre-existantes
+  const geometry&       geom;
   const vect<R3>&       node;
   const vect<elt_t>&    elt;
   
   //_______________
   // Donnee membres
-  std::vector<int>           num_elt;
+  std::vector<int>      num_elt;
   bool                  bounded;    
   
   // Pas de constructeur par recopie
@@ -313,7 +324,7 @@ class mesh_{
   
  public:
   
-  mesh_<dim>(): node(get_node()), elt(get_elt_<dim>::apply()), bounded(true){};
+  mesh_<dim>(geometry& geom): geom(geom), node(get_node(geom)), elt(get_elt_<dim>::apply(geom)), bounded(true){};
   template <class m_t> friend void load(m_t&, int);
   template <class m_t> friend int  nb_elt (const m_t&);
   const elt_t& operator[](const int& j) const { return elt[num_elt[j]];};  
@@ -330,22 +341,22 @@ class mesh_{
   
   friend void write(const mesh_<dim>& m, char const * const name){
     
-    const vect<R3>& node = get_node();  
-    int nb_node = size(node);
+//     const vect<R3>& node = get_node(m.geom);  
+    int nb_node = size(m.node);
     std::ofstream file; file.open(name);    
     file << "MeshVersionFormatted 1\n";
     file << "Dimension 3\n";
     file << "Vertices\n";
     file << nb_node << std::endl;
     for(int j=0; j<nb_node; j++){
-      file << node[j] << "\t 0 \n";}
+      file << m.node[j] << "\t 0 \n";}
     file << std::endl;
     file << "Triangles\n";
     file << nb_elt(m) << std::endl;
     for(int j=0; j<nb_elt(m); j++){  
-      file << &m[j][0]-&node[0] +1 << "\t";
-      file << &m[j][1]-&node[0] +1 << "\t";
-      file << &m[j][2]-&node[0] +1 << "\t";
+      file << &m[j][0]-&m.node[0] +1 << "\t";
+      file << &m[j][1]-&m.node[0] +1 << "\t";
+      file << &m[j][2]-&m.node[0] +1 << "\t";
       file << "0 \n";
     }
     file.close();
@@ -363,7 +374,7 @@ void load(m_t& m, int ref = -1){
   
   const int dim = m_t::Dim;
   array<dim+1,int> I;  
-  const char* filename = meshfile();
+  const char* filename = meshfile(m.geom);
   
   // Variables  auxiliaires
   int poubelle, elt_type;

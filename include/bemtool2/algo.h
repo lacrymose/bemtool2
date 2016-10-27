@@ -52,8 +52,8 @@ template <typename m_t>
 adjacency<m_t>::adjacency(const mesh_t&  m):
 mesh(m), elt(get_elt_<dim>::apply()) {
   
-  const R3& n0 = get_node(0);
-  int nbnode = nb_node();
+  const R3& n0 = get_node(m.geom,0);
+  int nbnode = nb_node(m.geom);
   int nbelt  = nb_elt(m);
   int end    = -1; 
   

@@ -230,9 +230,9 @@ void P1_<dim>::attach_to(const mesh_t& m){
   for(int j=0; j<dim; j++){
     b[j+1][j]=1.;}
   
-  int nbnod    = nb_node();
+  int nbnod    = nb_node(m.geom);
   int nbelt    = nb_elt(m);
-  const R3& n0 = get_node(0);
+  const R3& n0 = get_node(m.geom,0);
   
   resize(dof,nbelt);
   resize(nabla,nbelt);
