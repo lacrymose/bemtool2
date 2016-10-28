@@ -28,6 +28,11 @@ class adjacency{
   std::vector<num_array_t>     neig;
   std::vector<num_array_t>     back;
   
+  
+  //_______________
+  // Données auxilaires 
+  get_elt_<dim> temp_elt;
+  
  public:
   // Constructeur
   adjacency(const mesh_t&);
@@ -50,10 +55,10 @@ class adjacency{
 
 template <typename m_t>
 adjacency<m_t>::adjacency(const mesh_t&  m):
-mesh(m), elt(get_elt_<dim>::apply()) {
+mesh(m), temp_elt(), elt(temp_elt.apply(get_geometry(m))) {
   
-  const R3& n0 = get_node(m.geom,0);
-  int nbnode = nb_node(m.geom);
+  const R3& n0 = get_node(get_geometry(m),0);
+  int nbnode = nb_node(get_geometry(m));
   int nbelt  = nb_elt(m);
   int end    = -1; 
   

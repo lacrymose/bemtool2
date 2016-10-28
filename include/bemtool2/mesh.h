@@ -168,9 +168,9 @@ class geometry{
   geometry ();
   
   
-  friend void load_node(geometry& , const char*);
-  int push(const mesh_<1>&, elt_1D);
-  int push(const mesh_<2>&, elt_2D);
+  friend void load_node_gmsh(geometry& , const char*);
+  friend int push(geometry&, const mesh_<1>&, elt_1D);
+  friend int push(geometry&, const mesh_<2>&, elt_2D);
   
   friend const int nb_node(const geometry&);
   friend const int nb_elt1D(const geometry&);  
@@ -230,21 +230,24 @@ template <> inline const std::vector<loc_2D>& get_loc_<2>::apply(const geometry&
 
 
 // Ajout d'elt sans doublonnage
-inline int geometry::push(const mesh_1D& m, elt_1D e){return elt1D.push(m,e);}
-inline int geometry::push(const mesh_2D& m, elt_2D e){return elt2D.push(m,e);}
+inline int push(geometry& geom, const mesh_1D& m, elt_1D e){return geom.elt1D.push(m,e);}
+inline int push(geometry& geom, const mesh_2D& m, elt_2D e){return geom.elt2D.push(m,e);}
 
 
 // Chargement des noeuds du maillage
-inline void load_node(geometry& geom,const char* filename){
+inline void load_node_gmsh(geometry& geom,const char* filename){
   
-   vect<R3>& node = geom.node;
+ vect<R3>& node = geom.node;
   assert(!size(node));
   geom.meshfile = filename;
+  std::string filename_string = filename;
+  filename_string += ".msh";
   
   // lecture du fichier
-  std::ifstream file; file.open(filename);
+  std::ifstream file; file.open(filename_string.c_str());
+ 
   if( file.fail() ){
-    std::cout << "fichier de maillage non trouve" << std::endl;
+    std::cout << "Probleme lors du chargement des noeuds" << std::endl;
     exit(EXIT_FAILURE);}
   
   std::string line;
@@ -306,32 +309,35 @@ class mesh_{
  private:
   //_________________________
   // Instances pre-existantes
-  const geometry&       geom;
-  const vect<R3>&       node;
-  const vect<elt_t>&    elt;
+  geometry&       geom;
+//   const vect<R3>&       node;
+//   const vect<elt_t>&    elt;
   
   //_______________
   // Donnee membres
   std::vector<int>      num_elt;
   bool                  bounded;    
   
-  // Pas de constructeur par recopie
-  mesh_<dim>(const mesh_<dim>&);
   
   template <class r_t> void operator<<(const r_t& r_){
-    int J = geometry::push(*this,elt_t(r_));
+    int J = push(geom, *this,elt_t(r_));
     num_elt.push_back(J);} 
   
  public:
   
-  mesh_<dim>(geometry& geom): geom(geom), node(get_node(geom)), elt(get_elt_<dim>::apply(geom)), bounded(true){};
-  template <class m_t> friend void load(m_t&, int);
+  mesh_<dim>(geometry& geom_): geom(geom_), bounded(true){};
+  // Operateur de recopie quand le maillage est vide (pour faire des vecteurs de maillage)
+  mesh_<dim>(const mesh_<dim>& m): geom(m.geom), bounded(true){assert((m.num_elt).size()==0);};
+  
+  template <class m_t> friend void load_elt_gmsh(m_t&, int);
   template <class m_t> friend int  nb_elt (const m_t&);
-  const elt_t& operator[](const int& j) const { return elt[num_elt[j]];};  
+  const elt_t& operator[](const int& j) const {get_elt_<dim> temp; return (temp.apply(geom))[num_elt[j]];};  
+  
+  friend const geometry& get_geometry(const mesh_<dim>& m) {return m.geom;};
   
   void operator+=(const this_t& m){
     for(int j=0; j<nb_elt(m); j++){
-      int J = geometry::push(*this,m[j]);
+      int J = push(geom, *this,m[j]);
       num_elt.push_back(J);} }
   
   void operator=(const boundedness& b){
@@ -339,9 +345,9 @@ class mesh_{
   
   bool is_bounded() const {return bounded;}
   
-  friend void write(const mesh_<dim>& m, char const * const name){
+  friend void write_medit(const mesh_<dim>& m, char const * const name){
     
-//     const vect<R3>& node = get_node(m.geom);  
+    const vect<R3>& node = get_node(m.geom);  
     int nb_node = size(m.node);
     std::ofstream file; file.open(name);    
     file << "MeshVersionFormatted 1\n";
@@ -370,12 +376,13 @@ int nb_elt (const m_t& m){return m.num_elt.size();}
 
 // Routine de chargement de maillage
 template <class m_t>
-void load(m_t& m, int ref = -1){
+void load_elt_gmsh(m_t& m, int ref = -1){
   
   const int dim = m_t::Dim;
   array<dim+1,int> I;  
   const char* filename = meshfile(m.geom);
-  
+  std::string filename_string = filename;
+  filename_string += ".msh";
   // Variables  auxiliaires
   int poubelle, elt_type;
   int tag, nb_tags;
@@ -385,9 +392,9 @@ void load(m_t& m, int ref = -1){
   std::string line;
   std::istringstream iss;
   
-  file.open(filename, std::ifstream::in);
+  file.open(filename_string.c_str(), std::ifstream::in);
   if( file.fail() ){
-    std::cout << "fichier de maillage non trouve" << std::endl;
+    std::cout << "Probleme lors du chargement des elements" << std::endl;
     exit(EXIT_FAILURE);}
   
   // Deplacement rubrique elements
@@ -413,7 +420,7 @@ void load(m_t& m, int ref = -1){
       // acquisition des numeros              
       iss >> I; I--;
       // ajout de l'elt dans le mesh
-      m << get_node(I);
+      m << get_node(m.geom,I);
       
     }
     

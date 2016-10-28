@@ -35,6 +35,11 @@ class normal{
   std::vector<R3>                nor;
   static const R3           none;
   
+  //_______________
+  // Données auxilaires 
+  get_elt_<dim> temp_elt;
+  get_loc_<dim> temp_loc;
+  
  public:
   
   normal(const mesh_t&);
@@ -65,7 +70,7 @@ const R3 normal<dim>::none = 0.;
 //===========================//
 // Constructeur de la normale
 template<int dim> normal<dim>::normal(const mesh_t& m):
-mesh(m), elt(get_elt_<dim>::apply()), loc(get_loc_<dim>::apply()) {
+mesh(m), temp_elt(), temp_loc(), elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m))) {
   
   int nbelt  = nb_elt(mesh);
   bool ok = true;

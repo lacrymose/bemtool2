@@ -48,7 +48,7 @@ class SLP_2D{
  public:  
   static const int dim = 1;
   
- SLP_2D(const Real& k0): k(k0) {};
+ SLP_2D(const Real& k0): k(k0) {std::cout<<"SLP"<<std::endl;};
   
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); return val = 0.25*iu*H_0(k*r); }
@@ -311,7 +311,12 @@ template <class space_x, class space_y, class kernel_t> class bem{
   R3      x_y,x0_y0; // x-y et x0-y0 
   N3      px,py;     // permutations des indices dans les triangles
   Cplx    z;
-    
+  
+  //_______________
+  // Données auxilaires 
+  get_elt_<dim> temp_elt;
+  get_loc_<dim> temp_loc;
+  
   //====================================//
   //  Choix de la regle de quadrature
   
@@ -336,9 +341,11 @@ template <class space_x, class space_y, class kernel_t> class bem{
   //=========================//
   //      Constructeur 
  bem(const Real& k, const normal_t& nx0, const normal_t& ny0, int order=15): 
-  k2(k*k), kernel(k), qr(order), loc(get_loc_<dim>::apply()), elt(get_elt_<dim>::apply()),
-    nx(nx0), meshx(mesh_of(nx0)), ny(ny0), meshy(mesh_of(ny0)) {
-    phix.attach_to(mesh_of(nx0)); phiy.attach_to(mesh_of(ny0)); };  
+  k2(k*k), kernel(k), qr(order), temp_loc(), temp_elt(),
+    nx(nx0), meshx(mesh_of(nx0)), ny(ny0), meshy(mesh_of(ny0)),loc(temp_loc.apply(get_geometry(meshx))), elt(temp_elt.apply(get_geometry(meshx))),phix(get_geometry(meshx)), phiy(get_geometry(meshy)){
+	std::cout<<"Kernel"<<std::endl;
+	
+	phix.attach_to(mesh_of(nx0)); phiy.attach_to(mesh_of(ny0)); };  
   
   //=====================================//
   // Calcul des interactions elementaires

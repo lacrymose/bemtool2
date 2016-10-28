@@ -12,7 +12,7 @@
 void gmsh_circle(std::string mesh_name, Real R, Real lc){
 	std::cout<<"Création du maillage"<<std::endl;
 	
-	std::ofstream circle(mesh_name.c_str());
+	std::ofstream circle((mesh_name+".geo").c_str());
 	if (circle.is_open()) {
 		circle << "lc = "+NbrToStr(lc)+";\n";
 		circle << "Point(0) = { 0 , 0 , 0 , lc};\n";
@@ -43,7 +43,7 @@ void gmsh_circle(std::string mesh_name, Real R, Real lc){
 	}
 	else std::cout << "Unable to open file \n" <<std::endl;
 	
-	system(("gmsh -2 "+mesh_name).c_str());
+	system(("gmsh -2 "+mesh_name+".geo").c_str());
 }
 
 ////=============================================================////
