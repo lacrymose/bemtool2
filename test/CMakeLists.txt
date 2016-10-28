@@ -2,11 +2,11 @@ set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 include_directories(${bemtool_dir})
 
 # Intial test files
-add_executable(Prog prog.cxx)
+# add_executable(Prog prog.cxx)
 
-add_executable(Prog2 prog2.cxx)
+# add_executable(Prog2 prog2.cxx)
 
-add_executable(Prog3 prog3.cxx)
+# add_executable(Prog3 prog3.cxx)
 
 
 
@@ -50,7 +50,7 @@ add_executable(Test plane_wave_harmonics_2D.cpp)
 # target_link_libraries (Tests_circle_2D  dunavant)
 
 # Executable pour first kind neumann 2D
-add_executable(Test_first_kind_neumann_2D first_kind_neumann_2D.cpp )
+# add_executable(Test_first_kind_neumann_2D first_kind_neumann_2D.cpp )
 
 # 
 # # Executable pour second kind dirichlet 2D
