@@ -70,7 +70,7 @@ const R3 normal<dim>::none = 0.;
 //===========================//
 // Constructeur de la normale
 template<int dim> normal<dim>::normal(const mesh_t& m):
-mesh(m), temp_elt(), temp_loc(), elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m))) {
+mesh(m), elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m))),temp_elt(), temp_loc() {
   
   int nbelt  = nb_elt(mesh);
   bool ok = true;

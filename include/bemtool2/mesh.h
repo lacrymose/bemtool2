@@ -379,7 +379,7 @@ template <class m_t>
 void load_elt_gmsh(m_t& m, int ref = -1){
   
   const int dim = m_t::Dim;
-  array<dim+1,int> I;  
+  bemtool::array<dim+1,int> I;  
   const char* filename = meshfile(m.geom);
   std::string filename_string = filename;
   filename_string += ".msh";

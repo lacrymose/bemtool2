@@ -39,7 +39,7 @@ void quad3D(const int& N, vectR3& x, vectR& w){
 // void dunavant_rule ( int rule, int order_num, 
 // 		     double xy[], double w[] );
 
-void quad2D(const int& N, std::vector<R2>& x, std::vector<Real>& w){
+inline void quad2D(const int& N, std::vector<R2>& x, std::vector<Real>& w){
   
   int order = dunavant_order_num(N);
   x.resize(order);
@@ -61,7 +61,7 @@ void quad2D(const int& N, std::vector<R2>& x, std::vector<Real>& w){
 ||  Quadrature sur le segment unite    ||
 =======================================*/
 
-void quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w) {
+inline void quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w) {
   
   x.resize(order); 
   w.resize(order);
@@ -148,7 +148,7 @@ void quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w) {
 ===========================================*/
 
 //cgauleg_redux(double *x, double *w, int q){
-void hp_quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w)
+inline void hp_quad1D(const int& order, std::vector<Real>& x, std::vector<Real>& w)
 {
     
   int i, j, ii, qq, n;

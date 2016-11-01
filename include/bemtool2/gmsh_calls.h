@@ -9,9 +9,7 @@
 ////=============================================================////
 ////===========================  Circle =========================////
 ////=============================================================////
-void gmsh_circle(std::string mesh_name, Real R, Real lc){
-	std::cout<<"Création du maillage"<<std::endl;
-	
+inline void gmsh_circle(std::string mesh_name, Real R, Real lc, int verbose=0){
 	std::ofstream circle((mesh_name+".geo").c_str());
 	if (circle.is_open()) {
 		circle << "lc = "+NbrToStr(lc)+";\n";
@@ -43,13 +41,13 @@ void gmsh_circle(std::string mesh_name, Real R, Real lc){
 	}
 	else std::cout << "Unable to open file \n" <<std::endl;
 	
-	system(("gmsh -2 "+mesh_name+".geo").c_str());
+	system(("gmsh -2 -v "+NbrToStr(verbose)+" "+mesh_name+".geo").c_str());
 }
 
 ////=============================================================////
 ////===========================  Clean ==========================////
 ////=============================================================////
-void gmsh_clean(std::string mesh_name){
+inline void gmsh_clean(std::string mesh_name){
 	system(("rm "+mesh_name+".geo").c_str());
 	system(("rm "+mesh_name+".msh").c_str());
 }

@@ -92,14 +92,14 @@ template <class gmm_mat_t,class val_type>
     gmm::cg(m.mat,vector_of(x),vector_of(b),Id,Id,iter);
   }
   
-  friend void gmres_solve(mat_t& m, vect<v_t>& x, vect<v_t>& b, const int restart){
+  friend void gmres_solve(mat_t& m, vect<v_t>& x, vect<v_t>& b, const int restart, int verbose=1){
     assert(size(x)==size(b));    
     gmm::identity_matrix PR;
     //    gmm::diagonal_precond<gmm_mat_t> PR(m.mat); 
     //    gmm::ildlt_precond<gmm_mat_t> PR(m.mat);     
     gmm::iteration iter(10E-9);
     iter.set_name("OUTER");
-    iter.set_noisy(1);
+    iter.set_noisy(verbose);
     std::size_t restart2 = restart;
     gmm::gmres(m.mat,vector_of(x),vector_of(b),PR,restart,iter);
   }

@@ -165,11 +165,11 @@ class P1_{
   typedef mesh_<dim>         mesh_t;
   typedef elt_<dim>          elt_t;
   typedef loc_<dim>          loc_t;
-  typedef array<dim,Real>    Rd;
-  typedef array<dim+1,int>   Nloc;
+  typedef bemtool::array<dim,Real>    Rd;
+  typedef bemtool::array<dim+1,int>   Nloc;
   typedef mat<3,dim,Real>    R3xd;
-  typedef array<dim+1,R3>    locxR3;
-  typedef array<dim+1,Rd>    locxRd;  
+  typedef bemtool::array<dim+1,R3>    locxR3;
+  typedef bemtool::array<dim+1,Rd>    locxRd;  
   
  private:
   //_______________________
@@ -198,7 +198,7 @@ class P1_{
   
 //   P1_();
 
-  P1_(const geometry&);
+  P1_(const mesh_t&);
   
   void attach_to(const mesh_t&);
   
@@ -228,77 +228,76 @@ class P1_{
 template <int dim>
 const typename P1_<dim>::Nloc P1_<dim>::none = -1;
 
-template <int dim> P1_<dim>::P1_(const geometry& geom_):
- temp_elt(), temp_loc(), elt(temp_elt.apply(geom_)), loc(temp_loc.apply(geom_)) {};
+// template <int dim> P1_<dim>::P1_(const geometry& geom_):
+// elt(temp_elt.apply(geom_)), loc(temp_loc.apply(geom_)),temp_elt(), temp_loc() {};
 
-// template <int dim>
-// P1_<dim>::P1_(const mesh_t& m):temp_elt(), temp_loc(), elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m))) { 
-//   mesh = &m;
-//   
-//   for(int j=0; j<dim; j++){
-//     b[j+1][j]=1.;}
-//   
-//   int nbnod    = nb_node(get_geometry(m));
-//   int nbelt    = nb_elt(m);
-//   const R3& n0 = get_node(get_geometry(m),0);
-//   
-//   resize(dof,nbelt);
-//   resize(nabla,nbelt);
-//   nb_dof = 0;
-//   
-//   std::vector<int>  num(nbnod,-1);
-//   for(int j=0; j<nbelt; j++){
-//     
-//     compute_normal_to_faces<dim>( (*mesh)[j],nabla[j]);
-//     for(int k=0; k<dim+1; k++){
-//       
-//       const R3& ak = (*mesh)[j][ k ];
-//       const R3& aj = (*mesh)[j][ (k+1)%(dim+1) ];
-//       
-//       const int vert = &ak - &n0;
-//       if(num[vert]==-1){ num[vert]=nb_dof; nb_dof++;}
-//       dof[j][k] = num[vert];      
-//       
-//       nabla[j][k] = ( 1./(ak-aj,nabla[j][k]) )*nabla[j][k];
-//     }
-//     
-//   }
-//   
-// }
+ template <int dim> P1_<dim>::P1_(const mesh_t& m):
+  elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m))), temp_elt(), temp_loc() {
+   mesh = &m;
+   
+   for(int j=0; j<dim; j++){
+     b[j+1][j]=1.;}
+   
+   int nbnod    = nb_node(get_geometry(m));
+   int nbelt    = nb_elt(m);
+   const R3& n0 = get_node(get_geometry(m),0);
+   
+   resize(dof,nbelt);
+   resize(nabla,nbelt);
+   nb_dof = 0;
+   
+   std::vector<int>  num(nbnod,-1);
+   for(int j=0; j<nbelt; j++){
+     
+     compute_normal_to_faces<dim>( (*mesh)[j],nabla[j]);
+     for(int k=0; k<dim+1; k++){
+       
+       const R3& ak = (*mesh)[j][ k ];
+       const R3& aj = (*mesh)[j][ (k+1)%(dim+1) ];
+       
+       const int vert = &ak - &n0;
+       if(num[vert]==-1){ num[vert]=nb_dof; nb_dof++;}
+       dof[j][k] = num[vert];
+       
+       nabla[j][k] = ( 1./(ak-aj,nabla[j][k]) )*nabla[j][k];
+     }
+     
+   }
+   
+ }
 
-template <int dim>
-void P1_<dim>::attach_to(const mesh_t& m){ 
-  mesh = &m;
-  
-  for(int j=0; j<dim; j++){
-    b[j+1][j]=1.;}
-  
-  int nbnod    = nb_node(get_geometry(m));
-  int nbelt    = nb_elt(m);
-  const R3& n0 = get_node(get_geometry(m),0);
-  std::cout<<nbnod<<" "<<nbelt<<std::endl;
-  resize(dof,nbelt);
-  resize(nabla,nbelt);
-  nb_dof = 0;
-  
-  std::vector<int>  num(nbnod,-1);
-  for(int j=0; j<nbelt; j++){
-    std::cout<<"j : "<<j<<std::endl;
-    compute_normal_to_faces<dim>( (*mesh)[j],nabla[j]);
-    for(int k=0; k<dim+1; k++){
-      std::cout<<"k : "<<k<<std::endl;
-      const R3& ak = (*mesh)[j][ k ];
-      const R3& aj = (*mesh)[j][ (k+1)%(dim+1) ];
-      
-      const int vert = &ak - &n0;
-      if(num[vert]==-1){ num[vert]=nb_dof; nb_dof++;}
-      dof[j][k] = num[vert];      
-      nabla[j][k] = ( 1./(ak-aj,nabla[j][k]) )*nabla[j][k];
-    }
-    
-  }
-  std::cout<<"ok"<<std::endl;
-}
+//template <int dim>
+//void P1_<dim>::attach_to(const mesh_t& m){ 
+//  mesh = &m;
+//  
+//  for(int j=0; j<dim; j++){
+//    b[j+1][j]=1.;}
+//  
+//  int nbnod    = nb_node(get_geometry(m));
+//  int nbelt    = nb_elt(m);
+//  const R3& n0 = get_node(get_geometry(m),0);
+//
+//  resize(dof,nbelt);
+//  resize(nabla,nbelt);
+//  nb_dof = 0;
+//  
+//  std::vector<int>  num(nbnod,-1);
+//  for(int j=0; j<nbelt; j++){
+//
+//    compute_normal_to_faces<dim>( (*mesh)[j],nabla[j]);
+//    for(int k=0; k<dim+1; k++){
+//
+//      const R3& ak = (*mesh)[j][ k ];
+//      const R3& aj = (*mesh)[j][ (k+1)%(dim+1) ];
+//      
+//      const int vert = &ak - &n0;
+//      if(num[vert]==-1){ num[vert]=nb_dof; nb_dof++;}
+//      dof[j][k] = num[vert];      
+//      nabla[j][k] = ( 1./(ak-aj,nabla[j][k]) )*nabla[j][k];
+//    }
+//    
+//  }
+//}
 
 template <int dim> template <class fct>
   Cplx P1_<dim>::proj(const fct& f, const int& j, const int& k){    

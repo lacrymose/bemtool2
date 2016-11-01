@@ -48,7 +48,7 @@ class SLP_2D{
  public:  
   static const int dim = 1;
   
- SLP_2D(const Real& k0): k(k0) {std::cout<<"SLP"<<std::endl;};
+ SLP_2D(const Real& k0): k(k0) {};
   
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); return val = 0.25*iu*H_0(k*r); }
@@ -341,11 +341,8 @@ template <class space_x, class space_y, class kernel_t> class bem{
   //=========================//
   //      Constructeur 
  bem(const Real& k, const normal_t& nx0, const normal_t& ny0, int order=15): 
-  k2(k*k), kernel(k), qr(order), temp_loc(), temp_elt(),
-    nx(nx0), meshx(mesh_of(nx0)), ny(ny0), meshy(mesh_of(ny0)),loc(temp_loc.apply(get_geometry(meshx))), elt(temp_elt.apply(get_geometry(meshx))),phix(get_geometry(meshx)), phiy(get_geometry(meshy)){
-	std::cout<<"Kernel"<<std::endl;
-	
-	phix.attach_to(mesh_of(nx0)); phiy.attach_to(mesh_of(ny0)); };  
+  k2(k*k), kernel(k), qr(order),meshx(mesh_of(nx0)) , meshy(mesh_of(ny0)), loc(temp_loc.apply(get_geometry(mesh_of(nx0)))), elt(temp_elt.apply(get_geometry(mesh_of(nx0)))),phix(mesh_of(nx0)), phiy(mesh_of(ny0)),nx(nx0), ny(ny0),temp_loc(), temp_elt(){
+	 };  
   
   //=====================================//
   // Calcul des interactions elementaires
