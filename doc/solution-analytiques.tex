@@ -23,7 +23,7 @@
 \nc{\fre}{\mathfrak{e}}
 
 \date{}
-
+\author{Xavier Claeys et Pierre Marchand}
 \title{Analytic expression of potential operators for Helmholtz equation in circular and spherical geometries}
 
 \begin{document}
@@ -33,30 +33,30 @@
 
 \section*{Analytic solutions in 2-D}
 
-In this section, we give detailed expression of the boundary integral operators associated to a circle in 2-D. 
+In this section, we give detailed expression of the boundary integral operators associated to a circle in 2-D.
 Here we consider an Helmholtz equation   $-\Delta u -\kappa^{2}u = 0$ with outgoing radiation condition.
 The corresponding Green kernel is given by
 $$
 \left\{\begin{array}{l}
 -\Delta \Green - \kappa^{2}\Green = \delta_{0}\quad\textrm{in}\;\R^{2}\\[5pt]
-\lim_{\rho\to +\infty}\int_{\partial\mrm{D}_{\rho}}\vert \partial_{\rho}\Green - \imath\kappa \Green\vert^{2}d\sigma_{\rho} = 0\\[5pt]
+\lim_{\rho\to +\infty}\int_{\partial\mrm{D}}\vert \partial_{\rho}\Green - \imath\kappa \Green\vert^{2}d\sigma = 0\\[5pt]
 \textrm{where}\quad  \Green(\bx) = \frac{\imath}{4}H_{0}^{(1)}(\kappa\vert \bx\vert)
 \end{array}\right.
 $$
-Let us denote $\mrm{D}\subset\R^{2}$ the disk with center $0$ and radius $1$, and $\Gamma = \partial\mD$. 
+Let us denote $\mrm{D}\subset\R^{2}$ the disk with center $0$ and radius $\rho$, and $\Gamma = \partial\mD$.
 We denote $\gamma_{D}:\mH^{1}(\mD)\to \mH^{1/2}(\Gamma)$ the interior Dirichlet trace defined by $\gamma_{D}(u):= u\vert_{\Gamma}$
-for any $u\in \mathscr{C}^{0}(\overline{\mD})$, and  $\gamma_{N}:\mH^{1}(\Delta,\mD)\to \mH^{-1/2}(\Gamma)$ the interior 
-Neumann trace defined by $\gamma_{N}(u) := \bn\cdot\nabla u\vert_{\Gamma} = \partial_{r}u\vert_{\Gamma}$ where $\bn$ refers to 
-the normal vector field ditrected toward the exterior of $\mD$. We define $\gamma_{D,c},\gamma_{N,c}$ in the 
-same manner, except that the traces are taken from the exterior of $\mD$. Finally, we set 
+for any $u\in \mathscr{C}^{0}(\overline{\mD})$, and  $\gamma_{N}:\mH^{1}(\Delta,\mD)\to \mH^{-1/2}(\Gamma)$ the interior
+Neumann trace defined by $\gamma_{N}(u) := \bn\cdot\nabla u\vert_{\Gamma} = \partial_{r}u\vert_{\Gamma}$ where $\bn$ refers to
+the normal vector field ditrected toward the exterior of $\mD$. We define $\gamma_{D,c},\gamma_{N,c}$ in the
+same manner, except that the traces are taken from the exterior of $\mD$. Finally, we set
 $$
 \begin{array}{ll}
 \{\gamma_{D}\}:= (\gamma_{D}+\gamma_{D,c})/2 &  \{\gamma_{N}\}:= (\gamma_{N}+\gamma_{N,c})/2\\[10pt]
 \lbrack\gamma_{D}\rbr:=\gamma_{D}-\gamma_{D,c} & \lbrack\gamma_{N}\rbr:=\gamma_{N}-\gamma_{N,c}.
 \end{array}
 $$
-Let us introduce the layer potentials associated to the interior of the disc $\mD$. 
-For any trace $v\in\mH^{1/2}(\Gamma), p\in\mH^{-1/2}(\Gamma)$, their explicit expression 
+Let us introduce the layer potentials associated to the interior of the disc $\mD$.
+For any trace $v\in\mH^{1/2}(\Gamma), p\in\mH^{-1/2}(\Gamma)$, their explicit expression
 is given by:
 \begin{equation}\label{PotentialOperators}
 \begin{array}{l}
@@ -64,48 +64,48 @@ is given by:
 \dsp{ \DL(p)(\bx):=\int_{\Gamma}\bn(\by)\cdot(\nabla\Green)(\bx-\by)p(\by) d\sigma(\by). }
 \end{array}
 \end{equation}
-We are going to provide a completely explicit expression of these operators in terms 
-of Fourier harrmonics and Bessel functions. Set $\fre_{n}(\theta) = \exp(\imath n\theta)$. 
-We have 
+We are going to provide a completely explicit expression of these operators in terms
+of Fourier harrmonics and Bessel functions. Set $\fre_{n}(\theta) = \exp(\imath n\theta)$.
+We have
 $$
-\SL(\fre_{n})(r,\theta) = 
+\SL(\fre_{n})(r,\theta) =
 \left\{\begin{array}{ll}
-\dsp{\imath\frac{\pi}{2}H^{(1)}_{\vert n\vert}(\kappa)J_{\vert n\vert}(\kappa r)\fre_{n}(\theta)\phantom{\imath\kappa} } & \textrm{for}\quad \vert \bx\vert<1\\[15pt]
-\dsp{\imath\frac{\pi}{2}J_{\vert n\vert}(\kappa)H^{(1)}_{\vert n\vert}(\kappa r)\fre_{n}(\theta)\phantom{\imath\kappa} } & \textrm{for}\quad \vert \bx\vert>1
+\dsp{\imath\rho\frac{\pi}{2}H^{(1)}_{\vert n\vert}(\kappa \vert \bx \vert )J_{\vert n\vert}(\kappa \rho)\fre_{n}(\theta)\phantom{\imath\kappa} } & \textrm{for}\quad \vert \bx\vert< \rho\\[15pt]
+\dsp{\imath\rho\frac{\pi}{2}J_{\vert n\vert}(\kappa \vert \bx \vert )H^{(1)}_{\vert n\vert}(\kappa \rho)\fre_{n}(\theta)\phantom{\imath\kappa} } & \textrm{for}\quad \vert \bx\vert>\rho
 \end{array}\right.
 $$
-and 
+and
 $$
-\DL(\fre_{n})(r,\theta) = 
+\DL(\fre_{n})(r,\theta) =
 \left\{\begin{array}{ll}
-\dsp{ -\imath\kappa\frac{\pi}{2}H^{(1)'}_{\vert n\vert}(\kappa)J_{\vert n\vert}(\kappa r)\fre_{n}(\theta) } & \textrm{for}\quad \vert \bx\vert<1\\[15pt]
-\dsp{ -\imath\kappa\frac{\pi}{2}J_{\vert n\vert}'(\kappa)H^{(1)}_{\vert n\vert}(\kappa r)\fre_{n}(\theta) } & \textrm{for}\quad \vert \bx\vert>1
+\dsp{ -\imath\kappa \rho\frac{\pi}{2}H^{(1)'}_{\vert n\vert}(\kappa \rho)J_{\vert n\vert}(\kappa \vert \bx \vert )\fre_{n}(\theta) } & \textrm{for}\quad \vert \bx\vert< \rho\\[15pt]
+\dsp{ -\imath\kappa \rho \frac{\pi}{2}J_{\vert n\vert}'(\kappa \rho )H^{(1)}_{\vert n\vert}(\kappa \vert \bx \vert)\fre_{n}(\theta) } & \textrm{for}\quad \vert \bx\vert>\rho
 \end{array}\right.
 $$
 \quad\\[5pt]
-From these formulas, it is  clear that $\int_{\Gamma}\overline{\fre}_{p}\gamma_{N}\SL(\fre_{n}) d\sigma = \int_{\Gamma}\overline{\fre}_{p}\gamma_{D}\SL(\fre_{n}) d\sigma = 0$ 
-as well as $\int_{\Gamma}\overline{\fre}_{p}\gamma_{N}\DL(\fre_{n}) d\sigma = \int_{\Gamma}\overline{\fre}_{p}\gamma_{D}\DL(\fre_{n}) d\sigma = 0$ for $p\neq n$. In the 
-case $p=n$, we have on the one hand 
+From these formulas, it is  clear that $\int_{\Gamma}\overline{\fre}_{p}\gamma_{N}\SL(\fre_{n}) d\sigma = \int_{\Gamma}\overline{\fre}_{p}\gamma_{D}\SL(\fre_{n}) d\sigma = 0$
+as well as $\int_{\Gamma}\overline{\fre}_{p}\gamma_{N}\DL(\fre_{n}) d\sigma = \int_{\Gamma}\overline{\fre}_{p}\gamma_{D}\DL(\fre_{n}) d\sigma = 0$ for $p\neq n$. In the
+case $p=n$, we have on the one hand
 $$
 \begin{array}{l}
-\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{D}\}\cdot\SL(\fre_{n}) d\sigma = \imath \pi^{2} H^{(1)}_{\vert n\vert}(\kappa) J_{\vert n\vert}(\kappa) }\\[10pt]
-\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{N}\}\cdot\DL(\fre_{n}) d\sigma = -\imath \kappa^{2} \pi^{2} H^{(1)'}_{\vert n\vert}(\kappa) J_{\vert n\vert}'(\kappa) }\\[10pt]
+\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{D}\}\cdot\SL(\fre_{n}) d\sigma = \imath \rho^2 \pi^{2} H^{(1)}_{\vert n\vert}(\kappa \rho ) J_{\vert n\vert}(\kappa \rho) }\\[10pt]
+\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{N}\}\cdot\DL(\fre_{n}) d\sigma = -\imath \kappa^{2} \rho^2 \pi^{2} H^{(1)'}_{\vert n\vert}(\kappa \rho) J_{\vert n\vert}'(\kappa \rho) }\\[10pt]
 \end{array}
 $$
-and on the other hand 
+and on the other hand
 $$
 \begin{array}{l}
-\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{N}\}\cdot\SL(\fre_{n}) d\sigma = +\imath\kappa\frac{\pi^{2}}{2}
-\big(\; H^{(1)}_{\vert n\vert}(\kappa)J_{\vert n\vert}'(\kappa)+H^{(1)'}_{\vert n\vert}(\kappa)J_{\vert n\vert}(\kappa)\; \big) }\\[10pt]
-\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{D}\}\cdot\DL(\fre_{n}) d\sigma = -\imath\kappa\frac{\pi^{2}}{2} 
+\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{N}\}\cdot\SL(\fre_{n}) d\sigma = +\rho^2 \imath\kappa\frac{\pi^{2}}{2}
+\big(\; H^{(1)}_{\vert n\vert}(\kappa \rho )J_{\vert n\vert}'(\kappa \rho )+H^{(1)'}_{\vert n\vert}(\kappa \rho )J_{\vert n\vert}(\kappa \rho)\; \big) }\\[10pt]
+\dsp{ \int_{\Gamma}\overline{\fre}_{n}\{\gamma_{D}\}\cdot\DL(\fre_{n}) d\sigma = -\imath\kappa \rho^2 \frac{\pi^{2}}{2}
 \big(\; H^{(1)}_{\vert n\vert}(\kappa)J_{\vert n\vert}'(\kappa)+H^{(1)'}_{\vert n\vert}(\kappa)J_{\vert n\vert}(\kappa)\; \big) }\\[10pt]
 \end{array}
 $$
 
 \section*{Analytic solutions in 3-D}
 
-Now we consider the same problem but, this time, for an Helmholtz equation in 3-D with a boundary $\Gamma = \mathbb{S}^{2}$ 
-the unit sphere. The corresponding outgoing radiating kernel satisfies the equations  
+Now we consider the same problem but, this time, for an Helmholtz equation in 3-D with a boundary $\Gamma = \mathbb{S}^{2}$
+the unit sphere. The corresponding outgoing radiating kernel satisfies the equations
 $$
 \left\{\begin{array}{l}
 -\Delta \Green - \kappa^{2}\Green = \delta_{0}\quad \textrm{in}\;\R^{3}\\[5pt]
@@ -113,13 +113,13 @@ $$
 \textrm{where}\quad \Green(\bx) = \exp(\imath\vert \bx\vert)/(4\pi\vert \bx\vert)
 \end{array}\right.
 $$
-Let $\mB\subset \R^{3}$ refer to the ball of center $\mathbf{0}$ and radius $1$, and $\Gamma = \partial\mB$. We use 
-the same notations regarding trace operators compared to the previous section. in particular, $\bn$ shall refer to the 
-unit vector normal to $\Gamma$ :directed toward the exterior of $\mB$. Once again, we define the potential operators 
+Let $\mB\subset \R^{3}$ refer to the ball of center $\mathbf{0}$ and radius $1$, and $\Gamma = \partial\mB$. We use
+the same notations regarding trace operators compared to the previous section. in particular, $\bn$ shall refer to the
+unit vector normal to $\Gamma$ :directed toward the exterior of $\mB$. Once again, we define the potential operators
 by (\ref{PotentialOperators})
 
 \quad\\
-Let us recall that any function $u\in \mL^{2}(\Gamma)$ can be decomposed on the orthonormal basis 
+Let us recall that any function $u\in \mL^{2}(\Gamma)$ can be decomposed on the orthonormal basis
 of spherical harmonics  $\mrm{Y}_{l}^{m}, l\geq 0,\vert m\vert\leq l$ as follows
 $$
 \begin{array}{l}
@@ -130,7 +130,7 @@ $$
 \end{array}
 $$
 Here the $\mrm{P}_{l}^{m}(z)$ are associated Legendre functions. Define the spherical Bessel and Hankel functions $j_{l},h_{l}^{(1)}$
-like in paragraph 10.47 of \cite{MR2723248}. The single layer and double layer potentials admit explicit expressions 
+like in paragraph 10.47 of \cite{MR2723248}. The single layer and double layer potentials admit explicit expressions
 in terms of the spherical harmonics. On the one hand\\
 $$
 \SL(\mrm{Y}_{l}^{m})(\rho,\sigma) =
@@ -139,7 +139,7 @@ $$
 \dsp{\imath\kappa\, h^{(1)}_{l}(\kappa\rho)j_{l}(\kappa)\mrm{Y}_{l}^{m}(\theta,\varphi)   } & \textrm{for}\;\;\rho>1.
 \end{array}\right.
 $$
-And on the other hand we have 
+And on the other hand we have
 $$
 \DL(\mrm{Y}_{l}^{m})(\rho,\sigma) =
 \left\{\begin{array}{ll}
@@ -147,8 +147,8 @@ $$
 \dsp{-\imath\kappa^{2}\, h^{(1)}_{l}(\kappa\rho)j_{l}'(\kappa)\mrm{Y}_{l}^{m}(\theta,\varphi)   } & \textrm{for}\;\;\rho>1.
 \end{array}\right.
 $$
-Note that, like in the  2-D problem of the previous paragraph, we have $\int_{\Gamma}\overline{\mrm{Y}}_{p}^{q}\gamma_{D}\SL(\mrm{Y}_{l}^{m})d\sigma =$ 
-$\int_{\Gamma}\overline{\mrm{Y}}_{p}^{q}\gamma_{N}\SL(\mrm{Y}_{l}^{m})d\sigma = 0$ for $p\neq l$ or $q\neq m$, and similar identity holds for 
+Note that, like in the  2-D problem of the previous paragraph, we have $\int_{\Gamma}\overline{\mrm{Y}}_{p}^{q}\gamma_{D}\SL(\mrm{Y}_{l}^{m})d\sigma =$
+$\int_{\Gamma}\overline{\mrm{Y}}_{p}^{q}\gamma_{N}\SL(\mrm{Y}_{l}^{m})d\sigma = 0$ for $p\neq l$ or $q\neq m$, and similar identity holds for
 $\DL$. Hence we have the following expressions for the entries of the Calderon projector
 $$
 \begin{array}{l}
