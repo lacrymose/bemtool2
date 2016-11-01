@@ -4,11 +4,13 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include "bemtool2/tools.h"
 
-int test12(std::string output);
-
-// void first_kind_dirichlet_2D(Real lc, std::string output_name);
-// void first_kind_neumann_2D(Real lc, string output_name);
-
+void first_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbose=0);
+void first_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbose=0);
+void second_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbose=0);
+void second_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbose=0);
+void fourier_harmonic_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name,int verbose=0);
+void plane_wave_harmonics_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name,int verbose=0);
 #endif

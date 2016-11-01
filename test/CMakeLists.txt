@@ -1,5 +1,24 @@
-set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include") 
+
+#=============================================================================#
+#============================= Packages ======================================#
+#=============================================================================#
+# GMM package - linear algebra
+find_package(GMM REQUIRED)
+include_directories(${GMM_INCLUDE_DIR})
+
+# Boost package - special functions
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
+# BEMTOOL package
+set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 include_directories(${bemtool_dir})
+
+#=============================================================================#
+#=========================== Executables =====================================#
+#=============================================================================#
+add_executable(Tests_circle_2D processing.cpp
+                    tests_circle_2D.cpp tests_circle_2D.hpp "${bemtool_dir}")
 
 # Intial test files
 # add_executable(Prog prog.cxx)
@@ -15,7 +34,7 @@ include_directories(${bemtool_dir})
 # add_executable(Tests_circle processing.cpp tests_circle_2D.cpp)
 # target_link_libraries(Tests_circle bemtool)
 
-add_executable(Test plane_wave_harmonics_2D.cpp)
+# add_executable(Test fourier_harmonics_2D.cpp "${bemtool_dir}")
 
 
 
@@ -27,7 +46,7 @@ add_executable(Test plane_wave_harmonics_2D.cpp)
 
 
 # BEMTOOL package
-# set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include") 
+# set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 # include_directories(${bemtool_dir})
 
 # Tests
@@ -52,11 +71,11 @@ add_executable(Test plane_wave_harmonics_2D.cpp)
 # Executable pour first kind neumann 2D
 # add_executable(Test_first_kind_neumann_2D first_kind_neumann_2D.cpp )
 
-# 
+#
 # # Executable pour second kind dirichlet 2D
 # add_executable(Test_second_kind_dirichlet_2D second_kind_dirichlet_2D.cpp )
 # target_link_libraries (Test_second_kind_dirichlet_2D  dunavant)
-# 
+#
 # # Executable pour second kind neumann 2D
 # add_executable(Test_second_kind_neumann_2D second_kind_neumann_2D.cpp )
 # target_link_libraries (Test_second_kind_neumann_2D  dunavant)
