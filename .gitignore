@@ -1,6 +1,6 @@
 ### Build folders
-bin
-build
+bin*
+build*
 
 ### Latex
 *.aux
@@ -15,6 +15,10 @@ build
 *.cb
 *.cb2
 *.pdf
+*.bbl
+*.blg
+*.fdb_latexmk
+*.synctex.gz
 
 ### Doxygen
 *.in
