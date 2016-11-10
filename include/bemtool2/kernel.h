@@ -52,6 +52,9 @@ class SLP_2D{
   
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); return val = 0.25*iu*H_0(k*r); }
+    
+  inline Cplx& ker(const R3& ny, const R3& x_y){
+    r = norm2(x_y); return val = 0.25*iu*H_0(k*r); }
   
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
@@ -59,6 +62,13 @@ class SLP_2D{
 			    const R3& nx, const R3& ny,   const R3& x_y,
 			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
   {return val = phix(s,jx,kx)*phiy(t,jy,ky)*z;} 
+  
+  template <class phi_t>
+    inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
+			    const R3& ny,   const R3& x_y,
+			    const Real& h, const Real& w, const Cplx& z)
+  {return val = phi(t,jy,ky)*z;} 
+  
   
 };
 
@@ -387,6 +397,124 @@ template <class space_x, class space_y, class kernel_t> class bem{
 };
 
 
+
+
+/*====================================
+||  CLASSE OPERATEUR CHAMPS RAYONNE  ||
+====================================*/
+
+
+template <class space, class kernel_t> class chps_rayonne{
+
+ public:
+  
+  static const int dim        = kernel_t::dim;
+  static const int dim_loc    = space::dim_loc;
+  
+  typedef normal<dim>                     normal_t;   
+  typedef mesh_<dim>                      mesh_t;
+  typedef loc_<dim>                       loc_t;
+  typedef elt_<dim>                       elt_t;
+  typedef mat<1,dim_loc, Cplx>            mat_t;
+  typedef typename quadBEM<dim>::qp_t     qp_t;
+  typedef typename jac_<dim>::type        jac_t;  
+  typedef const quadBEM<dim>              quad_t;
+  typedef space                           phi_t;
+  
+ private:
+  
+  const std::vector<loc_t>&   loc;  
+  const vect<elt_t>&          elt;
+  const normal_t&             n; 
+  const mesh_t&               mesh;
+  
+  const Real    k2;
+  quad_t        qr;
+  kernel_t      kernel;
+  phi_t         phi;
+  mat_t         Melt;
+  
+  //=========================//
+  // Variables intermediaires
+  
+  elt_t   y;       // sommets des elts permutes    
+  jac_t   dy;     // jacobien paire elt-ref -> paire elt permutes
+  Real    h;         // 2^d * volume paire elt
+  int     jy;     // numero des elts (no. local au maillage)
+  int     rule;      // regle de quadrature (gestion singularite)
+  R3      x_y,x_y0; // x-y et x0-y0 
+  Cplx    z;
+  
+  //_______________
+  // Données auxilaires 
+  get_elt_<dim> temp_elt;
+  get_loc_<dim> temp_loc;
+  
+//   //====================================//
+//   //  Choix de la regle de quadrature
+//   
+//   void choose_quad(const elt_t& ex, const elt_t& ey){    
+//     rule = 0; Melt=0.; x=ex; y=ey;
+//     px[0]=0; px[1]=1; px[2]=2;
+//     py[0]=0; py[1]=1; py[2]=2;    
+//     for(int p=0; p<dim+1; p++){
+//       for(int q=rule; q<dim+1; q++){
+// 	if( &x[p]==&y[q] ){
+// 	  swap(x,rule,p); swap(px,rule,p); 
+// 	  swap(y,rule,q); swap(py,rule,q); 
+// 	  rule++; break;
+// 	}
+//       }
+//     }
+//     
+//   }
+  
+ public:  
+  
+  //=========================//
+  //      Constructeur 
+ chps_rayonne(const Real& k, const normal_t& n0, int order=15): 
+  k2(k*k), kernel(k), qr(order),mesh(mesh_of(n0)), loc(temp_loc.apply(get_geometry(mesh_of(n0)))), elt(temp_elt.apply(get_geometry(mesh_of(n0)))),phi(mesh_of(n0)),n(n0),temp_loc(), temp_elt(){
+	 };  
+  
+  //=====================================//
+  // Calcul des interactions elementaires
+  const mat_t& operator()(R3 x, const elt_t& ey){
+    
+    // Calcul de la regle de quadrature
+//     choose_quad(ex,ey);
+	y=ey;
+	h     = det_jac(y);
+	x_y0 = x-y[0];      
+	dy    = mat_jac(y);
+	const std::vector<qp_t>& t = qr.y(rule);
+	const std::vector<Real>& w = qr.w(rule);
+    
+	// numeros locaux des triangles
+	jy    = loc[ &ey-&elt[0] ][mesh];
+    
+	// Boucle sur les points de quadrature    
+	for(int j=0; j<t.size(); j++) {
+      
+	x_y = x_y0 - dy*t[j];      
+	z = h*w[j]*kernel.ker(n[jy],x_y);
+	
+	
+		for(int k=0; k<dim_loc; k++){
+			Melt(1,k) += kernel(phi, t[j], jy, k,
+					n[jy], x_y,
+					h, w[j], z);
+		
+		}
+	
+	}
+
+    return Melt;
+    
+  }
+  
+  
+};
 
 
 #endif

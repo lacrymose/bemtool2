@@ -1251,3 +1251,58 @@ void plane_wave_harmonics_2D(std::vector<Real> harmonics, Real lc, Real R, std::
     }
 }
 
+///==================================================================================////
+///===============================Champs rayonné=====================================////
+///==================================================================================////
+
+void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
+	////=============================================================////
+    ////=======================  Mesh building  =====================////
+    ////=============================================================////
+    if (verbose>0){
+        std::cout<<"Construction du maillage"<<std::endl;
+    }
+    gmsh_circle(("circle_"+NbrToStr(lc)).c_str(),R,lc,verbose);
+	gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R,lc,verbose);
+    
+    ////=============================================================////
+    ////=======================  Mesh loading  ======================////
+    ////=============================================================////
+    if (verbose>0){
+        std::cout<<"Chargement du maillage"<<std::endl;
+    }
+    Real kappa=1.;
+    
+    geometry geom,vol;
+    load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
+	std::cout<<meshfile(geom)<<std::endl;
+    load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
+	std::cout<<get_node(geom,10)<<std::endl;
+	std::cout<<get_node(vol,50)<<std::endl;
+	std::cout<<meshfile(geom)<<std::endl;
+	std::cout<<meshfile(vol)<<std::endl;
+	
+    mesh_1D Omega(geom);
+	
+    load_elt_gmsh(Omega,0);
+	std::cout<<"ok"<<std::endl;
+	std::cout<<Omega[0]<<std::endl;
+//     gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
+// 	gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+    
+    ////=============================================================////
+    ////================== Calcul de la normale =====================////
+    ////=============================================================////
+    std::cout<<"ok"<<std::endl;
+    nrml_1D n_(Omega);
+	std::cout<<"ok"<<std::endl;
+	////=============================================================////
+    ////================== Calcul de la normale =====================////
+    ////=============================================================////
+    
+	
+	
+	
+	
+	
+}

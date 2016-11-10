@@ -91,8 +91,13 @@ mesh(m), elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m
   // initialisation  de la recherche
   // d'un point extremal du maillage
   int  Iext = 0;
-  Real Ext = norm2(center( mesh[ component[Iext][0] ] ));
+  std::cout<<"test1"<<std::endl;
+  std::cout<<"nb_component : "<<nb_component<<std::endl;
+  std::cout<<"no du 0 elt de la composante 0 : "<<component[Iext][0]<<std::endl;
+  std::cout<<"0 elt de la composante 0 : "<<mesh[component[Iext][0]]<<std::endl;
   
+  Real Ext = norm2(center( mesh[ component[Iext][0] ] ));
+  std::cout<<"test2"<<std::endl;
   //===============================//
   //   Breadth First Search sur    //
   //   chaque composante connexe   //

@@ -169,6 +169,7 @@ class geometry{
   
   
   friend void load_node_gmsh(geometry& , const char*);
+//   template <class r_t> friend void load_node_hand(geometry& , const r_t&);
   friend int push(geometry&, const mesh_<1>&, elt_1D);
   friend int push(geometry&, const mesh_<2>&, elt_2D);
   
@@ -197,10 +198,6 @@ class geometry{
 // Initialisation et instanciation
 inline geometry::geometry(){
   meshfile = 0;
-//   vect<R3>      geometry::node;
-//   list_elt_1D   geometry::elt1D;
-//   list_elt_2D   geometry::elt2D;
-// geometry      geom;
 }
 
 // Definition des methodes
@@ -280,6 +277,16 @@ inline void load_node_gmsh(geometry& geom,const char* filename){
   
 }
 
+// template<class r_t> void load_node_hand(geometry& geom, const r_t& nodes){
+// 	vect<R3>& node = geom.node;
+// 	for (int i =0;i<size(nodes);i++){
+// 		node.push_back(nodes[i]);
+// 	}
+// 	geom.elt1D.init(nb_node(geom), node[0]);  
+// 	geom.elt2D.init(nb_node(geom), node[0]);    
+// 	
+// }
+
 
 
 
@@ -330,6 +337,8 @@ class mesh_{
   mesh_<dim>(const mesh_<dim>& m): geom(m.geom), bounded(true){assert((m.num_elt).size()==0);};
   
   template <class m_t> friend void load_elt_gmsh(m_t&, int);
+//   template <class m_t, class r_t> friend void load_elt_hand(m_t&, r_t&);
+  
   template <class m_t> friend int  nb_elt (const m_t&);
   const elt_t& operator[](const int& j) const {get_elt_<dim> temp; return (temp.apply(geom))[num_elt[j]];};  
   
@@ -383,6 +392,7 @@ void load_elt_gmsh(m_t& m, int ref = -1){
   const char* filename = meshfile(m.geom);
   std::string filename_string = filename;
   filename_string += ".msh";
+  std::cout<<filename_string<<std::endl;
   // Variables  auxiliaires
   int poubelle, elt_type;
   int tag, nb_tags;
@@ -407,13 +417,17 @@ void load_elt_gmsh(m_t& m, int ref = -1){
 
   int nb_elt = 0;
   while( line != "$EndElements" ){    
+	  std::cout<<"test"<<std::endl;
     iss.str(line);    
     iss >> poubelle;
     iss >> elt_type;      
     iss >> nb_tags;
     iss >> tag;      
-    
+    std::cout<<elt_type<<" "<<dim<<std::endl;
+	std::cout<<tag<<" "<<ref<<std::endl;
+	
     if(elt_type==dim && tag == ref){
+		std::cout<<"test"<<std::endl;
       for(int j=0; j<nb_tags-1; j++){
 	iss >> poubelle;}      
       
@@ -421,7 +435,7 @@ void load_elt_gmsh(m_t& m, int ref = -1){
       iss >> I; I--;
       // ajout de l'elt dans le mesh
       m << get_node(m.geom,I);
-      
+      std::cout<<I<<std::endl;
     }
     
     iss.clear();
@@ -432,6 +446,19 @@ void load_elt_gmsh(m_t& m, int ref = -1){
   
 }
 
+// template <class m_t, class r_t> void load_elt_hand(m_t& m, r_t r){
+// 	for(int i=0;i<size(r);i++){
+// 		std::cout<<r[i]<<std::endl;
+// // 		m<<r[i];
+// 	}
+// }
+// template <class m_t, int nbr, int nbr2>  
+// void load_elt_hand(m_t& m , const bemtool::array<nbr,bemtool::array<nbr2 , R3> > elts){
+// 	for (int i=0;i<size(elts);i++){
+// 		m<< elts[i];
+// // 		std::cout<<elts[i]<<std::endl;
+// 	}
+// }
 
 
 
