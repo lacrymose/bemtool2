@@ -23,6 +23,9 @@
 
 #include <ctime>
 
+////========================================================////
+////////////===== Barre de progression ======///////////////////
+
 class progress{
     
 private:
@@ -71,6 +74,63 @@ public:
     }
     
 };
+
+
+////========================================================////
+/////////////////===== Conversions ======///////////////////////
+
+template <typename nbr>
+std::string NbrToStr(nbr N){
+	std::ostringstream strs;
+	strs << N;
+	std::string str = strs.str();
+	return str;
+}
+
+template <typename T>
+T StrToNbr ( const std::string &Text )
+{
+	std::istringstream ss(Text);
+	T result;
+	return ss >> result ? result : 0;
+}
+
+inline int StrToInt(std::string str){
+	std::stringstream i(str);
+	int  N;
+	i >> N;
+	return N;
+}
+
+inline Real StrToReal(std::string str){
+	std::stringstream i(str);
+	Real  N;
+	i >> N;
+	return N;
+}
+
+inline Cplx StrToCplx(std::string str){
+	std::stringstream i(str);
+	Cplx  N;
+	i >> N;
+	return N;
+}
+
+////========================================================////
+///////////////////////===== Input ======///////////////////////
+inline std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+inline std::vector<std::string> split(const std::string &s, char delim) {
+	std::vector<std::string> elems;
+	split(s, delim, elems);
+	return elems;
+}
 
 
 #endif

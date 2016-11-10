@@ -1,3 +1,6 @@
+#ifndef DUNAVANT_H
+#define DUNAVANT_H
+
 # include <cstdlib>
 # include <iostream>
 # include <fstream>
@@ -3097,3 +3100,4 @@ inline double triangle_area ( double t[2*3] )
   return area;
 }
 
+#endif
