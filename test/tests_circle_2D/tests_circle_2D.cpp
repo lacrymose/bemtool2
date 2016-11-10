@@ -7,7 +7,7 @@
 ///==========================First kind Dirichlet====================================////
 ///==================================================================================////
 
-void first_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbose){
+void first_kind_dirichlet_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
     ////=============================================================////
     ////=======================  Mesh building  =====================////
     ////=============================================================////
@@ -49,7 +49,7 @@ void first_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbo
     // 		std::cout<<(G,n_[j])<<std::endl;
     // 	}
     
-    swap(n_);
+    // swap(n_);
     ////=============================================================////
     ////================ Assemblage de la matrice ===================////
     ////=============================================================////
@@ -83,124 +83,126 @@ void first_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbo
     }
     bar.end();
     
-    ////=============================================================////
-    ////================ Assemblage du second membre ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Assemblage du second membre"<<std::endl;
-    }
-    R3 dir; dir[0]=sqrt(2)/2.;dir[1]=sqrt(2)/2.;dir[2]=0;
-    
-    vect<Cplx> Udinc; resize(Udinc,nbdof); fill(Udinc,0.);
-    vect<Cplx> Uninc; resize(Uninc,nbdof); fill(Uninc,0.);
-    
-    for (int j=0 ; j<nbelt ; j++){
-        const elt_1D& seg = Omega[j];
-        const N2&     I   = dof[j];
+    for (int l=0;l<harmonics.size();l++){
+        Real p = harmonics[l];
         
-        R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
-        R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
-        C2 Vinc;
+        ////=============================================================////
+        ////================== Harmonique de Fourier ====================////
+        ////=============================================================////
         
-        Vinc[0] = exp( iu*kappa*(X0,dir) );
-        Vinc[1] = exp( iu*kappa*(X1,dir) );
+        vect<Cplx> Ep ;resize(Ep ,nbdof);fill(Ep ,0.);
+		vect<Cplx> Ref;resize(Ref,nbdof);fill(Ref,0.);
+        for (int j=0 ; j<nbelt ; j++){
+            const elt_1D& seg = Omega[j];
+            const N2&     I   = dof[j];
+            
+            R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
+            R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
+            
+            Real theta0 = atan (X0[1]/X0[0]);
+            Real theta1 = atan (X1[1]/X1[0]);
+            
+            if (X0[0]<0 & X0[1]>=0){
+                theta0 += M_PI;
+            }
+            if (X0[0]<0 & X0[1]<0){
+                theta0 -= M_PI;
+            }
+            if (X1[0]<0 & X1[1]>=0){
+                theta1 += M_PI;
+            }
+            if (X1[0]<0 & X1[1]<0){
+                theta1 -= M_PI;
+            }
+            
+            C2 Vinc;
+            
+            Vinc[0] = exp( iu*p*theta0 );
+            Vinc[1] = exp( iu*p*theta1 );
+            
+            Ep [I] += 0.5*Vinc;
+			
+			Vinc[0] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta0 );
+            Vinc[1] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta1 );
+            
+			Ref[I] += 0.5*Vinc;
+            
+        }
         
-        Udinc[I] += 0.5*Vinc;
-        
-        Vinc[0] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X0,dir) );
-        Vinc[1] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X1,dir) );
-        
-        Uninc[I] += 0.5*Vinc;
-        
-    }
+        ////=============================================================////
+        ////================ Assemblage du second membre ================////
+        ////=============================================================////
     
-    vect<Cplx> F; resize(F,nbdof); fill(F,0);
-    vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
-    vect<Cplx> gD; resize(gD,nbdof); fill(gD,0);
+        vect<Cplx> F; resize(F,nbdof); fill(F,0);
+        vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
+        vect<Cplx> gD; resize(gD,nbdof); fill(gD,0);
     
-    // Boundary condition
-    gD=Udinc;
-    // 	fill(gD,Cplx(0.));
+        // Boundary condition
+        gD=Ep;
+        //fill(gD,Cplx(0.));
     
-    mv_prod(F,K,gD);
-    mv_prod(Ftemp,M,gD);
+        mv_prod(F,K,gD);
+        mv_prod(Ftemp,M,gD);
     
-    for(int j=0; j<nbelt; j++){
-        F[j] = 0.5*Ftemp[j] - F[j];
-    }
-    
-    // Source term
-    // 	mv_prod(Ftemp,K,Udinc);
-    // 	for(int j=0; j<nbelt; j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    // 	mv_prod(Ftemp,M,Udinc);
-    // 	for(int j=0; j<nbelt; j++){
-    // 		F[j] -= 0.5*Ftemp[j];
-    // 	}
-    // 	mv_prod(Ftemp,V,Uninc);
-    // 	for(int j=0; j<nbelt; j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    mv_prod(Ftemp,M,Udinc);
-    for(int j=0; j<nbelt; j++){
-        F[j] -= Ftemp[j];
-    }
-    ////=============================================================////
-    ////================ Résolution système linéaire ================////
-    ////=============================================================////
-    if (verbose>0){
+        for(int j=0; j<nbelt; j++){
+            F[j] = 0.5*Ftemp[j] - F[j];
+        }
+
+        ////=============================================================////
+        ////================ Résolution système linéaire ================////
+        ////=============================================================////
+        if (verbose>0){
         std::cout<<"Appel du solveur"<<std::endl;
-    }
-    vect<Cplx> U;
-    resize(U,nbdof);
+        }
+        vect<Cplx> U;
+        resize(U,nbdof);
     
-    // 	gmm_dense LU(nbddl,nbddl);
-    // 		lu_factor(J,LU);
-    // 		lu_solve(LU,U,F);
-    gmres_solve(V,U,F,40,verbose);
+        // 	gmm_dense LU(nbddl,nbddl);
+        // 		lu_factor(J,LU);
+        // 		lu_solve(LU,U,F);
+        gmres_solve(V,U,F,40,verbose);
     
     
-    ////=============================================================////
-    ////===================== Calcul de l'erreur ====================////
-    ////=============================================================////
-    vect<Cplx> Err, Err2, Norme;
-    resize(Err, nbdof);
-    resize(Err2,nbdof);
-    resize(Norme,nbdof);
-    for(int j=0; j<nbdof; j++){
-        Err[j] =  U[j]-Uninc[j];
-    }
-    mv_prod(Err2,M,Err);
-    mv_prod(Norme,M,Uninc);
-    
-    Cplx val=0;
-    Cplx norme =0.;
-    Real erreur=0;
-    for(int j=0; j<nbdof; j++){
-        val += Err2[j]*conj(Err[j]);
-        norme  += Norme[j]*conj(Uninc[j]);
-    }
-    erreur=abs(val/norme);
-    if (verbose>0){
-        std::cout << "erreur:\t" << erreur << std::endl;
-    }
-    ////=============================================================////
-    ////======================== Sauvegardes ========================////
-    ////=============================================================////
-    std::ofstream output((output_name+".txt").c_str(),std::ios::app);
-    if (verbose>0){
-        std::cout<<"Output in "<<output_name<<std::endl;
-    }
-    if (!output){
-        std::cerr<<"Output file cannot be created"<<std::endl;
-        exit(1);
-    }
-    else{
-        output<<lc<<" "<<erreur<<std::endl;
-    }
-    output.close();
-    
+        ////=============================================================////
+        ////===================== Calcul de l'erreur ====================////
+        ////=============================================================////
+        vect<Cplx> Err, Err2, Norme;
+        resize(Err, nbdof);
+		resize(Err2,nbdof);
+		resize(Norme,nbdof);
+		for(int j=0; j<nbdof; j++){
+			Err[j] =  U[j]-Ref[j];
+		}
+		mv_prod(Err2,M,Err);
+		mv_prod(Norme,M,Ref);
+		
+		Cplx val=0;
+		Cplx norme =0.;
+		Real erreur=0;
+		for(int j=0; j<nbdof; j++){
+			val += Err2[j]*conj(Err[j]);
+			norme  += Norme[j]*conj(Ref[j]);
+		}
+		erreur=abs(val/norme);
+		if (verbose>0){
+			std::cout << "erreur:\t" << erreur << std::endl;
+		}
+		////=============================================================////
+		////======================== Sauvegardes ========================////
+		////=============================================================////
+		std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+".txt").c_str(),std::ios::app);
+		if (verbose>0){
+			std::cout<<"Output in "<<output_name<<std::endl;
+		}
+		if (!output){
+			std::cerr<<"Output file cannot be created"<<std::endl;
+			exit(1);
+		}
+		else{
+			output<<lc<<" "<<erreur<<std::endl;
+		}
+		output.close();
+	}
 }
 
 
@@ -208,7 +210,7 @@ void first_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbo
 ///===========================First kind Neumann=====================================////
 ///==================================================================================////
 
-void first_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbose){
+void first_kind_neumann_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
     
     ////=============================================================////
     ////=======================  Mesh building  =====================////
@@ -249,7 +251,7 @@ void first_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbose
     // 		std::cout<<(G,n_[j])<<std::endl;
     // 	}
     
-    swap(n_);
+//     swap(n_);
     ////=============================================================////
     ////================ Assemblage de la matrice ===================////
     ////=============================================================////
@@ -283,131 +285,134 @@ void first_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbose
     }
     bar.end();
     
-    ////=============================================================////
-    ////================ Assemblage du second membre ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Assemblage du second membre"<<std::endl;
-    }
-    R3 dir; dir[0]=sqrt(2)/2.;dir[1]=sqrt(2)/2.;dir[2]=0;
-    
-    vect<Cplx> Udinc; resize(Udinc,nbdof); fill(Udinc,0.);
-    vect<Cplx> Uninc; resize(Uninc,nbdof); fill(Uninc,0.);
-    
-    for (int j=0 ; j<nbelt ; j++){
-        const elt_1D& seg = Omega[j];
-        const N2&     I   = dof[j];
+	for (int l=0;l<harmonics.size();l++){
+		Real p = harmonics[l];
+	
+	    ////=============================================================////
+        ////================== Harmonique de Fourier ====================////
+        ////=============================================================////
         
-        R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
-        R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
-        C2 Vinc;
+        vect<Cplx> Ep ;resize(Ep ,nbdof);fill(Ep ,0.);
+		vect<Cplx> Ref;resize(Ref,nbdof);fill(Ref,0.);
+        for (int j=0 ; j<nbelt ; j++){
+            const elt_1D& seg = Omega[j];
+            const N2&     I   = dof[j];
+            
+            R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
+            R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
+            
+            Real theta0 = atan (X0[1]/X0[0]);
+            Real theta1 = atan (X1[1]/X1[0]);
+            
+            if (X0[0]<0 & X0[1]>=0){
+                theta0 += M_PI;
+            }
+            if (X0[0]<0 & X0[1]<0){
+                theta0 -= M_PI;
+            }
+            if (X1[0]<0 & X1[1]>=0){
+                theta1 += M_PI;
+            }
+            if (X1[0]<0 & X1[1]<0){
+                theta1 -= M_PI;
+            }
+            
+            C2 Vinc;
+            
+            Vinc[0] = exp( iu*p*theta0 );
+            Vinc[1] = exp( iu*p*theta1 );
+            
+            Ep [I] += 0.5*Vinc;
+			
+			Vinc[0] = (1./kappa)*boost::math::cyl_bessel_j(p,kappa*R)/((p/(kappa*R))*boost::math::cyl_bessel_j(p,kappa*R)-boost::math::cyl_bessel_j(p+1,kappa*R))*exp( iu*p*theta0 );
+            Vinc[1] = (1./kappa)*boost::math::cyl_bessel_j(p,kappa*R)/((p/(kappa*R))*boost::math::cyl_bessel_j(p,kappa*R)-boost::math::cyl_bessel_j(p+1,kappa*R))*exp( iu*p*theta1 );
+            
+			Ref[I] += 0.5*Vinc;
+            
+        }
         
-        Vinc[0] = exp( iu*kappa*(X0,dir) );
-        Vinc[1] = exp( iu*kappa*(X1,dir) );
-        
-        Udinc[I] += 0.5*Vinc;
-        
-        Vinc[0] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X0,dir) );
-        Vinc[1] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X1,dir) );
-        
-        Uninc[I] += 0.5*Vinc;
-        
-    }
-    
-    vect<Cplx> F; resize(F,nbdof); fill(F,0);
-    vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
-    vect<Cplx> gN; resize(gN,nbdof); fill(gN,0);
-    
-    // Boundary condition
-    gN=Uninc;
-    // 	fill(gD,Cplx(0.));
-    
-    mv_prod(F,TK,gN);
-    mv_prod(Ftemp,M,gN);
-    
-    for(int j=0; j<nbelt; j++){
-        F[j] = 0.5*Ftemp[j] - F[j];
-    }
-    
-    // Source term
-    // 	mv_prod(Ftemp,TK,Uninc);
-    // 	for(int j=0; j<nbelt; j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    // 	mv_prod(Ftemp,M,Uninc);
-    // 	for(int j=0; j<nbelt; j++){
-    // 		F[j] -= 0.5*Ftemp[j];
-    // 	}
-    // 	mv_prod(Ftemp,W,Udinc);
-    // 	for(int j=0; j<nbelt; j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    mv_prod(Ftemp,M,Uninc);
-    for(int j=0; j<nbelt; j++){
-        F[j] -= Ftemp[j];
-    }
-    ////=============================================================////
-    ////================ Résolution système linéaire ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Appel du solveur"<<std::endl;
-    }
-    vect<Cplx> U;
-    resize(U,nbdof);
-    
-    // 	gmm_dense LU(nbddl,nbddl);
-    // 		lu_factor(J,LU);
-    // 		lu_solve(LU,U,F);
-    gmres_solve(W,U,F,40,verbose);
-    
-    
-    ////=============================================================////
-    ////===================== Calcul de l'erreur ====================////
-    ////=============================================================////
-    vect<Cplx> Err, Err2, Norme;
-    resize(Err, nbdof);
-    resize(Err2,nbdof);
-    resize(Norme,nbdof);
-    for(int j=0; j<nbdof; j++){
-        Err[j] =  U[j]-Udinc[j];
-    }
-    mv_prod(Err2,M,Err);
-    mv_prod(Norme,M,Udinc);
-    
-    Cplx val=0;
-    Cplx norme =0.;
-    Real erreur =0;
-    for(int j=0; j<nbdof; j++){
-        val += Err2[j]*conj(Err[j]);
-        norme  += Norme[j]*conj(Udinc[j]);
-    }
-    erreur=abs(val/norme);
-    if (verbose>0){
-        std::cout << "erreur:\t" << erreur << std::endl;
-    }
-    ////=============================================================////
-    ////======================== Sauvegardes ========================////
-    ////=============================================================////
-    std::ofstream output((output_name+".txt").c_str(),std::ios::app);
-    if (verbose>0){
-        std::cout<<"Output in "<<output_name<<std::endl;
-    }
-    if (!output){
-        std::cerr<<"Output file cannot be created"<<std::endl;
-        exit(1);
-    }
-    else{
-        output<<lc<<" "<<erreur<<std::endl;
-    }
-    output.close();
-    
+		////=============================================================////
+		////================ Assemblage du second membre ================////
+		////=============================================================////
+		
+		vect<Cplx> F; resize(F,nbdof); fill(F,0);
+		vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
+		vect<Cplx> gN; resize(gN,nbdof); fill(gN,0);
+		
+		// Boundary condition
+		gN=Ep;
+		// 	fill(gD,Cplx(0.));
+		
+		mv_prod(F,TK,gN);
+		mv_prod(Ftemp,M,gN);
+		
+		for(int j=0; j<nbelt; j++){
+			F[j] = 0.5*Ftemp[j] - F[j];
+		}
+		
+
+		////=============================================================////
+		////================ Résolution système linéaire ================////
+		////=============================================================////
+		if (verbose>0){
+			std::cout<<"Appel du solveur"<<std::endl;
+		}
+		vect<Cplx> U;
+		resize(U,nbdof);
+		
+		// 	gmm_dense LU(nbddl,nbddl);
+		// 		lu_factor(J,LU);
+		// 		lu_solve(LU,U,F);
+		gmres_solve(W,U,F,40,verbose);
+		
+		
+		////=============================================================////
+		////===================== Calcul de l'erreur ====================////
+		////=============================================================////
+		vect<Cplx> Err, Err2, Norme;
+		resize(Err, nbdof);
+		resize(Err2,nbdof);
+		resize(Norme,nbdof);
+		for(int j=0; j<nbdof; j++){
+			Err[j] =  U[j]-Ref[j];
+		}
+		mv_prod(Err2,M,Err);
+		mv_prod(Norme,M,Ref);
+		
+		Cplx val=0;
+		Cplx norme =0.;
+		Real erreur =0;
+		for(int j=0; j<nbdof; j++){
+			val += Err2[j]*conj(Err[j]);
+			norme  += Norme[j]*conj(Ref[j]);
+		}
+		erreur=abs(val/norme);
+		if (verbose>0){
+			std::cout << "erreur:\t" << erreur << std::endl;
+		}
+		////=============================================================////
+		////======================== Sauvegardes ========================////
+		////=============================================================////
+		std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+".txt").c_str(),std::ios::app);
+		if (verbose>0){
+			std::cout<<"Output in "<<output_name<<std::endl;
+		}
+		if (!output){
+			std::cerr<<"Output file cannot be created"<<std::endl;
+			exit(1);
+		}
+		else{
+			output<<lc<<" "<<erreur<<std::endl;
+		}
+		output.close();
+	}
 }
 
 ///==================================================================================////
 ///==========================Second kind Dirichlet===================================////
 ///==================================================================================////
 
-void second_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verbose){
+void second_kind_dirichlet_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
     ////=============================================================////
     ////=======================  Mesh building  =====================////
     ////=============================================================////
@@ -448,7 +453,7 @@ void second_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verb
     // 		cout<<(G,n_[j])<<endl;
     // 	}
     
-    swap(n_);
+//     swap(n_);
     ////=============================================================////
     ////================ Assemblage de la matrice ===================////
     ////=============================================================////
@@ -482,142 +487,132 @@ void second_kind_dirichlet_2D(Real lc, Real R, std::string output_name, int verb
         TT(jj,jj) += -0.5*MassP1(tj);
     }
     bar.end();
-    
-    ////=============================================================////
-    ////================ Assemblage du second membre ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Assemblage du second membre"<<std::endl;
-    }
-    R3 dir; dir[0]=sqrt(2)/2.;dir[1]=sqrt(2)/2.;dir[2]=0;
-    
-    vect<Cplx> Udinc; resize(Udinc,nbdof); fill(Udinc,0.);
-    vect<Cplx> Uninc; resize(Uninc,nbdof); fill(Uninc,0.);
-    
-    for (int j=0 ; j<nbelt ; j++){
-        const elt_1D& seg = Omega[j];
-        const N2&     I   = dof[j];
+    for (int l=0;l<harmonics.size();l++){
+		Real p = harmonics[l];
+		
+        ////=============================================================////
+        ////================== Harmonique de Fourier ====================////
+        ////=============================================================////
         
-        R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
-        R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
-        C2 Vinc;
+        vect<Cplx> Ep ;resize(Ep ,nbdof);fill(Ep ,0.);
+		vect<Cplx> Ref;resize(Ref,nbdof);fill(Ref,0.);
+        for (int j=0 ; j<nbelt ; j++){
+            const elt_1D& seg = Omega[j];
+            const N2&     I   = dof[j];
+            
+            R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
+            R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
+            
+            Real theta0 = atan (X0[1]/X0[0]);
+            Real theta1 = atan (X1[1]/X1[0]);
+            
+            if (X0[0]<0 & X0[1]>=0){
+                theta0 += M_PI;
+            }
+            if (X0[0]<0 & X0[1]<0){
+                theta0 -= M_PI;
+            }
+            if (X1[0]<0 & X1[1]>=0){
+                theta1 += M_PI;
+            }
+            if (X1[0]<0 & X1[1]<0){
+                theta1 -= M_PI;
+            }
+            
+            C2 Vinc;
+            
+            Vinc[0] = exp( iu*p*theta0 );
+            Vinc[1] = exp( iu*p*theta1 );
+            
+            Ep [I] += 0.5*Vinc;
+			
+			Vinc[0] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta0 );
+            Vinc[1] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta1 );
+            
+			Ref[I] += 0.5*Vinc;
+            
+        }
         
-        Vinc[0] = exp( iu*kappa*(X0,dir) );
-        Vinc[1] = exp( iu*kappa*(X1,dir) );
-        
-        Udinc[I] += 0.5*Vinc;
-        
-        Vinc[0] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X0,dir) );
-        Vinc[1] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X1,dir) );
-        
-        Uninc[I] += 0.5*Vinc;
-        
-    }
-    
-    vect<Cplx> F; resize(F,nbdof); fill(F,0);
-    vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
-    vect<Cplx> gD; resize(gD,nbdof); fill(gD,0);
-    
-    // Boundary condition
-    gD= Udinc;
-    // 	fill(gD,Cplx(0.));
-    
-    
-    mv_prod(Ftemp,W,gD);
-    for(int j=0; j<nbelt; j++){
-        F[j] += -Ftemp[j];
-    }
-    
-    
-    // Source term
-    // 	mv_prod(Ftemp,W,UanaD);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    
-    // 	mv_prod(Ftemp,T,UanaN);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] += Ftemp[j];
-    // 		cout<<Ftemp[j]<<endl;
-    // 	}
-    
-    // 	mv_prod(Ftemp,M,UanaN);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] -= 0.5*Ftemp[j];
-    // 	}
-    //
-    // 	mv_prod(Ftemp,KT,UanaN);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    
-    mv_prod(Ftemp,M,Uninc);
-    for(int j=0; j<nbelt; j++){
-        F[j] += -Ftemp[j];
-    }
-    ////=============================================================////
-    ////================ Résolution système linéaire ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Appel du solveur"<<std::endl;
-    }
-    
-    vect<Cplx> U;
-    resize(U,nbdof);
-    
-    // 	gmm_dense LU(nbddl,nbddl);
-    // 		lu_factor(J,LU);
-    // 		lu_solve(LU,U,F);
-    gmres_solve(TT,U,F,40,verbose);
-    
-    
-    ////=============================================================////
-    ////===================== Calcul de l'erreur ====================////
-    ////=============================================================////
-    vect<Cplx> Err, Err2, Norme;
-    resize(Err, nbdof);
-    resize(Err2,nbdof);
-    resize(Norme,nbdof);
-    for(int j=0; j<nbdof; j++){
-        Err[j] =  U[j]-Uninc[j];
-    }
-    mv_prod(Err2,M,Err);
-    mv_prod(Norme,M,Uninc);
-    
-    Real erreur=0;
-    Cplx norme =0.;
-    Cplx val=0;
-    for(int j=0; j<nbdof; j++){
-        val += Err2[j]*conj(Err[j]);
-        norme  += Norme[j]*conj(Uninc[j]);
-    }
-    erreur=abs(val/norme);
-    if (verbose>0){
-        std::cout << "erreur:\t" << erreur << std::endl;
-    }
-    ////=============================================================////
-    ////======================== Sauvegardes ========================////
-    ////=============================================================////
-    std::ofstream output((output_name+".txt").c_str(),std::ios::app);
-    if (verbose>0){
-        std::cout<<"Output in "<<output_name<<std::endl;
-    }
-    if (!output){
-        std::cerr<<"Output file cannot be created"<<std::endl;
-        exit(1);
-    }
-    else{
-        output<<lc<<" "<<erreur<<std::endl;
-    }
-    output.close();
-    
+		////=============================================================////
+		////================ Assemblage du second membre ================////
+		////=============================================================////
+		vect<Cplx> F; resize(F,nbdof); fill(F,0);
+		vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
+		vect<Cplx> gD; resize(gD,nbdof); fill(gD,0);
+		
+		// Boundary condition
+		gD= Ep;
+		// 	fill(gD,Cplx(0.));
+		
+		
+		mv_prod(Ftemp,W,gD);
+		for(int j=0; j<nbelt; j++){
+			F[j] += -Ftemp[j];
+		}
+		
+		////=============================================================////
+		////================ Résolution système linéaire ================////
+		////=============================================================////
+		if (verbose>0){
+			std::cout<<"Appel du solveur"<<std::endl;
+		}
+		
+		vect<Cplx> U;
+		resize(U,nbdof);
+		
+		// 	gmm_dense LU(nbddl,nbddl);
+		// 		lu_factor(J,LU);
+		// 		lu_solve(LU,U,F);
+		gmres_solve(TT,U,F,40,verbose);
+		
+		
+		////=============================================================////
+		////===================== Calcul de l'erreur ====================////
+		////=============================================================////
+		vect<Cplx> Err, Err2, Norme;
+		resize(Err, nbdof);
+		resize(Err2,nbdof);
+		resize(Norme,nbdof);
+		for(int j=0; j<nbdof; j++){
+			Err[j] =  U[j]-Ref[j];
+		}
+		mv_prod(Err2,M,Err);
+		mv_prod(Norme,M,Ref);
+		
+		Real erreur=0;
+		Cplx norme =0.;
+		Cplx val=0;
+		for(int j=0; j<nbdof; j++){
+			val += Err2[j]*conj(Err[j]);
+			norme  += Norme[j]*conj(Ref[j]);
+		}
+		erreur=abs(val/norme);
+		if (verbose>0){
+			std::cout << "erreur:\t" << erreur << std::endl;
+		}
+		////=============================================================////
+		////======================== Sauvegardes ========================////
+		////=============================================================////
+		std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+".txt").c_str(),std::ios::app);
+		if (verbose>0){
+			std::cout<<"Output in "<<output_name<<std::endl;
+		}
+		if (!output){
+			std::cerr<<"Output file cannot be created"<<std::endl;
+			exit(1);
+		}
+		else{
+			output<<lc<<" "<<erreur<<std::endl;
+		}
+		output.close();
+	}
 }
 
 ///==================================================================================////
 ///===========================Second kind Neumann====================================////
 ///==================================================================================////
 
-void second_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbose){
+void second_kind_neumann_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
     ////=============================================================////
     ////=======================  Mesh building  =====================////
     ////=============================================================////
@@ -658,7 +653,7 @@ void second_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbos
     // 		cout<<(G,n_[j])<<std::endl;
     // 	}
     
-    swap(n_);
+//     swap(n_);
     ////=============================================================////
     ////================ Assemblage de la matrice ===================////
     ////=============================================================////
@@ -693,133 +688,125 @@ void second_kind_neumann_2D(Real lc, Real R, std::string output_name, int verbos
     }
     bar.end();
     
-    ////=============================================================////
-    ////================ Assemblage du second membre ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Assemblage du second membre"<<std::endl;
-    }
-    R3 dir; dir[0]=sqrt(2)/2.;dir[1]=sqrt(2)/2.;dir[2]=0;
-    
-    vect<Cplx> Udinc; resize(Udinc,nbdof); fill(Udinc,0.);
-    vect<Cplx> Uninc; resize(Uninc,nbdof); fill(Uninc,0.);
-    
-    for (int j=0 ; j<nbelt ; j++){
-        const elt_1D& seg = Omega[j];
-        const N2&     I   = dof[j];
+	for (int l=0;l<harmonics.size();l++){
+		Real p = harmonics[l];
+	    ////=============================================================////
+        ////================== Harmonique de Fourier ====================////
+        ////=============================================================////
         
-        R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
-        R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
-        C2 Vinc;
+        vect<Cplx> Ep ;resize(Ep ,nbdof);fill(Ep ,0.);
+		vect<Cplx> Ref;resize(Ref,nbdof);fill(Ref,0.);
+        for (int j=0 ; j<nbelt ; j++){
+            const elt_1D& seg = Omega[j];
+            const N2&     I   = dof[j];
+            
+            R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
+            R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
+            
+            Real theta0 = atan (X0[1]/X0[0]);
+            Real theta1 = atan (X1[1]/X1[0]);
+            
+            if (X0[0]<0 & X0[1]>=0){
+                theta0 += M_PI;
+            }
+            if (X0[0]<0 & X0[1]<0){
+                theta0 -= M_PI;
+            }
+            if (X1[0]<0 & X1[1]>=0){
+                theta1 += M_PI;
+            }
+            if (X1[0]<0 & X1[1]<0){
+                theta1 -= M_PI;
+            }
+            
+            C2 Vinc;
+            
+            Vinc[0] = exp( iu*p*theta0 );
+            Vinc[1] = exp( iu*p*theta1 );
+            
+            Ep [I] += 0.5*Vinc;
+			
+			Vinc[0] = (1./kappa)*boost::math::cyl_bessel_j(p,kappa*R)/((p/(kappa*R))*boost::math::cyl_bessel_j(p,kappa*R)-boost::math::cyl_bessel_j(p+1,kappa*R))*exp( iu*p*theta0 );
+            Vinc[1] = (1./kappa)*boost::math::cyl_bessel_j(p,kappa*R)/((p/(kappa*R))*boost::math::cyl_bessel_j(p,kappa*R)-boost::math::cyl_bessel_j(p+1,kappa*R))*exp( iu*p*theta1 );
+            
+			Ref[I] += 0.5*Vinc;
+            
+        }
         
-        Vinc[0] = exp( iu*kappa*(X0,dir) );
-        Vinc[1] = exp( iu*kappa*(X1,dir) );
         
-        Udinc[I] += 0.5*Vinc;
-        
-        Vinc[0] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X0,dir) );
-        Vinc[1] = (dir,n_[j])*iu*kappa*exp( iu*kappa*(X1,dir) );
-        
-        Uninc[I] += 0.5*Vinc;
-        
-    }
-    
-    vect<Cplx> F; resize(F,nbdof); fill(F,0);
-    vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
-    vect<Cplx> gN; resize(gN,nbdof); fill(gN,0);
-    
-    // Boundary condition
-    gN= Uninc;
-    // 	fill(gD,Cplx(0.));
-    
-    
-    mv_prod(Ftemp,V,gN);
-    for(int j=0; j<nbelt; j++){
-        F[j] += -Ftemp[j];
-    }
-    
-    
-    // Source term
-    // 	mv_prod(Ftemp,W,UanaD);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    
-    // 	mv_prod(Ftemp,T,UanaN);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] += Ftemp[j];
-    // 		cout<<Ftemp[j]<<endl;
-    // 	}
-    
-    // 	mv_prod(Ftemp,M,UanaN);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] -= 0.5*Ftemp[j];
-    // 	}
-    //
-    // 	mv_prod(Ftemp,KT,UanaN);
-    // 	for(int j=0; j<nbseg_g.at(0); j++){
-    // 		F[j] += Ftemp[j];
-    // 	}
-    
-    mv_prod(Ftemp,M,Udinc);
-    for(int j=0; j<nbelt; j++){
-        F[j] += -Ftemp[j];
-    }
-    ////=============================================================////
-    ////================ Résolution système linéaire ================////
-    ////=============================================================////
-    if (verbose>0){
-        std::cout<<"Appel du solveur"<<std::endl;
-    }
-    vect<Cplx> U;
-    resize(U,nbdof);
-    
-    // 	gmm_dense LU(nbddl,nbddl);
-    // 		lu_factor(J,LU);
-    // 		lu_solve(LU,U,F);
-    gmres_solve(T,U,F,40,verbose);
-    
-    
-    ////=============================================================////
-    ////===================== Calcul de l'erreur ====================////
-    ////=============================================================////
-    vect<Cplx> Err, Err2, Norme;
-    resize(Err, nbdof);
-    resize(Err2,nbdof);
-    resize(Norme,nbdof);
-    for(int j=0; j<nbdof; j++){
-        Err[j] =  U[j]-Udinc[j];
-    }
-    mv_prod(Err2,M,Err);
-    mv_prod(Norme,M,Udinc);
-    
-    Real erreur=0;
-    Cplx norme =0.;
-    Cplx val=0;
-    for(int j=0; j<nbdof; j++){
-        val += Err2[j]*conj(Err[j]);
-        norme  += Norme[j]*conj(Udinc[j]);
-    }
-    erreur=abs(val/norme);
-    if (verbose>0){
-        std::cout << "erreur:\t" << erreur << std::endl;
-    }
-    ////=============================================================////
-    ////======================== Sauvegardes ========================////
-    ////=============================================================////
-    std::ofstream output((output_name+".txt").c_str(),std::ios::app);
-    if (verbose>0){
-        std::cout<<"Output in "<<output_name<<std::endl;
-    }
-    if (!output){
-        std::cerr<<"Output file cannot be created"<<std::endl;
-        exit(1);
-    }
-    else{
-        output<<lc<<" "<<erreur<<std::endl;
-    }
-    output.close();
-    
+		////=============================================================////
+		////================ Assemblage du second membre ================////
+		////=============================================================////
+		
+		vect<Cplx> F; resize(F,nbdof); fill(F,0);
+		vect<Cplx> Ftemp; resize(Ftemp,nbdof); fill(Ftemp,0);
+		vect<Cplx> gN; resize(gN,nbdof); fill(gN,0);
+		
+		// Boundary condition
+		gN= Ep;
+		// 	fill(gD,Cplx(0.));
+		
+		
+		mv_prod(Ftemp,V,gN);
+		for(int j=0; j<nbelt; j++){
+			F[j] += -Ftemp[j];
+		}
+
+		////=============================================================////
+		////================ Résolution système linéaire ================////
+		////=============================================================////
+		if (verbose>0){
+			std::cout<<"Appel du solveur"<<std::endl;
+		}
+		vect<Cplx> U;
+		resize(U,nbdof);
+		
+		// 	gmm_dense LU(nbddl,nbddl);
+		// 		lu_factor(J,LU);
+		// 		lu_solve(LU,U,F);
+		gmres_solve(T,U,F,40,verbose);
+		
+		
+		////=============================================================////
+		////===================== Calcul de l'erreur ====================////
+		////=============================================================////
+		vect<Cplx> Err, Err2, Norme;
+		resize(Err, nbdof);
+		resize(Err2,nbdof);
+		resize(Norme,nbdof);
+		for(int j=0; j<nbdof; j++){
+			Err[j] =  U[j]-Ref[j];
+		}
+		mv_prod(Err2,M,Err);
+		mv_prod(Norme,M,Ref);
+		
+		Real erreur=0;
+		Cplx norme =0.;
+		Cplx val=0;
+		for(int j=0; j<nbdof; j++){
+			val += Err2[j]*conj(Err[j]);
+			norme  += Norme[j]*conj(Ref[j]);
+		}
+		erreur=abs(val/norme);
+		if (verbose>0){
+			std::cout << "erreur:\t" << erreur << std::endl;
+		}
+		////=============================================================////
+		////======================== Sauvegardes ========================////
+		////=============================================================////
+		std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+".txt").c_str(),std::ios::app);
+		if (verbose>0){
+			std::cout<<"Output in "<<output_name<<std::endl;
+		}
+		if (!output){
+			std::cerr<<"Output file cannot be created"<<std::endl;
+			exit(1);
+		}
+		else{
+			output<<lc<<" "<<erreur<<std::endl;
+		}
+		output.close();
+	}
 }
 
 
