@@ -1271,38 +1271,55 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
     if (verbose>0){
         std::cout<<"Chargement du maillage"<<std::endl;
     }
-    Real kappa=1.;
     
     geometry geom,vol;
     load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
-	std::cout<<meshfile(geom)<<std::endl;
     load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
-	std::cout<<get_node(geom,10)<<std::endl;
-	std::cout<<get_node(vol,50)<<std::endl;
-	std::cout<<meshfile(geom)<<std::endl;
-	std::cout<<meshfile(vol)<<std::endl;
+//	std::cout<<get_node(geom,10)<<std::endl;
+//	std::cout<<get_node(vol,50)<<std::endl;
+//	std::cout<<meshfile(geom)<<std::endl;
+//	std::cout<<meshfile(vol)<<std::endl;
 	
     mesh_1D Omega(geom);
 	
     load_elt_gmsh(Omega,0);
-	std::cout<<"ok"<<std::endl;
-	std::cout<<Omega[0]<<std::endl;
-//     gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
-// 	gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+//	std::cout<<Omega[0]<<std::endl;
+    gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
+ 	gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
     
     ////=============================================================////
     ////================== Calcul de la normale =====================////
     ////=============================================================////
-    std::cout<<"ok"<<std::endl;
+
     nrml_1D n_(Omega);
-	std::cout<<"ok"<<std::endl;
+
 	////=============================================================////
     ////================== Calcul de la normale =====================////
     ////=============================================================////
+    const vect<R3>& node = get_node(vol);
+    int nbpt  = size(node);
     
-	
-	
-	
-	
+    int nbelt = nb_elt(Omega);
+    P1_1D dof(Omega);
+    int nbdof = nb_dof(dof);
+    
+    Real kappa=1.;
+    
+    gmm_dense S(nbpt,nbdof);
+    chps_rayonne<P1_1D,SLP_2D> Sop(kappa,n_);
+    
+    progress bar("assembly", nbpt*nbelt,verbose);
+    for (int j=0; j<nbpt ;j++){
+        const N1& jj = j;
+        for (int k=0;k<nbelt;k++, bar++){
+            const elt_1D& tk = Omega[k];
+            const N2&     kk = dof[k];
+            
+            S (jj,kk) += Sop(node[j],tk);
+        }
+    }
+    bar.end();
+
+    write(S,"S");
 	
 }
