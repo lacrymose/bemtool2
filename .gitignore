@@ -22,3 +22,6 @@ build*
 
 ### Doxygen
 *.in
+
+### macOS
+*.DS_Store
