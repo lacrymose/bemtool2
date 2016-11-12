@@ -475,6 +475,7 @@ template <class space, class kernel_t> class chps_rayonne{
   //      Constructeur 
  chps_rayonne(const Real& k, const normal_t& n0, int order=15): 
   k2(k*k), kernel(k), qr(order),mesh(mesh_of(n0)), loc(temp_loc.apply(get_geometry(mesh_of(n0)))), elt(temp_elt.apply(get_geometry(mesh_of(n0)))),phi(mesh_of(n0)),n(n0),temp_loc(), temp_elt(){
+      rule=0;
 	 };  
   
   //=====================================//

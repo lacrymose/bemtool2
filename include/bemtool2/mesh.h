@@ -156,7 +156,7 @@ class geometry{
   
  private:
   // variable  de travail
-  const char*    meshfile;
+  std::string    meshfile;
   vect<R3>       node;
   list_elt_1D    elt1D;
   list_elt_2D    elt2D;
@@ -168,7 +168,7 @@ class geometry{
   geometry ();
   
   
-  friend void load_node_gmsh(geometry& , const char*);
+  friend void load_node_gmsh(geometry& , std::string);
 //   template <class r_t> friend void load_node_hand(geometry& , const r_t&);
   friend int push(geometry&, const mesh_<1>&, elt_1D);
   friend int push(geometry&, const mesh_<2>&, elt_2D);
@@ -177,7 +177,7 @@ class geometry{
   friend const int nb_elt1D(const geometry&);  
   friend const int nb_elt2D(const geometry&); 
   
-  friend const char*              meshfile(const geometry&);
+  friend std::string              meshfile(const geometry&);
   friend const R3&                get_node(const geometry&, const int&);
   friend const vect<R3>&          get_node(const geometry&);
   template<class i_t> friend const subarray<const vect<R3>,i_t> get_node(const geometry&, const i_t&);
@@ -197,11 +197,11 @@ class geometry{
   
 // Initialisation et instanciation
 inline geometry::geometry(){
-  meshfile = 0;
+  meshfile = "";
 }
 
 // Definition des methodes
-inline const char*         meshfile(const geometry& geom) {return geom.meshfile;}
+inline std::string         meshfile(const geometry& geom) {return geom.meshfile;}
 inline const int           nb_node (const geometry& geom) {return size(geom.node ); }
 inline const int           nb_elt1D(const geometry& geom) {return size(geom.elt1D); }
 inline const int           nb_elt2D(const geometry& geom) {return size(geom.elt2D); }
@@ -232,9 +232,9 @@ inline int push(geometry& geom, const mesh_2D& m, elt_2D e){return geom.elt2D.pu
 
 
 // Chargement des noeuds du maillage
-inline void load_node_gmsh(geometry& geom,const char* filename){
+inline void load_node_gmsh(geometry& geom, std::string filename){
   
- vect<R3>& node = geom.node;
+  vect<R3>& node = geom.node;
   assert(!size(node));
   geom.meshfile = filename;
   std::string filename_string = filename;
@@ -357,21 +357,21 @@ class mesh_{
   friend void write_medit(const mesh_<dim>& m, char const * const name){
     
     const vect<R3>& node = get_node(m.geom);  
-    int nb_node = size(m.node);
+    int nb_node = size(node);
     std::ofstream file; file.open(name);    
     file << "MeshVersionFormatted 1\n";
     file << "Dimension 3\n";
     file << "Vertices\n";
     file << nb_node << std::endl;
     for(int j=0; j<nb_node; j++){
-      file << m.node[j] << "\t 0 \n";}
+      file << node[j] << "\t 0 \n";}
     file << std::endl;
     file << "Triangles\n";
     file << nb_elt(m) << std::endl;
     for(int j=0; j<nb_elt(m); j++){  
-      file << &m[j][0]-&m.node[0] +1 << "\t";
-      file << &m[j][1]-&m.node[0] +1 << "\t";
-      file << &m[j][2]-&m.node[0] +1 << "\t";
+      file << &m[j][0]-&node[0] +1 << "\t";
+      file << &m[j][1]-&node[0] +1 << "\t";
+      file << &m[j][2]-&node[0] +1 << "\t";
       file << "0 \n";
     }
     file.close();
@@ -389,10 +389,9 @@ void load_elt_gmsh(m_t& m, int ref = -1){
   
   const int dim = m_t::Dim;
   bemtool::array<dim+1,int> I;  
-  const char* filename = meshfile(m.geom);
-  std::string filename_string = filename;
-  filename_string += ".msh";
-  std::cout<<filename_string<<std::endl;
+  std::string filename = meshfile(m.geom);
+  filename += ".msh";
+
   // Variables  auxiliaires
   int poubelle, elt_type;
   int tag, nb_tags;
@@ -402,7 +401,7 @@ void load_elt_gmsh(m_t& m, int ref = -1){
   std::string line;
   std::istringstream iss;
   
-  file.open(filename_string.c_str(), std::ifstream::in);
+  file.open(filename.c_str(), std::ifstream::in);
   if( file.fail() ){
     std::cout << "Probleme lors du chargement des elements" << std::endl;
     exit(EXIT_FAILURE);}
@@ -415,19 +414,14 @@ void load_elt_gmsh(m_t& m, int ref = -1){
   // Chrgt donnees elements
   getline(file,line);       
 
-  int nb_elt = 0;
-  while( line != "$EndElements" ){    
-	  std::cout<<"test"<<std::endl;
+  while( line != "$EndElements" ){
     iss.str(line);    
     iss >> poubelle;
     iss >> elt_type;      
     iss >> nb_tags;
     iss >> tag;      
-    std::cout<<elt_type<<" "<<dim<<std::endl;
-	std::cout<<tag<<" "<<ref<<std::endl;
 	
     if(elt_type==dim && tag == ref){
-		std::cout<<"test"<<std::endl;
       for(int j=0; j<nb_tags-1; j++){
 	iss >> poubelle;}      
       
@@ -435,7 +429,6 @@ void load_elt_gmsh(m_t& m, int ref = -1){
       iss >> I; I--;
       // ajout de l'elt dans le mesh
       m << get_node(m.geom,I);
-      std::cout<<I<<std::endl;
     }
     
     iss.clear();
