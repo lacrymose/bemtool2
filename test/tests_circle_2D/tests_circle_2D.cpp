@@ -1285,7 +1285,7 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
     load_elt_gmsh(Omega,0);
 //	std::cout<<Omega[0]<<std::endl;
     gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
- 	gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+//  	gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
     
     ////=============================================================////
     ////================== Calcul de la normale =====================////
@@ -1294,7 +1294,7 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
     nrml_1D n_(Omega);
 
 	////=============================================================////
-    ////================== Calcul de la normale =====================////
+    ////============ Matrice pour le champs rayonne =================////
     ////=============================================================////
     const vect<R3>& node = get_node(vol);
     int nbpt  = size(node);
@@ -1305,8 +1305,9 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
     
     Real kappa=1.;
     
-    gmm_dense S(nbpt,nbdof);
-    chps_rayonne<P1_1D,SLP_2D> Sop(kappa,n_);
+    gmm_dense SLP(nbpt,nbdof),DLP(nbpt,nbdof);
+    chps_rayonne<P1_1D,SLP_2D> SLPop(kappa,n_);
+    chps_rayonne<P1_1D,DLP_2D> DLPop(kappa,n_);
     
     progress bar("assembly", nbpt*nbelt,verbose);
     for (int j=0; j<nbpt ;j++){
@@ -1315,11 +1316,97 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
             const elt_1D& tk = Omega[k];
             const N2&     kk = dof[k];
             
-            S (jj,kk) += Sop(node[j],tk);
-        }
+            SLP (jj,kk) += SLPop(node[j],tk) ;
+			DLP (jj,kk) += DLPop(node[j],tk) ;
+			
+		}
     }
     bar.end();
-
-    write(S,"S");
+// 	write(SLP,"SLP");
+// 	write(DLP,"DLP");
 	
+	////=============================================================////
+    ////======================= Trace solution ======================////
+    ////=============================================================////
+	int p=3;
+	
+	vect<Cplx> TraceDirichlet;resize(TraceDirichlet,nbdof);fill(TraceDirichlet,0.);
+	vect<Cplx> TraceNeumann;  resize(TraceNeumann,nbdof);  fill(TraceNeumann,0.);
+    for (int j=0 ; j<nbelt ; j++){
+		const elt_1D& seg = Omega[j];
+		const N2&     I   = dof[j];
+            
+		R3 X0; X0[0] =  seg[0][0];X0[1]=seg[0][1]; X0[2]=0;
+		R3 X1; X1[0] =  seg[1][0];X1[1]=seg[1][1]; X1[2]=0;
+            
+		Real theta0 = atan (X0[1]/X0[0]);
+		Real theta1 = atan (X1[1]/X1[0]);
+            
+		if (X0[0]<0 & X0[1]>=0){
+			theta0 += M_PI;
+		}
+		if (X0[0]<0 & X0[1]<0){
+			theta0 -= M_PI;
+		}
+		if (X1[0]<0 & X1[1]>=0){
+			theta1 += M_PI;
+		}
+		if (X1[0]<0 & X1[1]<0){
+			theta1 -= M_PI;
+		}
+            
+		C2 Vinc;
+		
+		Vinc[0] = exp( iu*p*theta0 );
+		Vinc[1] = exp( iu*p*theta1 );
+            
+		TraceDirichlet [I] += 0.5*Vinc;
+		
+			
+		Vinc[0] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta0 );
+		Vinc[1] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta1 );
+            
+		TraceNeumann[I] += 0.5*Vinc;
+            
+	}
+	
+	////=============================================================////
+    ////=================== Solution de référence ===================////
+    ////=============================================================////
+	vect<Cplx> Ref;resize(Ref,nbpt);fill(Ref,0.);
+	for (int j=0;j<nbpt;j++){
+		R3 X; X[0] = node[j][0];X[1]= node[j][1]; X[2]= node[j][2];;
+		
+		Real r     = sqrt(X[0]*X[0]+X[1]*X[1]+X[2]*X[2]);
+		Real theta = atan (X[1]/X[0]);
+		   
+		if (X[0]<0 & X[1]>=0){
+			theta += M_PI;
+		}
+		if (X[0]<0 & X[1]<0){
+			theta -= M_PI;
+		}
+		
+		Ref[j]= boost::math::cyl_bessel_j(p,kappa*r)/boost::math::cyl_bessel_j(p,kappa*R)*exp( iu*p*theta );
+	}
+    
+	////=============================================================////
+    ////================ Construction de la solution ================////
+    ////=============================================================////
+    vect<Cplx> S;resize(S,nbpt);fill(S,0.);
+	vect<Cplx> D;resize(D,nbpt);fill(D,0.);
+	
+	mv_prod(S,SLP,TraceNeumann);
+	mv_prod(D,DLP,TraceDirichlet);
+	std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+".txt").c_str(),std::ios::app);
+	if (!output){
+		std::cerr<<"Output file cannot be created"<<std::endl;
+		exit(1);
+	}
+	else{
+		for (int j=0;j<nbpt;j++){
+			output<<abs(S[j])<<" "<<abs(D[j])<<" "<<abs(S[j]+D[j])<<" "<< abs(Ref[j])<<std::endl;
+		}
+	}
+	output.close();
 }

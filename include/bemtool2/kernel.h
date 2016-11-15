@@ -116,6 +116,9 @@ class DLP_2D{
   
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); return val = -(ny,x_y)*(1./r)*0.25*iu*k*H_1(k*r); }
+
+  inline Cplx& ker(const R3& ny, const R3& x_y){
+    r = norm2(x_y); return val = -(ny,x_y)*(1./r)*0.25*iu*k*H_1(k*r); }
   
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
@@ -123,7 +126,13 @@ class DLP_2D{
 			    const R3& nx,  const R3& ny,  const R3& x_y,
 			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
   {return val = phix(s,jx,kx)*phiy(t,jy,ky)*z;} 
-    
+  
+  template <class phi_t>
+    inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
+			    const R3& ny,  const R3& x_y,
+			    const Real& h, const Real& w, const Cplx& z)
+  {return val = phi(t,jy,ky)*z;} 
+
 };
 
 
@@ -475,7 +484,6 @@ template <class space, class kernel_t> class chps_rayonne{
   //      Constructeur 
  chps_rayonne(const Real& k, const normal_t& n0, int order=15): 
   k2(k*k), kernel(k), qr(order),mesh(mesh_of(n0)), loc(temp_loc.apply(get_geometry(mesh_of(n0)))), elt(temp_elt.apply(get_geometry(mesh_of(n0)))),phi(mesh_of(n0)),n(n0),temp_loc(), temp_elt(){
-      rule=0;
 	 };  
   
   //=====================================//
@@ -488,8 +496,8 @@ template <class space, class kernel_t> class chps_rayonne{
 	h     = det_jac(y);
 	x_y0 = x-y[0];      
 	dy    = mat_jac(y);
-	const std::vector<qp_t>& t = qr.y(rule);
-	const std::vector<Real>& w = qr.w(rule);
+	const std::vector<qp_t>& t = qr.y(0);
+	const std::vector<Real>& w = qr.w(0);
     
 	// numeros locaux des triangles
 	jy    = loc[ &ey-&elt[0] ][mesh];
