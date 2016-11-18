@@ -112,6 +112,7 @@ int list_elt_<dim>::push(const mesh_<dim>& m, elt_<dim> e){
   bool exist = false;
   int& head = first[ &e[0]-ad0 ];
   int p = head;
+
   while(p!=end){
     if(e==elt[p]){exist=true; break;}
     p = next[p];}
@@ -169,7 +170,7 @@ class geometry{
   
   
   friend void load_node_gmsh(geometry& , std::string);
-//   template <class r_t> friend void load_node_hand(geometry& , const r_t&);
+  template <class r_t> friend void load_node_hand(geometry& , const r_t&);
   friend int push(geometry&, const mesh_<1>&, elt_1D);
   friend int push(geometry&, const mesh_<2>&, elt_2D);
   
@@ -277,15 +278,15 @@ inline void load_node_gmsh(geometry& geom, std::string filename){
   
 }
 
-// template<class r_t> void load_node_hand(geometry& geom, const r_t& nodes){
-// 	vect<R3>& node = geom.node;
-// 	for (int i =0;i<size(nodes);i++){
-// 		node.push_back(nodes[i]);
-// 	}
-// 	geom.elt1D.init(nb_node(geom), node[0]);  
-// 	geom.elt2D.init(nb_node(geom), node[0]);    
-// 	
-// }
+template<class r_t> void load_node_hand(geometry& geom, const r_t& nodes){
+	vect<R3>& node = geom.node;
+	for (int i =0;i<size(nodes);i++){
+		node.push_back(nodes[i]);
+	}
+	geom.elt1D.init(nb_node(geom), node[0]);  
+	geom.elt2D.init(nb_node(geom), node[0]);    
+	
+}
 
 
 
@@ -328,7 +329,8 @@ class mesh_{
   
   template <class r_t> void operator<<(const r_t& r_){
     int J = push(geom, *this,elt_t(r_));
-    num_elt.push_back(J);} 
+    num_elt.push_back(J);
+} 
   
  public:
   
@@ -337,7 +339,7 @@ class mesh_{
   mesh_<dim>(const mesh_<dim>& m): geom(m.geom), bounded(true){assert((m.num_elt).size()==0);};
   
   template <class m_t> friend void load_elt_gmsh(m_t&, int);
-//   template <class m_t, class r_t> friend void load_elt_hand(m_t&, r_t&);
+  template <class m_t, class i_t> friend void load_elt_hand(m_t&, const i_t&);
   
   template <class m_t> friend int  nb_elt (const m_t&);
   const elt_t& operator[](const int& j) const {get_elt_<dim> temp; return (temp.apply(geom))[num_elt[j]];};  
@@ -439,19 +441,9 @@ void load_elt_gmsh(m_t& m, int ref = -1){
   
 }
 
-// template <class m_t, class r_t> void load_elt_hand(m_t& m, r_t r){
-// 	for(int i=0;i<size(r);i++){
-// 		std::cout<<r[i]<<std::endl;
-// // 		m<<r[i];
-// 	}
-// }
-// template <class m_t, int nbr, int nbr2>  
-// void load_elt_hand(m_t& m , const bemtool::array<nbr,bemtool::array<nbr2 , R3> > elts){
-// 	for (int i=0;i<size(elts);i++){
-// 		m<< elts[i];
-// // 		std::cout<<elts[i]<<std::endl;
-// 	}
-// }
+template <class m_t, class i_t> void load_elt_hand(m_t& m, const i_t& i){
+	m<<get_node(m.geom,i);
+}
 
 
 

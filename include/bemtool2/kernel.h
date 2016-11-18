@@ -14,7 +14,36 @@ inline Cplx H_1(Real x){return boost::math::cyl_bessel_j(1,x)+ iu*boost::math::c
 =================================*/
 
 //____________________________________
-// Noyau test constant 
+// Noyau test constant 2D
+class CST_2D{  
+
+  typedef Real qp_t;
+  Cplx val;
+
+ public:  
+  static const int dim = 1;
+  CST_2D(const Real& k0) {};
+  inline Cplx& ker(const R3& nx, const R3& ny, const R3& u){return val = Cplx(1.,0.);}
+  
+  inline Cplx& ker(const R3& ny, const R3& u){return val = Cplx(1.,0.);}
+
+  template <class phix_t, class phiy_t>
+    inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
+			    const phiy_t& phiy, const qp_t& t, const int& jy, const int& ky,
+			    const R3& nx, const R3& ny, const R3& x_y,
+			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
+  {return val = h*w*ker(nx,ny,x_y);} 
+  
+  template <class phi_t>
+    inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
+			    const R3& ny, const R3& x_y,
+			    const Real& h, const Real& w)
+  {return val = h*w*ker(ny,x_y);} 
+  
+};
+
+//____________________________________
+// Noyau test constant 3D
 class CST_3D{  
 
   typedef R2 qp_t;
@@ -24,13 +53,22 @@ class CST_3D{
   static const int dim = 2;
   CST_3D(const Real& k0) {};
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& u){return val = Cplx(1.,0.);}
+  
+  inline Cplx& ker(const R3& ny, const R3& u){return val = Cplx(1.,0.);}
 
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
 			    const phiy_t& phiy, const qp_t& t, const int& jy, const int& ky,
 			    const R3& nx, const R3& ny, const R3& x_y,
 			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
-  {return val = Cplx(1.,0.);} 
+  {return val = h*w*ker(nx,ny,x_y);} 
+  
+  template <class phi_t>
+    inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
+			    const R3& ny, const R3& x_y,
+			    const Real& h, const Real& w)
+  {return val = h*w*ker(ny,x_y);} 
+  
 
   
 };
@@ -66,9 +104,8 @@ class SLP_2D{
   template <class phi_t>
     inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
 			    const R3& ny,   const R3& x_y,
-			    const Real& h, const Real& w, const Cplx& z)
-  {return val = phi(t,jy,ky)*z;} 
-  
+			    const Real& h, const Real& w)
+  {return val = phi(t,jy,ky)*w*h*ker(ny,x_y);} 
   
 };
 
@@ -130,8 +167,8 @@ class DLP_2D{
   template <class phi_t>
     inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
 			    const R3& ny,  const R3& x_y,
-			    const Real& h, const Real& w, const Cplx& z)
-  {return val = phi(t,jy,ky)*z;} 
+			    const Real& h, const Real& w)
+  {return val = phi(t,jy,ky)*h*w*ker(ny,x_y);} 
 
 };
 
@@ -452,7 +489,6 @@ template <class space, class kernel_t> class chps_rayonne{
   int     jy;     // numero des elts (no. local au maillage)
   int     rule;      // regle de quadrature (gestion singularite)
   R3      x_y,x_y0; // x-y et x0-y0 
-  Cplx    z;
   
   //_______________
   // Données auxilaires 
@@ -490,39 +526,32 @@ template <class space, class kernel_t> class chps_rayonne{
   // Calcul des interactions elementaires
   const mat_t& operator()(R3 x, const elt_t& ey){
     
-    // Calcul de la regle de quadrature
-//     choose_quad(ex,ey);
+	Melt=0.;
 	y=ey;
 	h     = det_jac(y);
 	x_y0 = x-y[0];      
 	dy    = mat_jac(y);
+	
 	const std::vector<qp_t>& t = qr.y(0);
 	const std::vector<Real>& w = qr.w(0);
-    
 	// numeros locaux des triangles
 	jy    = loc[ &ey-&elt[0] ][mesh];
-    
+	
 	// Boucle sur les points de quadrature    
 	for(int j=0; j<t.size(); j++) {
-      
 	x_y = x_y0 - dy*t[j];      
-	z = h*w[j]*kernel.ker(n[jy],x_y);
-	
 	
 		for(int k=0; k<dim_loc; k++){
-			Melt(1,k) += kernel(phi, t[j], jy, k,
-					n[jy], x_y,
-					h, w[j], z);
+			Melt(0,k) += kernel(phi, t[j], jy, k, n[jy], x_y, h, w[j]);
 		
 		}
+		
+	}
+	return Melt;
 	
 	}
-
-    return Melt;
-    
-  }
-  
-  
+	
+	
 };
 
 
