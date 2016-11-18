@@ -1,5 +1,4 @@
-add_subdirectory(integration_tests)
-add_subdirectory(validation_tests)
+add_subdirectory(tests_circle_2D)
 
 
 # # BEMTOOL package

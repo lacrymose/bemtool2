@@ -1263,7 +1263,7 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
         std::cout<<"Construction du maillage"<<std::endl;
     }
     gmsh_circle(("circle_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-	gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R,lc,verbose);
+	gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
     
     ////=============================================================////
     ////=======================  Mesh loading  ======================////
@@ -1275,15 +1275,11 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
     geometry geom,vol;
     load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
     load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
-//	std::cout<<get_node(geom,10)<<std::endl;
-//	std::cout<<get_node(vol,50)<<std::endl;
-//	std::cout<<meshfile(geom)<<std::endl;
-//	std::cout<<meshfile(vol)<<std::endl;
-	
+
     mesh_1D Omega(geom);
 	
     load_elt_gmsh(Omega,0);
-//	std::cout<<Omega[0]<<std::endl;
+
     gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
 //  	gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
     
@@ -1315,15 +1311,12 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
         for (int k=0;k<nbelt;k++, bar++){
             const elt_1D& tk = Omega[k];
             const N2&     kk = dof[k];
-            
+			
             SLP (jj,kk) += SLPop(node[j],tk) ;
 			DLP (jj,kk) += DLPop(node[j],tk) ;
-			
 		}
     }
     bar.end();
-// 	write(SLP,"SLP");
-// 	write(DLP,"DLP");
 	
 	////=============================================================////
     ////======================= Trace solution ======================////
@@ -1332,6 +1325,7 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
 	
 	vect<Cplx> TraceDirichlet;resize(TraceDirichlet,nbdof);fill(TraceDirichlet,0.);
 	vect<Cplx> TraceNeumann;  resize(TraceNeumann,nbdof);  fill(TraceNeumann,0.);
+	
     for (int j=0 ; j<nbelt ; j++){
 		const elt_1D& seg = Omega[j];
 		const N2&     I   = dof[j];
@@ -1367,7 +1361,7 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
 		Vinc[1] = kappa*((p/(kappa*R))-boost::math::cyl_bessel_j(p+1,kappa*R)/boost::math::cyl_bessel_j(p,kappa*R))*exp( iu*p*theta1 );
             
 		TraceNeumann[I] += 0.5*Vinc;
-            
+		
 	}
 	
 	////=============================================================////
@@ -1398,7 +1392,8 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
 	
 	mv_prod(S,SLP,TraceNeumann);
 	mv_prod(D,DLP,TraceDirichlet);
-	std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+".txt").c_str(),std::ios::app);
+		
+	std::ofstream output((output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+".txt").c_str());
 	if (!output){
 		std::cerr<<"Output file cannot be created"<<std::endl;
 		exit(1);

@@ -19,7 +19,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
 # BEMTOOL package
-set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
+set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../../include")
 include_directories(${bemtool_dir})
 
 #=============================================================================#
