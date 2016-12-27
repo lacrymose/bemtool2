@@ -1,12 +1,2 @@
 add_subdirectory(integration_tests)
 add_subdirectory(validation_tests)
-
-
-# # BEMTOOL package
-# set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../include")
-# include_directories(${bemtool_dir})
-# 
-# #=============================================================================#
-# #=========================== Executables =====================================#
-# #=============================================================================#
-# add_executable(Tests_quadrature tests_quadrature.cpp)
