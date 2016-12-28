@@ -23,7 +23,7 @@ int main(){
         // fourier_harmonic_2D     (harmoniques, finesses[i], R, "fourier_harmonics");
         // plane_wave_harmonics_2D (harmoniques, finesses[i], R, "plane_wave_harmonics");
 
-		    champs_rayonne_2D (harmoniques, finesses[i], R, "champs_rayonne");
+		    volumic_solution_2D (harmoniques, finesses[i], R, "champs_rayonne");
 
 
 

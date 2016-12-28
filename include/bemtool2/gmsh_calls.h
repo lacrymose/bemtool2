@@ -3,8 +3,7 @@
 
 #include <string>
 #include "calculus.h"
-#include "user.h"
-#include "mesh.h"
+#include "misc.h"
 
 
 ////=============================================================////

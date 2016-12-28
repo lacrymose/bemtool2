@@ -1255,7 +1255,7 @@ void plane_wave_harmonics_2D(std::vector<Real> harmonics, Real lc, Real R, std::
 ///===============================Champs rayonné=====================================////
 ///==================================================================================////
 
-void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
+void volumic_solution_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose){
     ////=============================================================////
     ////=======================  Mesh building  =====================////
     ////=============================================================////
@@ -1281,7 +1281,7 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
 
     load_elt_gmsh(Omega,0);
     load_elt_gmsh(Vol,0);
-    
+
     gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
     gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
 
@@ -1304,8 +1304,8 @@ void champs_rayonne_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
     Real kappa=1.;
 
     gmm_dense SLP(nbpt,nbdof),DLP(nbpt,nbdof);
-    chps_rayonne<P1_1D,SLP_2D> SLPop(kappa,n_);
-    chps_rayonne<P1_1D,DLP_2D> DLPop(kappa,n_);
+    potential<P1_1D,SLP_2D> SLPop(kappa,n_);
+    potential<P1_1D,DLP_2D> DLPop(kappa,n_);
 
     progress bar("assembly", nbpt*nbelt,verbose);
     for (int j=0; j<nbpt ;j++){
