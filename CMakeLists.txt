@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 Project(Bemtool)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Cmake files
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
 
@@ -31,4 +34,3 @@ add_subdirectory(test)
 
 # add_test(NAME post_processing_test COMMAND Test_post_processing)
 # add_test(NAME first_kind_dirichlet_3D_test COMMAND Test_first_kind_dirichlet_3D)
-
