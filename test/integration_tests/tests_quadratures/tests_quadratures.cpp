@@ -38,11 +38,12 @@ void quad2D_chps_rayonne(){
 
 	geometry geom;
 	load_node_hand(geom,pts);
-
+	// load_node_gmsh(geom,"test");
 	bemtool::array<3,int> I; I[0]=0; I[1]=1;I[2]=2;
 
 	mesh_2D mesh(geom);
 	load_elt_hand(mesh,I);
+	// load_elt_gmsh(mesh,0);
 
 	nrml_2D n_(mesh);
 	Real kappa=1;

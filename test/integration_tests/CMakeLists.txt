@@ -1,3 +1,4 @@
 add_subdirectory(tests_quadratures)
 add_subdirectory(tests_hpddm)
 add_subdirectory(tests_gmsh)
+add_subdirectory(tests_eigen)

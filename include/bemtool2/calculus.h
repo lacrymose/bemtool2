@@ -222,23 +222,23 @@ template <class r_t> struct ostream_dbloop<r_t,1,1>{
 
 //---------------------------//
 template <class v_t, class l_t, class r_t, int d = l_t::nc> struct mat_mult{
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return access_<l_t>::op(l_,j,d-1)*access_<r_t>::op(r_,d-1) + mat_mult<v_t,l_t,r_t,d-1>::apply(l_,r_,j);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return access_<l_t>::op(l_,j,d-1)*access_<r_t>::op(r_,d-1,k) + mat_mult<v_t,l_t,r_t,d-1>::apply(l_,r_,j);}
-    
+
 };
 
 template <class v_t, class l_t, class r_t> struct mat_mult<v_t,l_t,r_t,1>{
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return access_<l_t>::op(l_,j,0)*access_<r_t>::op(r_,0);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return access_<l_t>::op(l_,j,0)*access_<r_t>::op(r_,0,k);}
-    
+
 };
 
 
@@ -265,18 +265,18 @@ template <class l_t, class r_t> struct dprod<l_t,r_t,1>{
 
 template <class lhs_t, class rhs_t>
 struct pp{
-    
+
     typedef lhs_t                          l_t;
     typedef rhs_t                          r_t;
     typedef typename resop<l_t,r_t>::type  v_t;
-    
-    
+
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return access_<l_t>::op(l_,j) + access_<r_t>::op(r_,j);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return access_<l_t>::op(l_,j,k) + access_<r_t>::op(r_,j,k);}
-    
+
 };
 
 
@@ -286,14 +286,14 @@ struct pp{
 
 template <class lhs_t, class rhs_t>
 struct mm{
-    
+
     typedef lhs_t                          l_t;
     typedef rhs_t                          r_t;
     typedef typename resop<l_t,r_t>::type  v_t;
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return access_<l_t>::op(l_,j) - access_<r_t>::op(r_,j);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return access_<l_t>::op(l_,j,k) - access_<r_t>::op(r_,j,k);}
 };
@@ -305,48 +305,48 @@ struct mm{
 
 template <class lhs_t, class rhs_t, bool l_test = isbase<lhs_t>::test, bool r_test = isbase<rhs_t>::test>
 struct tt{
-    
+
     typedef lhs_t                            l_t;
     typedef rhs_t                            r_t;
     typedef typename resop<l_t,r_t>::type    v_t;
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return mat_mult<v_t,l_t,r_t>::apply(l_,r_,j);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return mat_mult<v_t,l_t,r_t>::apply(l_,r_,j,k);}
-    
+
 };
 
 
 template <class lhs_t, class rhs_t>
 struct tt<lhs_t,rhs_t, true, false>{
-    
+
     typedef lhs_t                            l_t;
     typedef rhs_t                            r_t;
     typedef typename resop<l_t,r_t>::type    v_t;
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return access_<l_t>::op(l_,j)*access_<r_t>::op(r_,j);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return access_<l_t>::op(l_,j,k)*access_<r_t>::op(r_,j,k);}
-    
+
 };
 
 template <class lhs_t, class rhs_t>
 struct tt<lhs_t,rhs_t, false, true>{
-    
+
     typedef lhs_t                            l_t;
     typedef rhs_t                            r_t;
     typedef typename resop<l_t,r_t>::type    v_t;
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j){
         return access_<l_t>::op(l_,j)*access_<r_t>::op(r_,j);}
-    
+
     static v_t apply(const l_t& l_, const r_t& r_, const int& j, const int& k){
         return access_<l_t>::op(l_,j,k)*access_<r_t>::op(r_,j,k);}
-    
+
 };
 
 
@@ -359,8 +359,8 @@ struct tt<lhs_t,rhs_t, false, true>{
 //    for(int j=0; j<l_t::dim; j++){ if( access_<l_t>::op(l_,j)!=access_<r_t>::op(r_,j) ){return false;}}
 //    return true;}
 
-template <class l_t, class r_t> bool operator!=(const l_t& l_, const r_t& r_){
-    return !(l_==r_);}
+// template <class l_t, class r_t> bool operator!=(const l_t& l_, const r_t& r_){
+//     return !(l_==r_);}
 
 
 
@@ -370,72 +370,72 @@ template <class l_t, class r_t> bool operator!=(const l_t& l_, const r_t& r_){
 
 template <class op>
 class xpr{
-    
+
 public:
-    
+
     typedef typename op::l_t l_t;
     typedef typename op::r_t r_t;
     typedef typename op::v_t v_t;
     typedef xpr<op>       this_t;
-    
+
     static const int nr = find_nb_rows<l_t,r_t>::nr;
     static const int dim = nr;
-    
+
 private:
-    
+
     const l_t& l_;
     const r_t& r_;
-    
+
 public:
-    
+
     xpr(const l_t& l0, const r_t& r0): l_(l0), r_(r0) {};
-    
+
     v_t operator[](const int& j){ return op::apply(l_,r_,j); }
     const v_t operator[](const int& j) const { return op::apply(l_,r_,j); }
-    
+
     v_t operator()(const int& j, const int& k){ return op::apply(l_,r_,j,k); }
     const v_t operator()(const int& j, const int& k) const { return op::apply(l_,r_,j,k); }
-    
+
     //==== Addition
     template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
     xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
     xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
     xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
     inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
     inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Soustraction
     template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
     xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
     xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
     xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
     inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
     inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Multiplication
     template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
     xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
     xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
     xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< tt<this_t,int>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<this_t,int>  >(r_,l_);}
     inline friend xpr< tt<this_t,Real> > operator*(const Real& l_, const this_t& r_){return xpr< tt<this_t,Real> >(r_,l_);}
     inline friend xpr< tt<this_t,Cplx> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<this_t,Cplx> >(r_,l_);}
-    
+
     //===== Produit scalaire
     template <class r_t>typename resop<this_t,r_t>::type operator,(const r_t& r_) const {
         assert(nr==r_t::nr); return dprod<this_t,r_t,nr>::apply(*this,r_); }
-    
+
 };
 
 template <class t> struct access_<xpr<t>, false> {
     static inline typename xpr<t>::v_t op(xpr<t>& r_, const int& j){return r_[j];}
     static inline const typename xpr<t>::v_t op(const xpr<t>& r_, const int& j){return r_[j];}
-    
+
     static inline typename xpr<t>::v_t op(xpr<t>& r_, const int& j, const int& k){return r_(j,k);}
     static inline const typename xpr<t>::v_t op(const xpr<t>& r_, const int& j, const int& k){return r_(j,k);}
 };
@@ -448,77 +448,77 @@ template <class t> struct access_<xpr<t>, false> {
 
 template <class a_t, class i_t>
 class subarray{
-    
+
 public:
     static const int dim  =  i_t::dim;
     static const int nr   =  i_t::dim;
     typedef typename a_t::v_t     v_t;
     typedef subarray<a_t,i_t>  this_t;
-    
+
 private:
     a_t&         a_;
     const i_t&   i_;
-    
+
 public:
-    
+
     subarray(a_t& a0, const i_t& i0): a_(a0), i_(i0) {};
-    
+
     template <class r_t> void operator=(const r_t& r_){
         assign_loop<this_t,r_t>::apply(*this,r_);}
-    
+
     template <class r_t> void operator+=(const r_t& r_){
         plus_assign_loop<this_t,r_t>::apply(*this,r_);}
-    
+
     v_t& operator[](const int& j){return a_[i_[j]];}
     const v_t& operator[](const int& j) const {return a_[i_[j]];}
-    
+
     friend std::ostream& operator<<(std::ostream& os, const this_t& ar){
         ostream_loop<this_t>::apply(os,ar); return os;}
-    
+
     friend this_t& operator>>(std::istream& is, this_t& ar){
         istream_loop<this_t>::apply(is,ar); return ar;}
-    
+
     void operator++(int){increment_loop<this_t>::apply(*this);}
-    
+
     void operator--(int){decrement_loop<this_t>::apply(*this);}
-    
+
     inline friend int size(const this_t& ar){return dim;}
-    
+
     //==== Addition
     template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
     xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
     xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
     xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
     inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
     inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Soustraction
     template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
     xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
     xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
     xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
     inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
     inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Multiplication
     template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
     xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
     xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
     xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< tt<int,this_t>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<int,this_t>  >(l_,r_);}
     inline friend xpr< tt<Real,this_t> > operator*(const Real& l_, const this_t& r_){return xpr< tt<Real,this_t> >(l_,r_);}
     inline friend xpr< tt<Cplx,this_t> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<Cplx,this_t> >(l_,r_);}
-    
+
     //===== Produit scalaire
     template <class r_t>typename resop<this_t,r_t>::type operator,(const r_t& r_) const {
         assert(nr==r_t::nr); return dprod<this_t,r_t,nr>::apply(*this,r_); }
-    
-    
+
+
 };
 
 
@@ -526,90 +526,90 @@ public:
 //           Array          //
 //==========================//
 namespace bemtool {
-    
+
     template <int Dim, class V_t>
     class array{
-        
+
     public:
         static const int dim =      Dim;
         static const int nr  =      Dim;
         typedef array<Dim,V_t>   this_t;
         typedef V_t                 v_t;
-        
+
     private:
         v_t  v_[dim];
-        
+
     public:
         array<Dim,V_t>(){ construct_loop<this_t>::apply(*this); }
-        
+
         template <class r_t> array<Dim,V_t>(const r_t& r_){
             assign_loop<this_t,r_t>::apply(*this,r_);}
-        
+
         template <class r_t> void operator=(const r_t& r_){
             assign_loop<this_t,r_t>::apply(*this,r_);}
-        
+
         template <class r_t> void operator+=(const r_t& r_){
             plus_assign_loop<this_t,r_t>::apply(*this,r_);}
-        
+
         v_t& operator[](const int& j){return v_[j];}
         const v_t& operator[](const int& j) const {return v_[j];}
-        
+
         inline friend std::ostream& operator<<(std::ostream& os, const this_t& ar){
             ostream_loop<this_t>::apply(os,ar); return os;}
-        
+
         inline friend this_t& operator>>(std::istream& is, this_t& ar){
             istream_loop<this_t>::apply(is,ar); return ar;}
-        
+
         void operator++(int){increment_loop<this_t>::apply(*this);}
-        
+
         void operator--(int){decrement_loop<this_t>::apply(*this);}
-        
+
         inline friend int size(const this_t& ar){return dim;}
-        
+
         template <class i_t> subarray<this_t,i_t> operator[] (const i_t& i_){
             return subarray<this_t,i_t>(*this,i_);}
-        
+
         template <class i_t> subarray<const this_t,i_t> operator[] (const i_t& i_) const {
             return subarray<const this_t,i_t>(*this,i_);}
-        
+
         //==== Addition
         template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
         xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
         xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
         xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
-        
+
         inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
         inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
         inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
-        
+
         //==== Soustraction
         template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
         xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
         xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
         xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
-        
+
         inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
         inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
         inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
-        
+
         //==== Multiplication
         template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
         xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
         xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
         xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
-        
+
         inline friend xpr< tt<int,this_t>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<int,this_t>  >(l_,r_);}
         inline friend xpr< tt<Real,this_t> > operator*(const Real& l_, const this_t& r_){return xpr< tt<Real,this_t> >(l_,r_);}
         inline friend xpr< tt<Cplx,this_t> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<Cplx,this_t> >(l_,r_);}
-        
-        
+
+
         //===== Produit scalaire
         template <class r_t>typename resop<this_t,r_t>::type operator,(const r_t& r_) const {
             assert(nr==r_t::nr); return dprod<this_t,r_t,nr>::apply(*this,r_); }
-        
-        
+
+
     };
-    
+
 }
 //==========================//
 //         Sub-Matrix       //
@@ -617,70 +617,70 @@ namespace bemtool {
 
 template <class m_t, class ro_t, class co_t>
 class submat{
-    
+
 public:
-    
+
     // Constantes
     static const int nr  = ro_t::nr;
     static const int nc  = co_t::nr;
     static const int dim = nr*nc;
-    
+
     typedef typename m_t::v_t      v_t;
     typedef bemtool::array<nr,v_t>          a_t;
     typedef submat<m_t,ro_t,co_t>  this_t;
-    
+
 private:
-    
+
     m_t& m;
     const ro_t& I;
     const co_t& J;
-    
+
 public:
-    
+
     submat<m_t,ro_t,co_t>(m_t& m0, const ro_t& I0, const co_t& J0): m(m0), I(I0), J(J0){};
-    
+
     template <class r_t> void operator =(const r_t& r_){ assign_dbloop<this_t,r_t>::apply(*this,r_);      }
-    
+
     template <class r_t> void operator+=(const r_t& r_){ plus_assign_dbloop<this_t,r_t>::apply(*this,r_); }
-    
+
     v_t& operator()(const int& j, const int& k){ return m(I[j],J[k]); }
-    
+
     const v_t& operator()(const int& j, const int& k) const { return m(I[j],J[k]); }
-    
+
     inline friend std::ostream& operator<<(std::ostream& os, const this_t& r_){ ostream_dbloop<this_t>::apply(os,r_); return os;}
-    
-    
+
+
     //==== Addition
     template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
     xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
     xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
     xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
     inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
     inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Soustraction
     template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
     xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
     xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
     xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
     inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
     inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Multiplication
     template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
     xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
     xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
     xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< tt<int,this_t>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<int,this_t>  >(l_,r_);}
     inline friend xpr< tt<Real,this_t> > operator*(const Real& l_, const this_t& r_){return xpr< tt<Real,this_t> >(l_,r_);}
     inline friend xpr< tt<Cplx,this_t> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<Cplx,this_t> >(l_,r_);}
-    
-    
+
+
 };
 
 
@@ -690,72 +690,72 @@ public:
 
 template <int Nr, int Nc, class V_t>
 class mat{
-    
+
 public:
     static const int dim =  Nr*Nc;
     static const int nr  =     Nr;
     static const int nc  =     Nc;
-    
+
     typedef V_t                v_t;
     typedef bemtool::array<nr,v_t>      a_t;
     typedef mat<nr,nc,v_t>  this_t;
-    
+
 private:
-    
+
     v_t  v_[dim];
-    
+
 public:
-    
+
     mat<Nr,Nc,V_t>(){ construct_dbloop<this_t>::apply(*this); }
-    
+
     template <class r_t> mat<Nr,Nc,V_t>(const r_t& r_){ assign_dbloop<this_t,r_t>::apply(*this,r_); }
-    
+
     template <class r_t> void operator=(const r_t& r_){ assign_dbloop<this_t,r_t>::apply(*this,r_); }
-    
+
     template <class r_t> void operator+=(const r_t& r_){ plus_assign_dbloop<this_t,r_t>::apply(*this,r_); }
-    
+
     v_t& operator()(const int& j, const int& k){ return v_[j+k*nr]; }
-    
+
     const v_t& operator()(const int& j, const int& k) const { return v_[j+k*nr]; }
-    
+
     template <class ro_t, class co_t> submat<this_t,ro_t,co_t>
     operator()(const ro_t& I, const co_t& J){ return submat<this_t,ro_t,co_t>(*this,I,J);}
-    
+
     template <class ro_t, class co_t> submat< const this_t,ro_t,co_t>
     operator()(const ro_t& I, const co_t& J) const { return submat<this_t,ro_t,co_t>(*this,I,J);}
-    
+
     inline friend std::ostream& operator<<(std::ostream& os, const this_t& m){ ostream_dbloop<this_t>::apply(os,m); return os;}
-    
+
     //==== Addition
     template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
     xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
     xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
     xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
     inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
     inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Soustraction
     template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
     xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
     xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
     xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
     inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
     inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
-    
+
     //==== Multiplication
     template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
     xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
     xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
     xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
-    
+
     inline friend xpr< tt<int,this_t>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<int,this_t>  >(l_,r_);}
     inline friend xpr< tt<Real,this_t> > operator*(const Real& l_, const this_t& r_){return xpr< tt<Real,this_t> >(l_,r_);}
     inline friend xpr< tt<Cplx,this_t> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<Cplx,this_t> >(l_,r_);}
-    
+
 };
 
 
@@ -774,15 +774,15 @@ template <class a_t> inline void normalize(a_t& a_){a_ = (1./norm2(a_))*a_;}
 
 template<class m_t>
 typename m_t::v_t det(const m_t& M){
-    
+
     if(m_t::nr== 2){
         return M(0,0)*M(1,1)-M(1,0)*M(0,1);}
-    
+
     if(m_t::nr== 3){
         return M(0,0)*( M(1,1)*M(2,2) - M(2,1)*M(1,2) )
         + M(0,1)*( M(1,0)*M(2,2)-M(2,0)*M(1,2) )
         + M(0,2)*( M(1,0)*M(2,1)-M(2,0)*M(1,1) ); }
-    
+
     if(m_t::nr > 3){
         std::cout << "matrice trop grosse" << std::endl;
         exit(EXIT_FAILURE);}
@@ -792,7 +792,7 @@ typename m_t::v_t det(const m_t& M){
 template<class m_t>
 mat<m_t::nr,m_t::nc,typename m_t::v_t>
 inv(const m_t& M){
-    
+
     mat<m_t::nr,m_t::nc,typename m_t::v_t> R;
     if(m_t::nr== 2){
         typename m_t::v_t Delta = M(0,0)*M(1,1)-M(1,0)*M(0,1);
@@ -801,7 +801,7 @@ inv(const m_t& M){
         R(0,1) = -M(0,1)/Delta;
         R(1,0) = -M(1,0)/Delta;
         return R; }
-    
+
     if(m_t::nr== 3){
         typename m_t::v_t Delta = M(0,0)*( M(1,1)*M(2,2) - M(2,1)*M(1,2) )
         + M(0,1)*( M(1,0)*M(2,2)-M(2,0)*M(1,2) )
@@ -816,11 +816,11 @@ inv(const m_t& M){
         R(1,2) = -( M(0,0)*M(1,2) - M(1,0)*M(0,2) )/Delta;
         R(2,2) =  ( M(0,0)*M(1,1) - M(1,0)*M(0,1) )/Delta;
         return R; }
-    
+
     if(m_t::nr > 3){
         std::cout << "matrice trop grosse" << std::endl;
         exit(EXIT_FAILURE);}
-    
+
 }
 
 
@@ -998,55 +998,55 @@ mat<x_t::nr,3, typename x_t::v_t> mat_(const x_t& x0, const x_t& x1, const x_t& 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
 template <class T> class vect {
-    
+
 public:
     typedef T        v_t;
     typedef vect<T>  this_t;
-    
+
 private:
     std::vector<T> data;
-    
+
     // Interdit de recopier un vect
     vect<T>(const vect<T>&);
-    
+
 public:
-    
+
     // Constructeur par defaut
     vect<T>(){};
-    
+
     // Operateurs d'acces
     T& operator[](const int& j){return data[j];}
-    
+
     const T& operator[](const int& j) const {return data[j];}
-    
+
     T& back(){ return data.back();}
-    
+
     const T& back() const { return data.back();}
-    
+
     friend std::vector<T>& vector_of(this_t& v){return v.data;}
-    
+
     friend const std::vector<T>& vector_of(const this_t& v){return v.data;}
-    
+
     void push_back(const T& t){data.push_back(t);}
-    
+
     friend int size  (const this_t& v){return v.data.size(); }
-    
+
     friend void fill (this_t& v,const T& d){
         for(int j=0; j<size(v); j++){v[j]=d;}}
-    
+
     friend void clear (this_t& v){v.data.clear();}
-    
+
     friend void resize(this_t& v, const int& N){v.data.resize(N);}
-    
+
     friend std::ostream& operator<<(std::ostream& os, const this_t& v){
         for(int j=0; j<size(v); j++){os << v[j] << std::endl;} return os;}
-    
+
     template <class i_t> subarray<this_t,i_t> operator[] (const i_t& i_){
         return subarray<this_t,i_t>(*this,i_);}
-    
+
     template <class i_t> subarray<const this_t,i_t> operator[] (const i_t& i_) const {
         return subarray<const this_t,i_t>(*this,i_);}
-    
+
 };
 
 
