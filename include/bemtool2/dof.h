@@ -182,6 +182,7 @@ class P1_{
   // Donnees membres
   vect<locxR3>        nabla;   // gradient des fct de forme
   vect<Nloc>          dof;     // numerotation de dofs
+  std::vector< std::vector<std::pair<int,int> > >  elts_of_dofs;// liste des triangles qui contiennent le support du dof ainsi que leur indice local
   locxRd              b;       // sommets de l'elt-ref  
   int                 nb_dof;  // nombre degres liberte
   static const Nloc   none; 
@@ -219,6 +220,8 @@ class P1_{
   
   friend const int& nb_dof(const P1_<dim>& phi) {return phi.nb_dof;}
   
+  friend const std::vector<std::pair<int,int> >& get_elts_of_dof(const P1_<dim>& phi, const int& j) {return phi.elts_of_dofs[j];}
+  
   //______________
   // Valeur nodale
   template <class fct> Cplx proj(const fct&, const int&, const int&);    
@@ -235,6 +238,8 @@ const typename P1_<dim>::Nloc P1_<dim>::none = -1;
   elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m))), temp_elt(), temp_loc() {
    mesh = &m;
    
+   
+   
    for(int j=0; j<dim; j++){
      b[j+1][j]=1.;}
    
@@ -242,6 +247,7 @@ const typename P1_<dim>::Nloc P1_<dim>::none = -1;
    int nbelt    = nb_elt(m);
    const R3& n0 = get_node(get_geometry(m),0);
    
+   elts_of_dofs.resize(nbnod);
    resize(dof,nbelt);
    resize(nabla,nbelt);
    nb_dof = 0;
@@ -258,12 +264,12 @@ const typename P1_<dim>::Nloc P1_<dim>::none = -1;
        const int vert = &ak - &n0;
        if(num[vert]==-1){ num[vert]=nb_dof; nb_dof++;}
        dof[j][k] = num[vert];
-       
+       elts_of_dofs[num[vert]].push_back(std::pair<int,int> (j,k));
        nabla[j][k] = ( 1./(ak-aj,nabla[j][k]) )*nabla[j][k];
      }
      
    }
-   
+
  }
 
 //template <int dim>

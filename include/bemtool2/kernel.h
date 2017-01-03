@@ -521,7 +521,7 @@ template <class space, class kernel_t> class potential{
 
   //=========================//
   //      Constructeur
- potential(const Real& k, const normal_t& n0, int order=15):
+ potential(const Real& k, const normal_t& n0, int order=4):
   k2(k*k), kernel(k), qr(order),mesh(mesh_of(n0)), loc(temp_loc.apply(get_geometry(mesh_of(n0)))), elt(temp_elt.apply(get_geometry(mesh_of(n0)))),phi(mesh_of(n0)),n(n0),temp_loc(), temp_elt(){
 	 };
 
@@ -545,10 +545,6 @@ template <class space, class kernel_t> class potential{
 	for(int j=0; j<t.size(); j++) {
     test+=w[j];
 	x_y = x_y0 - dy*t[j];
-std::cout << "t[j] : " << t[j] << std::endl;
-std::cout << phi(t[j],0,0) << std::endl;
-std::cout << phi(t[j],0,1) << std::endl;
-std::cout << phi(t[j],0,2) << std::endl;
 
 
 		for(int k=0; k<dim_loc; k++){
@@ -563,7 +559,36 @@ std::cout << phi(t[j],0,2) << std::endl;
 	return Melt;
 
 	}
+	
+  //=====================================//
+  // Calcul des interactions elementaires
+  const Cplx operator()(R3 x, int j){
+// 	std::cout <<"Noeuds "<<j<<std::endl;
+	const std::vector<std::pair<int,int>>& elts = get_elts_of_dof(phi, j);
+	  
+	Cplx out=0;
+	  
+	for (int i=0;i<elts.size();i++){
+		
+		const elt_t& y = mesh[elts[i].first];
+		h     = det_jac(y);
+		x_y0 = x-y[0];
+		dy    = mat_jac(y);
 
+		const std::vector<qp_t>& t = qr.x(0);
+		const std::vector<Real>& w = qr.w(0);
+		// numeros locaux des triangles
+		jy    = loc[ elts[i].first ][mesh];
+		// Boucle sur les points de quadrature
+		for(int k=0; k<t.size(); k++) {
+			x_y = x_y0 - dy*t[k];
+			out += kernel(phi, t[k], jy, elts[i].second, n[jy], x_y, h, w[k]);
+		}
+		
+	}
+
+	return out;
+}
 
 };
 
