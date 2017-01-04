@@ -535,8 +535,8 @@ template <class space, class kernel_t> class potential{
 	x_y0 = x-y[0];
 	dy    = mat_jac(y);
 
-	const std::vector<qp_t>& t = qr.x(0);
-	const std::vector<Real>& w = qr.w(0);
+	const std::vector<qp_t>& t = qr.x();
+	const std::vector<Real>& w = qr.w();
 	// numeros locaux des triangles
 	jy    = loc[ &ey-&elt[0] ][mesh];
 
@@ -575,8 +575,8 @@ template <class space, class kernel_t> class potential{
 		x_y0 = x-y[0];
 		dy    = mat_jac(y);
 
-		const std::vector<qp_t>& t = qr.x(0);
-		const std::vector<Real>& w = qr.w(0);
+		const std::vector<qp_t>& t = qr.x();
+		const std::vector<Real>& w = qr.w();
 		// numeros locaux des triangles
 		jy    = loc[ elts[i].first ][mesh];
 		// Boucle sur les points de quadrature

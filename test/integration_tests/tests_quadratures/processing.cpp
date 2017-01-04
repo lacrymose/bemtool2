@@ -2,8 +2,8 @@
 
 int main(){
 
-    // quad1D_chps_rayonne();
-    quad2D_chps_rayonne();
+    quad1D_potential();
+    quad2D_potential();
 
 
 }

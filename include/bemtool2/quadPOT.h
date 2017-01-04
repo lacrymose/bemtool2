@@ -16,12 +16,12 @@ class quadPOT<2>{
   typedef R2   qp_t;
 
  private:
-  std::vector<R2>   x_[4];
-  std::vector<Real> w_[4];
+  std::vector<R2>   x_;
+  std::vector<Real> w_;
 
  public:
-  const std::vector<R2>&   x(const int& rule) const {return x_[rule];}
-  const std::vector<Real>& w(const int& rule) const {return w_[rule];}
+  const std::vector<R2>&   x() const {return x_;}
+  const std::vector<Real>& w() const {return w_;}
 
   quadPOT<2>(const int& order){
 
@@ -43,8 +43,8 @@ class quadPOT<2>{
       x[0] = 1.-qp[j][0];
 	    x[1] = qp[j][1];
 	    w   = qw[j];
-      x_[0].push_back(x);
-       w_[0].push_back(w);
+      x_.push_back(x);
+       w_.push_back(w);
     }
 
 
@@ -235,17 +235,16 @@ class quadPOT<2>{
   //   }
   //
   //
-  //   //==================================//
-  //   // Transformation pour se ramener a
-  //   // l'element de reference usuel
-  //   //==================================//
-  //   R2x2 B; B(0,0)=1.;B(1,1)=1.;B(0,1)=-1.;
-  //   for(int q=0; q<4; q++){
-  //     for(int j=0; j<w_[q].size(); j++){
-	// x_[q][j] = B*x_[q][j];
-	// y_[q][j] = B*y_[q][j];
-  //     }
-  //   }
+    //==================================//
+    // Transformation pour se ramener a
+    // l'element de reference usuel
+    //==================================//
+    R2x2 B; B(0,0)=1.;B(1,1)=1.;B(0,1)=-1.;
+
+    for(int j=0; j<w_.size(); j++){
+		x_[j] = B*x_[j];
+      }
+
 
 
 
@@ -263,12 +262,12 @@ class quadPOT<1>{
   typedef Real qp_t;
 
  private:
-  std::vector<Real> x_[3];
-  std::vector<Real> w_[3];
+  std::vector<Real> x_;
+  std::vector<Real> w_;
 
  public:
-  const std::vector<Real>& x(const int& rule) const {return x_[rule];}
-  const std::vector<Real>& w(const int& rule) const {return w_[rule];}
+  const std::vector<Real>& x() const {return x_;}
+  const std::vector<Real>& w() const {return w_;}
 
   quadPOT<1>(const int& order){
 
@@ -287,8 +286,8 @@ class quadPOT<1>{
       wxi = w1[i];
       xxi = x1[i];
 
-      w_[0].push_back(wxi);
-      x_[0].push_back(xxi);
+      w_.push_back(wxi);
+      x_.push_back(xxi);
     }
 
 

@@ -1,11 +1,11 @@
 #include "tests_quadratures.hpp"
 
-void quad1D_chps_rayonne(){
+void quad1D_potential(){
 
 
 	R3 A;A[0]=0;A[1]=0;A[2]=0;
-	R3 B;B[0]=0;B[1]=1;B[2]=0;
-	R3 C;C[0]=1;C[1]=0;C[2]=0;
+	R3 B;B[0]=1;B[1]=0;B[2]=0;
+	R3 C;C[0]=1;C[1]=1;C[2]=0;
 
 	vect<R3> pts;pts.push_back(A);pts.push_back(B);
 
@@ -21,12 +21,17 @@ void quad1D_chps_rayonne(){
 	Real kappa=1;
 	potential<P1_1D,CST_2D> CSTop(kappa,n_);
 	mat<1,2,Cplx > CST = CSTop(C,mesh[0]);
+	
+	
+	
 
 	// 0.5 attendu
-	std::cout << CST << std::endl;
+	std::cout <<"2D - calcul par elt    "<< CST << std::endl;
+	std::cout <<"2D - calcul par noeuds "<< CSTop(C,0)<<"\t"<< CSTop(C,1) << std::endl;
+	
 }
 
-void quad2D_chps_rayonne(){
+void quad2D_potential(){
 
 
 	R3 A;A[0]=1;A[1]=0;A[2]=0;
@@ -49,6 +54,9 @@ void quad2D_chps_rayonne(){
 	Real kappa=1;
 	potential<P1_2D,CST_3D> CSTop(kappa,n_);
 	mat<1,3,Cplx > CST = CSTop(D,mesh[0]);
-	// std::cout << mesh[0] <<std::endl;
-	std::cout << CSTop(D,mesh[0]) << std::endl;
+
+	// 0.166667 attendu
+	std::cout <<"3D - calcul par elt    "<< CSTop(D,mesh[0]) << std::endl;
+	std::cout <<"3D - calcul par noeuds "<< CSTop(D,0) <<"\t"<< CSTop(D,1)<<"\t"<<CSTop(D,2)<< std::endl;
+	
 }
