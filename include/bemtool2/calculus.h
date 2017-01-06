@@ -1020,6 +1020,8 @@ public:
     const T& operator[](const int& j) const {return data[j];}
 
     T& back(){ return data.back();}
+    
+    operator std::vector<T>&() { return(data); }
 
     const T& back() const { return data.back();}
 

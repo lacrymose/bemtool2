@@ -130,12 +130,21 @@ class SLP_3D{
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); return val = exp(iu*k*r)/(4*pi*r); }
 
+  inline Cplx& ker(const R3& ny, const R3& x_y){
+    r = norm2(x_y); return val = exp(iu*k*r)/(4*pi*r); }
+    
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
 			    const phiy_t& phiy, const qp_t& t, const int& jy, const int& ky,
 			    const R3& nx, const R3& ny,   const R3& x_y,
 			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
   {return val = phix(s,jx,kx)*phiy(t,jy,ky)*z;}
+  
+  template <class phi_t>
+    inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
+			    const R3& ny,   const R3& x_y,
+			    const Real& h, const Real& w)
+  {return val = phi(t,jy,ky)*w*h*ker(ny,x_y);}
 
 };
 
@@ -194,7 +203,11 @@ class DLP_3D{
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); r3 = r*r*r;
     return val = (ny,x_y)*(iu*k*r-1.)*exp(iu*k*r)/(4*pi*r3); }
-
+    
+  inline Cplx& ker(const R3& ny, const R3& x_y){
+    r = norm2(x_y); r3 = r*r*r;
+    return val = (ny,x_y)*(iu*k*r-1.)*exp(iu*k*r)/(4*pi*r3); }
+    
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
 			    const phiy_t& phiy, const qp_t& t, const int& jy, const int& ky,
@@ -202,6 +215,11 @@ class DLP_3D{
 			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
   {return val = phix(s,jx,kx)*phiy(t,jy,ky)*z;}
 
+  template <class phi_t>
+    inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
+			    const R3& ny,   const R3& x_y,
+			    const Real& h, const Real& w)
+  {return val = phi(t,jy,ky)*w*h*ker(ny,x_y);}
 };
 
 //____________________________________
@@ -564,13 +582,13 @@ template <class space, class kernel_t> class potential{
   // Calcul des interactions elementaires
   const Cplx operator()(R3 x, int j){
 // 	std::cout <<"Noeuds "<<j<<std::endl;
-	const std::vector<std::pair<int,int>>& elts = get_elts_of_dof(phi, j);
+	const std::vector<std::pair<const elt_t*,int>>& elts = get_elts_of_dof(phi, j);
 	  
 	Cplx out=0;
 	  
 	for (int i=0;i<elts.size();i++){
 		
-		const elt_t& y = mesh[elts[i].first];
+		const elt_t& y = *(elts[i].first);
 		h     = det_jac(y);
 		x_y0 = x-y[0];
 		dy    = mat_jac(y);
@@ -578,11 +596,11 @@ template <class space, class kernel_t> class potential{
 		const std::vector<qp_t>& t = qr.x();
 		const std::vector<Real>& w = qr.w();
 		// numeros locaux des triangles
-		jy    = loc[ elts[i].first ][mesh];
+		jy    = loc[ &y-&elt[0] ][mesh];
 		// Boucle sur les points de quadrature
-		for(int k=0; k<t.size(); k++) {
-			x_y = x_y0 - dy*t[k];
-			out += kernel(phi, t[k], jy, elts[i].second, n[jy], x_y, h, w[k]);
+		for(int j=0; j<t.size(); j++) {
+			x_y = x_y0 - dy*t[j];
+			out += kernel(phi, t[j], jy, elts[i].second, n[jy], x_y, h, w[j]);
 		}
 		
 	}

@@ -56,7 +56,9 @@ template <int dim, class val_t = R3>
 
  friend void swap(this_t& e, const int& j, const int& k){
    const v_t* p = &e[j]; e.v_[j] = e.v_[k]; e.v_[k] = p;}
-
+ 
+ friend int get_dim(const this_t& elt){return dim;}
+ 
  friend bemtool::array< dim+1 ,elt_<dim-1> > faces_of(const this_t& e){
    bemtool::array< dim+1, elt_<dim-1> > f;
    bemtool::array<dim, int> I;

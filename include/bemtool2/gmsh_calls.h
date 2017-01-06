@@ -84,7 +84,7 @@ inline void gmsh_disc(std::string mesh_name, Real R, Real lc, int verbose=0){
 }
 
 ////=============================================================////
-////===========================  Disc =========================////
+////===========================  Sphere =========================////
 ////=============================================================////
 inline void gmsh_sphere(std::string mesh_name, Real R, Real lc, int verbose=0){
 	std::ofstream sphere((mesh_name+".geo").c_str());
@@ -141,6 +141,66 @@ inline void gmsh_sphere(std::string mesh_name, Real R, Real lc, int verbose=0){
 	else std::cout << "Unable to open file \n" <<std::endl;
 
 	system(("gmsh -2 -v "+NbrToStr(verbose)+" "+mesh_name+".geo").c_str());
+}
+
+////=============================================================////
+////===========================  Ball ===========================////
+////=============================================================////
+inline void gmsh_ball(std::string mesh_name, Real R, Real lc, int verbose=0){
+	std::ofstream ball((mesh_name+".geo").c_str());
+	if (ball.is_open()) {
+		ball << "lc = "+NbrToStr(lc)+";\n";
+
+		ball << "Point(1) = { 0 , 0 , 0 , lc};\n";
+
+		ball << "Point(2) = { "+NbrToStr(R)+" , "+NbrToStr(0)+" , "+NbrToStr(0)+" , lc}; \n";
+		ball << "Point(3) = { "+NbrToStr(0)+" , "+NbrToStr(R)+" , "+NbrToStr(0)+" , lc}; \n";
+		ball << "Point(4) = { "+NbrToStr(0)+" , "+NbrToStr(0)+" , "+NbrToStr(R)+" , lc}; \n";
+		ball << "Point(5) = { "+NbrToStr(-R)+" , "+NbrToStr(0)+" , "+NbrToStr(0)+" , lc}; \n";
+		ball << "Point(6) = { "+NbrToStr(0)+" , "+NbrToStr(-R)+" , "+NbrToStr(0)+" , lc}; \n";
+		ball << "Point(7) = { "+NbrToStr(0)+" , "+NbrToStr(0)+" , "+NbrToStr(-R)+" , lc}; \n";
+
+		ball << "Circle(1) = {2,1,3}; \n";
+		ball << "Circle(2) = {3,1,5}; \n";
+		ball << "Circle(3) = {5,1,6}; \n";
+		ball << "Circle(4) = {6,1,2}; \n";
+		ball << "Circle(5) = {2,1,7}; \n";
+		ball << "Circle(6) = {7,1,5}; \n";
+		ball << "Circle(7) = {5,1,4}; \n";
+		ball << "Circle(8) = {4,1,2}; \n";
+		ball << "Circle(9) = {6,1,7}; \n";
+		ball << "Circle(10) = {7,1,3}; \n";
+		ball << "Circle(11) = {3,1,4}; \n";
+		ball << "Circle(12) ={4,1,6}; \n";
+
+
+		ball << "Line Loop(1) = {1,11,8}; \n";
+		ball << "Line Loop(2) = {2,7,-11};  \n";
+		ball << "Line Loop(3) = {3,-12,-7};  \n";
+		ball << "Line Loop(4) = {4,-8,12};  \n";
+		ball << "Line Loop(5) = {5,10,-1};  \n";
+		ball << "Line Loop(6) = {-2,-10,6}; \n";
+		ball << "Line Loop(7) = {-3,-6,-9};  \n";
+		ball << "Line Loop(8) = {-4,9,-5};  \n";
+
+
+		ball << "Ruled Surface(1) = {1};\n";
+		ball << "Ruled Surface(2) = {2};\n";
+		ball << "Ruled Surface(3) = {3};\n";
+		ball << "Ruled Surface(4) = {4};\n";
+		ball << "Ruled Surface(5) = {5};\n";
+		ball << "Ruled Surface(6) = {6};\n";
+		ball << "Ruled Surface(7) = {7};\n";
+		ball << "Ruled Surface(8) = {8};\n";
+
+
+		ball << "Surface Loop (1) = {1,2,3,4,5,6,7,8};\n";
+		ball << "Volume (1) = {1};\n";
+		ball.close();
+	}
+	else std::cout << "Unable to open file \n" <<std::endl;
+
+	system(("gmsh -3 -v "+NbrToStr(verbose)+" "+mesh_name+".geo").c_str());
 }
 
 ////=============================================================////
@@ -203,10 +263,26 @@ template <class m_t, class f_t> void write_gmsh(const m_t & m, const f_t & f, st
 	file << "$Elements\n";
 	file << nbelt << std::endl;
 	for (int j=0;j<nbelt;j++){
-		file << j+1 <<" " <<2 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (triangle) nbr_tags
-		file << &m[j][0]-&node[0] +1<<" ";
-		file << &m[j][1]-&node[0] +1<<" ";
-		file << &m[j][2]-&node[0] +1<<std::endl;
+		if (get_dim(m[j])==1){
+			file << j+1 <<" " <<1 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (ligne) nbr_tags
+			file << &m[j][0]-&node[0] +1<<" ";
+			file << &m[j][1]-&node[0] +1<<" "<<std::endl;
+		}
+		if (get_dim(m[j])==2){
+			file << j+1 <<" " <<2 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (triangle) nbr_tags
+			file << &m[j][0]-&node[0] +1<<" ";
+			file << &m[j][1]-&node[0] +1<<" ";
+			file << &m[j][2]-&node[0] +1<<" "<<std::endl;
+		}
+		if (get_dim(m[j])==3){
+			file << j+1 <<" " <<4 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (tetrahedron) nbr_tags
+			file << &m[j][0]-&node[0] +1<<" ";
+			file << &m[j][1]-&node[0] +1<<" ";
+			file << &m[j][2]-&node[0] +1<<" ";
+			file << &m[j][3]-&node[0] +1<<" "<<std::endl;
+		}
+		
+
 
 	}
 	file << "$EndElements\n";
