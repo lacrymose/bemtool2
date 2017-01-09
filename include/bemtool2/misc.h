@@ -22,7 +22,10 @@
 
 
 #include <ctime>
-
+#include <vector>
+#include <string>
+#include <sstream>
+#include <iostream>
 ////========================================================////
 ////////////===== Barre de progression ======///////////////////
 
@@ -95,26 +98,6 @@ T StrToNbr ( const std::string &Text )
 	return ss >> result ? result : 0;
 }
 
-inline int StrToInt(std::string str){
-	std::stringstream i(str);
-	int  N;
-	i >> N;
-	return N;
-}
-
-inline Real StrToReal(std::string str){
-	std::stringstream i(str);
-	Real  N;
-	i >> N;
-	return N;
-}
-
-inline Cplx StrToCplx(std::string str){
-	std::stringstream i(str);
-	Cplx  N;
-	i >> N;
-	return N;
-}
 
 ////========================================================////
 ///////////////////////===== Input ======///////////////////////

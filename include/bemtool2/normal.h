@@ -2,8 +2,6 @@
 #define NORMAL_H
 
 #include <vector>
-#include <queue>
-#include <cassert>
 #include "mesh.h"
 #include "algo.h"
 

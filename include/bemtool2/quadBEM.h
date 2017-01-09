@@ -2,7 +2,6 @@
 #define QUADBEM_H
 
 #include "quad.h"
-#include <iostream>
 #include <fstream>
 
 

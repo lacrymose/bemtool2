@@ -1,11 +1,7 @@
 #ifndef ELT_H
 #define ELT_H
 
-#include <vector>
 #include <cassert>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
 #include "calculus.h"
 
 
@@ -126,7 +122,7 @@ inline bool comp(const elt_1D& e0, const elt_1D& e1){
   if( (&e0[0]==&e1[0]) || (&e0[1]==&e1[1]) ){ return false; }
   if( (&e0[0]==&e1[1]) || (&e0[1]==&e1[0]) ){ return true;  }
   std::cout << "\nelt.h: comparaison d'elements non voisins" << std::endl;
-  abort();
+  std::abort();
 }
 
 inline bool comp(const elt_2D& e0, const elt_2D& e1){

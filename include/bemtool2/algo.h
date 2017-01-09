@@ -2,7 +2,6 @@
 #define ALGO_H
 
 #include <vector>
-#include <iostream>
 #include <queue>
 #include "calculus.h"
 #include "mesh.h"

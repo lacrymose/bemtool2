@@ -3,10 +3,7 @@
 
 # include <cstdlib>
 # include <iostream>
-# include <fstream>
-# include <iomanip>
 # include <cmath>
-# include <ctime>
 # include <cstring>
 
 int dunavant_degree ( int rule );
@@ -123,7 +120,7 @@ inline int dunavant_degree ( int rule )
     std::cout << "\n";
     std::cout << "DUNAVANT_DEGREE - Fatal error!\n";
     std::cout << "  Illegal RULE = " << rule << "\n";
-    exit ( 1 );
+    std::exit ( 1 );
   }
 
   return degree;
@@ -300,7 +297,7 @@ inline void dunavant_rule ( int rule, int order_num, double xy[], double w[] )
       std::cout << "\n";
       std::cout << "DUNAVANT_RULE - Fatal error!\n;";
       std::cout << "  Illegal SUBORDER(" << s << ") = " << suborder[s] << "\n";
-      exit ( 1 );
+      std::exit ( 1 );
     }
   }
 
@@ -629,7 +626,7 @@ inline int *dunavant_suborder ( int rule, int suborder_num )
     std::cout << "\n";
     std::cout << "DUNAVANT_SUBORDER - Fatal error!\n";
     std::cout << "  Illegal RULE = " << rule << "\n";
-    exit ( 1 );
+    std::exit ( 1 );
   }
 
   return suborder;
@@ -764,7 +761,7 @@ inline int dunavant_suborder_num ( int rule )
     std::cout << "\n";
     std::cout << "DUNAVANT_SUBORDER_NUM - Fatal error!\n";
     std::cout << "  Illegal RULE = " << rule << "\n";
-    exit ( 1 );
+    std::exit ( 1 );
   }
 
   return suborder_num;
@@ -902,7 +899,7 @@ inline void dunavant_subrule ( int rule, int suborder_num, double suborder_xyz[]
     std::cout << "\n";
     std::cout << "DUNAVANT_SUBRULE - Fatal error!\n";
     std::cout << "  Illegal RULE = " << rule << "\n";
-    exit ( 1 );
+    std::exit ( 1 );
   }
 
   return;
@@ -2696,14 +2693,14 @@ inline int i4_modp ( int i, int j )
     std::cout << "\n";
     std::cout << "I4_MODP - Fatal error!\n";
     std::cout << "  I4_MODP ( I, J ) called with J = " << j << "\n";
-    exit ( 1 );
+    std::exit ( 1 );
   }
 
   value = i % j;
 
   if ( value < 0 )
   {
-    value = value + abs ( j );
+    value = value + std::abs ( j );
   }
 
   return value;

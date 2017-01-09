@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <cassert>
-#include <iostream>
 #include <fstream>
 #include "calculus.h"
 #include "elt.h"

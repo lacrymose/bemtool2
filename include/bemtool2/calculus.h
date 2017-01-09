@@ -2,16 +2,9 @@
 #define CALCULUS_H
 
 #include <complex>
-#include <stdio.h>
-#include <stdlib.h>
-#include <cassert>
-#include <cstdarg>
+#include <cstdlib>
 #include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
 #include <vector>
-#include <set>
 
 
 template <int N> struct dim_{ };
@@ -785,7 +778,7 @@ typename m_t::v_t det(const m_t& M){
 
     if(m_t::nr > 3){
         std::cout << "matrice trop grosse" << std::endl;
-        exit(EXIT_FAILURE);}
+        std::exit(EXIT_FAILURE);}
 }
 
 
@@ -819,7 +812,7 @@ inv(const m_t& M){
 
     if(m_t::nr > 3){
         std::cout << "matrice trop grosse" << std::endl;
-        exit(EXIT_FAILURE);}
+        std::exit(EXIT_FAILURE);}
 
 }
 

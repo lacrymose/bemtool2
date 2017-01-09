@@ -2,7 +2,6 @@
 #define KERNEL_H
 
 #include "normal.h"
-#include "dof.h"
 #include "quadBEM.h"
 #include "quadPOT.h"
 
@@ -582,7 +581,7 @@ template <class space, class kernel_t> class potential{
   // Calcul des interactions elementaires
   const Cplx operator()(R3 x, int j){
 // 	std::cout <<"Noeuds "<<j<<std::endl;
-	const std::vector<std::pair<const elt_t*,int>>& elts = get_elts_of_dof(phi, j);
+	const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phi, j);
 	  
 	Cplx out=0;
 	  

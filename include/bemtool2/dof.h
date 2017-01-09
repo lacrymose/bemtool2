@@ -2,10 +2,7 @@
 #define DOF_H
 
 #include <vector>
-#include <queue>
-#include <cassert>
 #include "mesh.h"
-#include "normal.h"
 
 // //#############################//
 // //   Raviart-Thomas ordre 0    //
