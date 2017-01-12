@@ -12,4 +12,4 @@ set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../../include")
 add_executable(Tests_gmsh tests_gmsh.cpp)
 
 target_include_directories(Tests_gmsh PRIVATE 
-								${bemtool_dir})
+								${bemtool_include_dir})

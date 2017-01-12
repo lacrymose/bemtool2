@@ -7,5 +7,5 @@ include_directories(${bemtool_dir})
 #=============================================================================#
 add_executable(Tests_quadratures processing.cpp)
 
-target_include_directories(Tests_gmsh PRIVATE 
+target_include_directories(Tests_quadratures PRIVATE 
 								${bemtool_dir})

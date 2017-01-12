@@ -1,19 +1,11 @@
 #=============================================================================#
 #=========================== Libraries =======================================#
 #=============================================================================#
-# BEMTOOL package
-set(bemtool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../../include")
-# include_directories(${bemtool_dir})
-
 # Boost package - special functions
 find_package(Boost REQUIRED)
 if(NOT Boost_FOUND)
     message("Boost not found, no access to special functions")
 endif()
-
-# HTOOL package
-set(htool_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../../../htool/include")
-# include_directories(${htool_dir})
 
 # Eigen package
 find_package (Eigen3 REQUIRED)
@@ -29,7 +21,7 @@ add_executable(Tests_potential processing.cpp
                      tests_potential.hpp)
 
 target_include_directories(Tests_potential PRIVATE 
-								${bemtool_dir}
+								${bemtool_include_dir}
 								${Boost_INCLUDE_DIRS})
 							
                      
