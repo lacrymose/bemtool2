@@ -1,0 +1,3 @@
+[submodule "libs/hpddm"]
+	path = libs/hpddm
+	url = https://github.com/feelpp/hpddm.git
