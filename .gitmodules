@@ -1,6 +1,6 @@
-[submodule "libs/hpddm"]
-	path = libs/hpddm
-	url = https://github.com/hpddm/hpddm.git
 [submodule "libs/htool"]
 	path = libs/htool
 	url = https://github.com/PierreMarchand20/htool.git
+[submodule "libs/hpddm"]
+	path = libs/hpddm
+	url = https://github.com/hpddm/hpddm.git
