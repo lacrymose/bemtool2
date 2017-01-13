@@ -416,7 +416,7 @@ template <class space_x, class space_y, class kernel_t> class bem{
 
   //=========================//
   //      Constructeur
- bem(const Real& k, const normal_t& nx0, const normal_t& ny0, int order=15):
+ bem(const Real& k, const normal_t& nx0, const normal_t& ny0, int order=6):
   k2(k*k), kernel(k), qr(order),meshx(mesh_of(nx0)) , meshy(mesh_of(ny0)), loc(temp_loc.apply(get_geometry(mesh_of(nx0)))), elt(temp_elt.apply(get_geometry(mesh_of(nx0)))),phix(mesh_of(nx0)), phiy(mesh_of(ny0)),nx(nx0), ny(ny0),temp_loc(), temp_elt(){
 	 };
 

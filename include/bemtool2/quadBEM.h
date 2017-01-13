@@ -33,14 +33,16 @@ class quadBEM<2>{
 
     std::vector<R2>   qp;
     std::vector<Real> qw;
-    quad2D(order,qp,qw);
+    
+    //%%%%%%% ATTENTION Test Quadrature Dunavant %%%%%%//
+    // quad2D(order,qp,qw);
+    quad2D(2,qp,qw);    
     int nq = qp.size();
-
+    
     //================================//
     //   Cas 0: triangles disjoints   //
     //================================//
-
-
+    
     // Dans le cas ou les triangles sont
     // disjoints, on utilise deux regles de
     // quadrature de Dunavant tensorisees

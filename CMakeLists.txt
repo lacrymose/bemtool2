@@ -3,10 +3,8 @@ Project(Bemtool)
 
 # Usefule variable
 set(bemtool_include_dir "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(htool_include_dir "${CMAKE_CURRENT_SOURCE_DIR}/libs/htool/include")
-set(hpddm_include_dir "${CMAKE_CURRENT_SOURCE_DIR}/libs/hpddm/include")
-
-
+set(htool_include_dir   "${CMAKE_CURRENT_SOURCE_DIR}/libs/htool/include")
+set(hpddm_include_dir   "${CMAKE_CURRENT_SOURCE_DIR}/libs/hpddm/include")
 
 # C++ 11 required
 if ("${CMAKE_VERSION}" VERSION_LESS 3.1)
