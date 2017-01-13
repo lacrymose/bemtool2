@@ -1,6 +1,6 @@
-#include "bemtool2/mesh.h"
-#include "bemtool2/kernel.h"
-#include "bemtool2/dof.h"
+#include <bemtool2/mesh.h>
+#include <bemtool2/kernel.h>
+#include <bemtool2/dof.h>
 
 ////=============================================================================////
 ////========================= quad1D_potential ==================================////
