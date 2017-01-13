@@ -19,8 +19,7 @@ find_package(BLAS REQUIRED)
 #=============================================================================#
 #=========================== Executables =====================================#
 #=============================================================================#
-add_executable(Tests_potential processing.cpp
-                     tests_potential.hpp)
+add_executable(Tests_potential tests_potential.cpp)
 
 target_include_directories(Tests_potential PRIVATE 
 								${bemtool_include_dir}
