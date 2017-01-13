@@ -9,10 +9,12 @@ endif()
 
 # Eigen package
 find_package (Eigen3 REQUIRED)
-# include_directories(${EIGEN3_INCLUDE_DIR})
 
+# MPI
 find_package (MPI REQUIRED)
-# include_directories(${MPI_INCLUDE_PATH})
+
+# BLAS
+find_package(BLAS REQUIRED)
 
 #=============================================================================#
 #=========================== Executables =====================================#
@@ -22,13 +24,11 @@ add_executable(Tests_potential processing.cpp
 
 target_include_directories(Tests_potential PRIVATE 
 								${bemtool_include_dir}
-								${Boost_INCLUDE_DIRS})
+								${Boost_INCLUDE_DIRS}
+								${htool_include_dir}
+								${MPI_INCLUDE_PATH}
+								${EIGEN3_INCLUDE_DIR})
 							
-                     
-# target_include_directories(Tests_potential PRIVATE 
-# 								${bemtool_dir} 
-# 								${htool_dir}
-# 								${EIGEN3_INCLUDE_DIR}
-# 								${MPI_INCLUDE_PATH})
-# 								
-# target_link_libraries (Tests_potential ${MPI_LIBRARIES})
+							
+target_link_libraries (Tests_potential ${MPI_LIBRARIES}
+								${BLAS_LIBRARIES})
