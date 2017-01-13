@@ -10,9 +10,6 @@ if(NOT Boost_FOUND)
     message("Boost not found, no access to special functions")
 endif()
 
-# HPDDM
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPDDM_MPI=0")
-
 # BLAS
 find_package(BLAS REQUIRED)
 
@@ -22,7 +19,7 @@ find_package(LAPACK REQUIRED)
 #=============================================================================#
 #=========================== Executables =====================================#
 #=============================================================================#
-add_executable(Tests_hpddm processing.cpp)
+add_executable(Tests_hpddm tests_hpddm.cpp)
 
 target_compile_options(Tests_hpddm PRIVATE -DHPDDM_MPI=0)
 
