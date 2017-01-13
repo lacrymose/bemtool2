@@ -1,5 +1,5 @@
-#include "bemtool2/mesh.h"
-#include "bemtool2/gmsh_calls.h"
+#include <bemtool2/mesh.h>
+#include <bemtool2/gmsh_calls.h>
 #include <math.h>
 
 ////=============================================================================////
