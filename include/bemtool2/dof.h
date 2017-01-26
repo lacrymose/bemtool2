@@ -168,11 +168,11 @@ class P1_{
   typedef mesh_<dim>         mesh_t;
   typedef elt_<dim>          elt_t;
   typedef loc_<dim>          loc_t;
-  typedef bemtool::array<dim,Real>    Rd;
-  typedef bemtool::array<dim+1,int>   Nloc;
+  typedef array<dim,Real>    Rd;
+  typedef array<dim+1,int>   Nloc;
   typedef mat<3,dim,Real>    R3xd;
-  typedef bemtool::array<dim+1,R3>    locxR3;
-  typedef bemtool::array<dim+1,Rd>    locxRd;  
+  typedef array<dim+1,R3>    locxR3;
+  typedef array<dim+1,Rd>    locxRd;  
   
  private:
   //_______________________

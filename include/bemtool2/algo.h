@@ -19,8 +19,8 @@ class adjacency{
   typedef m_t                    mesh_t;
   typedef elt_<dim>              elt_t;
   typedef elt_<dim-1>            face_t;
-  typedef bemtool::array<dim+1,face_t>    face_array_t;
-  typedef bemtool::array<dim+1,int>       num_array_t;
+  typedef array<dim+1,face_t>    face_array_t;
+  typedef array<dim+1,int>       num_array_t;
   
  private:
   const mesh_t&           mesh;
@@ -73,7 +73,7 @@ mesh(m), elt(temp_elt.apply(get_geometry(m))),temp_elt() {
     
   for(int j=0; j<nbelt; j++){
     bool exist;
-    bemtool::array< dim+1 ,face_t> aux = faces_of(m[j]);    
+    array< dim+1 ,face_t> aux = faces_of(m[j]);    
     
     for(int k=0; k<dim+1; k++){
       face_t f = aux[k]; exist = false;
