@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include "bemtool2/tools.h"
-
+using namespace bemtool;
 void first_kind_dirichlet_2D  (std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0);
 void first_kind_neumann_2D    (std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0);
 void second_kind_dirichlet_2D (std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0);
