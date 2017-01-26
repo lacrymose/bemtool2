@@ -521,92 +521,91 @@ public:
 //==========================//
 //           Array          //
 //==========================//
-namespace bemtool {
 
-    template <int Dim, class V_t>
-    class array{
+template <int Dim, class V_t>
+class array{
+	
+public:
+	static const int dim =      Dim;
+	static const int nr  =      Dim;
+	typedef array<Dim,V_t>   this_t;
+	typedef V_t                 v_t;
+	
+private:
+	v_t  v_[dim];
+	
+public:
+	array<Dim,V_t>(){ construct_loop<this_t>::apply(*this); }
+	
+	template <class r_t> array<Dim,V_t>(const r_t& r_){
+		assign_loop<this_t,r_t>::apply(*this,r_);}
+		
+		template <class r_t> void operator=(const r_t& r_){
+			assign_loop<this_t,r_t>::apply(*this,r_);}
+			
+			template <class r_t> void operator+=(const r_t& r_){
+				plus_assign_loop<this_t,r_t>::apply(*this,r_);}
+				
+				v_t& operator[](const int& j){return v_[j];}
+				const v_t& operator[](const int& j) const {return v_[j];}
+				
+				inline friend std::ostream& operator<<(std::ostream& os, const this_t& ar){
+					ostream_loop<this_t>::apply(os,ar); return os;}
+					
+					inline friend this_t& operator>>(std::istream& is, this_t& ar){
+						istream_loop<this_t>::apply(is,ar); return ar;}
+						
+						void operator++(int){increment_loop<this_t>::apply(*this);}
+						
+						void operator--(int){decrement_loop<this_t>::apply(*this);}
+						
+						inline friend int size(const this_t& ar){return dim;}
+						
+						template <class i_t> subarray<this_t,i_t> operator[] (const i_t& i_){
+							return subarray<this_t,i_t>(*this,i_);}
+							
+							template <class i_t> subarray<const this_t,i_t> operator[] (const i_t& i_) const {
+								return subarray<const this_t,i_t>(*this,i_);}
+								
+								//==== Addition
+								template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
+								xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
+								xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
+								xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
+								
+								inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
+								inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
+								inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
+								
+								//==== Soustraction
+								template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
+								xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
+								xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
+								xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
+								
+								inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
+								inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
+								inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
+								
+								//==== Multiplication
+								template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
+								xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
+								xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
+								xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
+								
+								inline friend xpr< tt<int,this_t>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<int,this_t>  >(l_,r_);}
+								inline friend xpr< tt<Real,this_t> > operator*(const Real& l_, const this_t& r_){return xpr< tt<Real,this_t> >(l_,r_);}
+								inline friend xpr< tt<Cplx,this_t> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<Cplx,this_t> >(l_,r_);}
+								
+								
+								//===== Produit scalaire
+								template <class r_t>typename resop<this_t,r_t>::type operator,(const r_t& r_) const {
+									assert(nr==r_t::nr); return dprod<this_t,r_t,nr>::apply(*this,r_); }
+									
+									
+};
 
-    public:
-        static const int dim =      Dim;
-        static const int nr  =      Dim;
-        typedef array<Dim,V_t>   this_t;
-        typedef V_t                 v_t;
 
-    private:
-        v_t  v_[dim];
-
-    public:
-        array<Dim,V_t>(){ construct_loop<this_t>::apply(*this); }
-
-        template <class r_t> array<Dim,V_t>(const r_t& r_){
-            assign_loop<this_t,r_t>::apply(*this,r_);}
-
-        template <class r_t> void operator=(const r_t& r_){
-            assign_loop<this_t,r_t>::apply(*this,r_);}
-
-        template <class r_t> void operator+=(const r_t& r_){
-            plus_assign_loop<this_t,r_t>::apply(*this,r_);}
-
-        v_t& operator[](const int& j){return v_[j];}
-        const v_t& operator[](const int& j) const {return v_[j];}
-
-        inline friend std::ostream& operator<<(std::ostream& os, const this_t& ar){
-            ostream_loop<this_t>::apply(os,ar); return os;}
-
-        inline friend this_t& operator>>(std::istream& is, this_t& ar){
-            istream_loop<this_t>::apply(is,ar); return ar;}
-
-        void operator++(int){increment_loop<this_t>::apply(*this);}
-
-        void operator--(int){decrement_loop<this_t>::apply(*this);}
-
-        inline friend int size(const this_t& ar){return dim;}
-
-        template <class i_t> subarray<this_t,i_t> operator[] (const i_t& i_){
-            return subarray<this_t,i_t>(*this,i_);}
-
-        template <class i_t> subarray<const this_t,i_t> operator[] (const i_t& i_) const {
-            return subarray<const this_t,i_t>(*this,i_);}
-
-        //==== Addition
-        template <class r_t> xpr< pp<this_t,r_t> > operator+(const r_t& r_) const {return xpr< pp<this_t,r_t> >(*this,r_);}
-        xpr< pp<this_t, int>  > operator+(const int&  r_) const {return xpr< pp<this_t, int>  >(*this,r_);}
-        xpr< pp<this_t, Real> > operator+(const Real& r_) const {return xpr< pp<this_t, Real> >(*this,r_);}
-        xpr< pp<this_t, Cplx> > operator+(const Cplx& r_) const {return xpr< pp<this_t, Cplx> >(*this,r_);}
-
-        inline friend xpr< pp<int,this_t>  > operator+(const int&  l_, const this_t& r_){return xpr< pp<int,this_t>  >(l_,r_);}
-        inline friend xpr< pp<Real,this_t> > operator+(const Real& l_, const this_t& r_){return xpr< pp<Real,this_t> >(l_,r_);}
-        inline friend xpr< pp<Cplx,this_t> > operator+(const Cplx& l_, const this_t& r_){return xpr< pp<Cplx,this_t> >(l_,r_);}
-
-        //==== Soustraction
-        template <class r_t> xpr< mm<this_t,r_t> > operator-(const r_t& r_) const {return xpr< mm<this_t,r_t> >(*this,r_);}
-        xpr< mm<this_t, int>  > operator-(const int&  r_) const {return xpr< mm<this_t, int>  >(*this,r_);}
-        xpr< mm<this_t, Real> > operator-(const Real& r_) const {return xpr< mm<this_t, Real> >(*this,r_);}
-        xpr< mm<this_t, Cplx> > operator-(const Cplx& r_) const {return xpr< mm<this_t, Cplx> >(*this,r_);}
-
-        inline friend xpr< mm<int,this_t>  > operator-(const int&  l_, const this_t& r_){return xpr< mm<int,this_t>  >(l_,r_);}
-        inline friend xpr< mm<Real,this_t> > operator-(const Real& l_, const this_t& r_){return xpr< mm<Real,this_t> >(l_,r_);}
-        inline friend xpr< mm<Cplx,this_t> > operator-(const Cplx& l_, const this_t& r_){return xpr< mm<Cplx,this_t> >(l_,r_);}
-
-        //==== Multiplication
-        template <class r_t> xpr< tt<this_t,r_t> > operator*(const r_t& r_) const {return xpr< tt<this_t,r_t> >(*this,r_);}
-        xpr< tt<this_t, int>  > operator*(const int&  r_) const {return xpr< tt<this_t, int>  >(*this,r_);}
-        xpr< tt<this_t, Real> > operator*(const Real& r_) const {return xpr< tt<this_t, Real> >(*this,r_);}
-        xpr< tt<this_t, Cplx> > operator*(const Cplx& r_) const {return xpr< tt<this_t, Cplx> >(*this,r_);}
-
-        inline friend xpr< tt<int,this_t>  > operator*(const int&  l_, const this_t& r_){return xpr< tt<int,this_t>  >(l_,r_);}
-        inline friend xpr< tt<Real,this_t> > operator*(const Real& l_, const this_t& r_){return xpr< tt<Real,this_t> >(l_,r_);}
-        inline friend xpr< tt<Cplx,this_t> > operator*(const Cplx& l_, const this_t& r_){return xpr< tt<Cplx,this_t> >(l_,r_);}
-
-
-        //===== Produit scalaire
-        template <class r_t>typename resop<this_t,r_t>::type operator,(const r_t& r_) const {
-            assert(nr==r_t::nr); return dprod<this_t,r_t,nr>::apply(*this,r_); }
-
-
-    };
-
-}
 //==========================//
 //         Sub-Matrix       //
 //==========================//
@@ -622,7 +621,7 @@ public:
     static const int dim = nr*nc;
 
     typedef typename m_t::v_t      v_t;
-    typedef bemtool::array<nr,v_t>          a_t;
+    typedef array<nr,v_t>          a_t;
     typedef submat<m_t,ro_t,co_t>  this_t;
 
 private:
@@ -693,7 +692,7 @@ public:
     static const int nc  =     Nc;
 
     typedef V_t                v_t;
-    typedef bemtool::array<nr,v_t>      a_t;
+    typedef array<nr,v_t>      a_t;
     typedef mat<nr,nc,v_t>  this_t;
 
 private:
@@ -849,16 +848,16 @@ inline void sort(array_t& ar){
 }
 
 template <int dim>
-inline void init(bemtool::array<dim,int>& I){
-    ascending_loop< bemtool::array<dim,int> >::apply(I);  }
+inline void init(array<dim,int>& I){
+    ascending_loop< array<dim,int> >::apply(I);  }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%//
 //    Produit vectoriel     //
 //%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
 template <class l_t, class r_t>
-inline bemtool::array<3,typename resop<l_t,r_t>::type> vprod(const l_t& u, const r_t& v){
-    bemtool::array<3,typename resop<l_t,r_t>::type> w;
+inline array<3,typename resop<l_t,r_t>::type> vprod(const l_t& u, const r_t& v){
+    array<3,typename resop<l_t,r_t>::type> w;
     w[0] = u[1]*v[2] - u[2]*v[1];
     w[1] = u[2]*v[0] - u[0]*v[2];
     w[2] = u[0]*v[1] - u[1]*v[0];
@@ -869,36 +868,36 @@ inline bemtool::array<3,typename resop<l_t,r_t>::type> vprod(const l_t& u, const
 //   Definitions de type    //
 //%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
-typedef bemtool::array<1,   int>     N1;
-typedef bemtool::array<2,   int>     N2;
-typedef bemtool::array<3,   int>     N3;
-typedef bemtool::array<4,   int>     N4;
-typedef bemtool::array<5,   int>     N5;
-typedef bemtool::array<6,   int>     N6;
-typedef bemtool::array<7,   int>     N7;
-typedef bemtool::array<8,   int>     N8;
-typedef bemtool::array<9,   int>     N9;
-typedef bemtool::array<10,  int>     N10;
+typedef array<1,   int>     N1;
+typedef array<2,   int>     N2;
+typedef array<3,   int>     N3;
+typedef array<4,   int>     N4;
+typedef array<5,   int>     N5;
+typedef array<6,   int>     N6;
+typedef array<7,   int>     N7;
+typedef array<8,   int>     N8;
+typedef array<9,   int>     N9;
+typedef array<10,  int>     N10;
 
-typedef bemtool::array<2,   Real>    R2;
-typedef bemtool::array<3,   Real>    R3;
-typedef bemtool::array<4,   Real>    R4;
-typedef bemtool::array<5,   Real>    R5;
-typedef bemtool::array<6,   Real>    R6;
-typedef bemtool::array<7,   Real>    R7;
-typedef bemtool::array<8,   Real>    R8;
-typedef bemtool::array<9,   Real>    R9;
-typedef bemtool::array<10,  Real>    R10;
+typedef array<2,   Real>    R2;
+typedef array<3,   Real>    R3;
+typedef array<4,   Real>    R4;
+typedef array<5,   Real>    R5;
+typedef array<6,   Real>    R6;
+typedef array<7,   Real>    R7;
+typedef array<8,   Real>    R8;
+typedef array<9,   Real>    R9;
+typedef array<10,  Real>    R10;
 
-typedef bemtool::array<2,   Cplx>    C2;
-typedef bemtool::array<3,   Cplx>    C3;
-typedef bemtool::array<4,   Cplx>    C4;
-typedef bemtool::array<5,   Cplx>    C5;
-typedef bemtool::array<6,   Cplx>    C6;
-typedef bemtool::array<7,   Cplx>    C7;
-typedef bemtool::array<8,   Cplx>    C8;
-typedef bemtool::array<9,   Cplx>    C9;
-typedef bemtool::array<10,  Cplx>    C10;
+typedef array<2,   Cplx>    C2;
+typedef array<3,   Cplx>    C3;
+typedef array<4,   Cplx>    C4;
+typedef array<5,   Cplx>    C5;
+typedef array<6,   Cplx>    C6;
+typedef array<7,   Cplx>    C7;
+typedef array<8,   Cplx>    C8;
+typedef array<9,   Cplx>    C9;
+typedef array<10,  Cplx>    C10;
 
 typedef mat<2,2,   Real>    R2x2;
 typedef mat<3,3,   Real>    R3x3;
@@ -921,25 +920,25 @@ typedef mat<10,10, Cplx>    C10x10;
 typedef mat<3,2,   Cplx>    C3x2;
 typedef mat<2,3,   Cplx>    C2x3;
 
-typedef bemtool::array<2,N2>        _2xN2;
-typedef bemtool::array<3,N2>        _3xN2;
-typedef bemtool::array<4,N2>        _4xN2;
-typedef bemtool::array<2,N3>        _2xN3;
-typedef bemtool::array<3,N3>        _3xN3;
-typedef bemtool::array<4,N3>        _4xN3;
-typedef bemtool::array<2,N4>        _2xN4;
-typedef bemtool::array<3,N4>        _3xN4;
-typedef bemtool::array<4,N4>        _4xN4;
+typedef array<2,N2>        _2xN2;
+typedef array<3,N2>        _3xN2;
+typedef array<4,N2>        _4xN2;
+typedef array<2,N3>        _2xN3;
+typedef array<3,N3>        _3xN3;
+typedef array<4,N3>        _4xN3;
+typedef array<2,N4>        _2xN4;
+typedef array<3,N4>        _3xN4;
+typedef array<4,N4>        _4xN4;
 
-typedef bemtool::array<2,R2>        _2xR2;
-typedef bemtool::array<3,R2>        _3xR2;
-typedef bemtool::array<4,R2>        _4xR2;
-typedef bemtool::array<2,R3>        _2xR3;
-typedef bemtool::array<3,R3>        _3xR3;
-typedef bemtool::array<4,R3>        _4xR3;
-typedef bemtool::array<2,R4>        _2xR4;
-typedef bemtool::array<3,R4>        _3xR4;
-typedef bemtool::array<4,R4>        _4xR4;
+typedef array<2,R2>        _2xR2;
+typedef array<3,R2>        _3xR2;
+typedef array<4,R2>        _4xR2;
+typedef array<2,R3>        _2xR3;
+typedef array<3,R3>        _3xR3;
+typedef array<4,R3>        _4xR3;
+typedef array<2,R4>        _2xR4;
+typedef array<3,R4>        _3xR4;
+typedef array<4,R4>        _4xR4;
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
