@@ -6,6 +6,9 @@
 #include <iostream>
 #include <vector>
 
+namespace bemtool{
+
+
 
 template <int N> struct dim_{ };
 static const int dim0 = 0;
@@ -1044,7 +1047,7 @@ public:
 
 };
 
-
+}
 
 
 #endif

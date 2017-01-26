@@ -4,6 +4,9 @@
 #include <gmm/gmm.h>
 #include "calculus.h"
 
+namespace bemtool{
+
+
 
 /*===========================
 ||   Interface avec gmm    ||
@@ -147,6 +150,6 @@ typedef Cplx Field;
 typedef gmm_mat< gmm::row_matrix< gmm::wsvector<Field> >,Field > gmm_sparse;
 typedef gmm_mat< gmm::dense_matrix<Field>,Field>                 gmm_dense;
 
-
+}
 
 #endif

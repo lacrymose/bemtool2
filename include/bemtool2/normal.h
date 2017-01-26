@@ -5,6 +5,11 @@
 #include "mesh.h"
 #include "algo.h"
 
+
+namespace bemtool{
+
+
+
 //==========================//
 //       Normale            //
 //==========================//
@@ -175,6 +180,6 @@ mesh(m), elt(temp_elt.apply(get_geometry(m))), loc(temp_loc.apply(get_geometry(m
 typedef normal<1> nrml_1D;
 typedef normal<2> nrml_2D;
 
-
+}
 
 #endif

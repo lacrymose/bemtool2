@@ -6,6 +6,8 @@
 #include "calculus.h"
 #include "mesh.h"
 
+namespace bemtool{
+
 
 template <typename m_t>
 class adjacency{
@@ -210,6 +212,6 @@ typedef connected<mesh_1D> connected1D;
 typedef connected<mesh_2D> connected2D;
 typedef connected<mesh_3D> connected3D;
 
-
+}
 
 #endif

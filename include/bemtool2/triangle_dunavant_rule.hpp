@@ -5,6 +5,8 @@
 # include <iostream>
 # include <cmath>
 # include <cstring>
+namespace bemtool{
+
 
 int dunavant_degree ( int rule );
 int dunavant_order_num ( int rule );
@@ -3097,4 +3099,5 @@ inline double triangle_area ( double t[2*3] )
   return area;
 }
 
+}
 #endif

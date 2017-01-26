@@ -7,6 +7,9 @@
 #include "calculus.h"
 #include "elt.h"
 
+namespace bemtool{
+
+
 
 //==========================//
 //   Numerotation locale    //  
@@ -463,6 +466,6 @@ template <class m_t, class i_t> void load_elt_hand(m_t& m, const i_t& i){
 
 
 
-
+}
 
 #endif

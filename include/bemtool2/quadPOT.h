@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fstream>
 
+namespace bemtool{
+
+
 
 template <int dim>
 class quadPOT;
@@ -341,7 +344,7 @@ class quadPOT<1>{
 
 
 
-
+}
 
 
 

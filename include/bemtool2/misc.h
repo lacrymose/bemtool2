@@ -26,6 +26,11 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+
+namespace bemtool{
+
+
+
 ////========================================================////
 ////////////===== Barre de progression ======///////////////////
 
@@ -113,6 +118,8 @@ inline std::vector<std::string> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
 	split(s, delim, elems);
 	return elems;
+}
+
 }
 
 

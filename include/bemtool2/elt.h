@@ -4,6 +4,9 @@
 #include <cassert>
 #include "calculus.h"
 
+namespace bemtool{
+
+
 
 //==========================//
 //        Element           //
@@ -244,4 +247,6 @@ inline Real solid_angle(const R3& p, const elt_2D& e){
   return (-1.)*det(M);
 }
 
+
+}
 #endif

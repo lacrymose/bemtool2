@@ -4,6 +4,12 @@
 #include <vector>
 #include "mesh.h"
 
+
+namespace bemtool {
+
+
+
+
 // //#############################//
 // //   Raviart-Thomas ordre 0    //
 // //#############################//
@@ -309,5 +315,5 @@ template <int dim> template <class fct>
 typedef P1_<1> P1_1D;
 typedef P1_<2> P1_2D;
 
-
+}
 #endif

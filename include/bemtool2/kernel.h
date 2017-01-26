@@ -7,6 +7,9 @@
 
 #include <boost/math/special_functions/bessel.hpp>
 
+namespace bemtool{
+
+
 
 inline Cplx H_0(Real x){return boost::math::cyl_bessel_j(0,x)+ iu*boost::math::cyl_neumann(0,x);}
 inline Cplx H_1(Real x){return boost::math::cyl_bessel_j(1,x)+ iu*boost::math::cyl_neumann(1,x);}
@@ -609,5 +612,6 @@ template <class space, class kernel_t> class potential{
 
 };
 
+}
 
 #endif
