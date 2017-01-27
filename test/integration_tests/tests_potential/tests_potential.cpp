@@ -3,19 +3,20 @@
 #include <mpi.h>
 #include <bemtool2/htool_wrap.h>
 
+using namespace bemtool;
 ///==================================================================================////
 ///============================= potential_elt_2D ===================================////
 ///==================================================================================////
 
-void potential_elt_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0){
+void potential_elt_2D(std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, int verbose=0){
 
   ////=======================  Mesh building  =====================////
 
   if (verbose>0){
     std::cout<<"Construction du maillage"<<std::endl;
   }
-  gmsh_circle(("circle_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-  gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+  gmsh_circle(("circle_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+  gmsh_disc  (("disc_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
 
 
   ////=======================  Mesh loading  ======================////
@@ -25,8 +26,8 @@ void potential_elt_2D(std::vector<Real> harmonics, Real lc, Real R, std::string 
   }
 
   geometry geom,vol;
-  load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("circle_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("disc_"+NbrToStr(lc_v)).c_str());
 
   mesh_1D Omega(geom);
   mesh_2D Vol(vol);
@@ -34,8 +35,8 @@ void potential_elt_2D(std::vector<Real> harmonics, Real lc, Real R, std::string 
   load_elt_gmsh(Omega,0);
   load_elt_gmsh(Vol,0);
 
-  gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
-  gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+  gmsh_clean(("circle_"+NbrToStr(lc_s)).c_str());
+  gmsh_clean(("disc_"+NbrToStr(lc_v)).c_str());
 
 
   ////================== Calcul de la normale =====================////
@@ -134,8 +135,8 @@ void potential_elt_2D(std::vector<Real> harmonics, Real lc, Real R, std::string 
       Out_ref[i]= std::abs(Ref[i]);
     }
 
-    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc));
-    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
+    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_elt");
+    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
 
   }
 }
@@ -144,15 +145,15 @@ void potential_elt_2D(std::vector<Real> harmonics, Real lc, Real R, std::string 
 ///============================= potential_node_2D ==================================////
 ///==================================================================================////
 
-void potential_node_2D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0){
+void potential_node_2D(std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, int verbose=0){
 
   ////=======================  Mesh building  =====================////
 
   if (verbose>0){
     std::cout<<"Construction du maillage"<<std::endl;
   }
-  gmsh_circle(("circle_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-  gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+  gmsh_circle(("circle_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+  gmsh_disc  (("disc_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
 
 
   ////=======================  Mesh loading  ======================////
@@ -162,8 +163,8 @@ void potential_node_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
   }
 
   geometry geom,vol;
-  load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("circle_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("disc_"+NbrToStr(lc_v)).c_str());
 
   mesh_1D Omega(geom);
   mesh_2D Vol(vol);
@@ -171,8 +172,8 @@ void potential_node_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
   load_elt_gmsh(Omega,0);
   load_elt_gmsh(Vol,0);
 
-  gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
-  gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+  gmsh_clean(("circle_"+NbrToStr(lc_s)).c_str());
+  gmsh_clean(("disc_"+NbrToStr(lc_v)).c_str());
 
 
   ////================== Calcul de la normale =====================////
@@ -273,8 +274,8 @@ void potential_node_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
       Out_ref[i]= std::abs(Ref[i]);
     }
 
-    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc));
-    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
+    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_node");
+    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
 
   }
 }
@@ -283,15 +284,15 @@ void potential_node_2D(std::vector<Real> harmonics, Real lc, Real R, std::string
 ///============================= potential_elt_3D ===================================////
 ///==================================================================================////
 
-void potential_elt_3D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0){
+void potential_elt_3D(std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, int verbose=0){
 
   ////=======================  Mesh building  =====================////
 
   if (verbose>0){
     std::cout<<"Construction du maillage"<<std::endl;
   }
-  gmsh_sphere(("sphere_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-  gmsh_ball  (("ball_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+  gmsh_sphere(("sphere_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+  gmsh_ball  (("ball_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
 
 
   ////=======================  Mesh loading  ======================////
@@ -301,8 +302,8 @@ void potential_elt_3D(std::vector<Real> harmonics, Real lc, Real R, std::string 
   }
 
   geometry geom,vol;
-  load_node_gmsh(geom,("sphere_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("ball_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("sphere_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("ball_"+NbrToStr(lc_v)).c_str());
 
   mesh_2D Omega(geom);
   mesh_3D Vol(vol);
@@ -310,8 +311,8 @@ void potential_elt_3D(std::vector<Real> harmonics, Real lc, Real R, std::string 
   load_elt_gmsh(Omega,0);
   load_elt_gmsh(Vol,0);
 
-  gmsh_clean(("sphere_"+NbrToStr(lc)).c_str());
-  gmsh_clean(("ball_"+NbrToStr(lc)).c_str());
+  gmsh_clean(("sphere_"+NbrToStr(lc_s)).c_str());
+  gmsh_clean(("ball_"+NbrToStr(lc_v)).c_str());
 
   ////================== Calcul de la normale =====================////
 
@@ -439,8 +440,8 @@ void potential_elt_3D(std::vector<Real> harmonics, Real lc, Real R, std::string 
       Out_ref[i]= std::abs(Ref[i]);
     }
 
-    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc));
-    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
+    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_elt");
+    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
 
   }
 }
@@ -449,15 +450,15 @@ void potential_elt_3D(std::vector<Real> harmonics, Real lc, Real R, std::string 
 ///============================= potential_node_3D ==================================////
 ///==================================================================================////
 
-void potential_node_3D(std::vector<Real> harmonics, Real lc, Real R, std::string output_name, int verbose=0){
+void potential_node_3D(std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, int verbose=0){
 
   ////=======================  Mesh building  =====================////
 
   if (verbose>0){
     std::cout<<"Construction du maillage"<<std::endl;
   }
-  gmsh_sphere(("sphere_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-  gmsh_ball  (("ball_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+  gmsh_sphere(("sphere_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+  gmsh_ball  (("ball_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
 
 
   ////=======================  Mesh loading  ======================////
@@ -467,8 +468,8 @@ void potential_node_3D(std::vector<Real> harmonics, Real lc, Real R, std::string
   }
 
   geometry geom,vol;
-  load_node_gmsh(geom,("sphere_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("ball_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("sphere_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("ball_"+NbrToStr(lc_v)).c_str());
 
   mesh_2D Omega(geom);
   mesh_3D Vol(vol);
@@ -476,8 +477,8 @@ void potential_node_3D(std::vector<Real> harmonics, Real lc, Real R, std::string
   load_elt_gmsh(Omega,0);
   load_elt_gmsh(Vol,0);
 
-  gmsh_clean(("sphere_"+NbrToStr(lc)).c_str());
-  gmsh_clean(("ball_"+NbrToStr(lc)).c_str());
+  gmsh_clean(("sphere_"+NbrToStr(lc_s)).c_str());
+  gmsh_clean(("ball_"+NbrToStr(lc_v)).c_str());
 
   ////================== Calcul de la normale =====================////
 
@@ -603,8 +604,8 @@ void potential_node_3D(std::vector<Real> harmonics, Real lc, Real R, std::string
       Out_ref[i]= std::abs(Ref[i]);
     }
 
-    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc));
-    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
+    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_node");
+    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
 
   }
 }
@@ -613,7 +614,7 @@ void potential_node_3D(std::vector<Real> harmonics, Real lc, Real R, std::string
 ///============================ potential_hmat_2D ===================================////
 ///==================================================================================////
 
-void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real lc, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int verbose=0){
+void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int MaxBlockSize, int verbose=0){
 
   ////=====================  Setting for htool  ===================////
 
@@ -625,15 +626,16 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
   htool::SetEpsilon(Epsilon);
   htool::SetEta(Eta);
   htool::SetMinClusterSize(MinClusterSize);
-
+  htool::SetMaxBlockSize(MaxBlockSize);
+  
   ////=======================  Mesh building  =====================////
 
   if (rankWorld==0){
     if (verbose>0){
       std::cout<<"Construction du maillage"<<std::endl;
     }
-    gmsh_circle(("circle_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-    gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+    gmsh_circle(("circle_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+    gmsh_disc  (("disc_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
   }
 
   ////=======================  Mesh loading  ======================////
@@ -644,8 +646,8 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
   }
 
   geometry geom,vol;
-  load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("circle_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("disc_"+NbrToStr(lc_v)).c_str());
 
   mesh_1D Omega(geom);
   mesh_2D Vol(vol);
@@ -654,8 +656,8 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
   load_elt_gmsh(Vol,0);
   MPI_Barrier(MPI_COMM_WORLD);
   if (rankWorld==0){
-    gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
-    gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+    gmsh_clean(("circle_"+NbrToStr(lc_s)).c_str());
+    gmsh_clean(("disc_"+NbrToStr(lc_v)).c_str());
   }
 
   ////================== Calcul de la normale =====================////
@@ -674,7 +676,7 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
   int nbelt = nb_elt(Omega);
   P1_1D dof(Omega);
   int nbdof = nb_dof(dof);
-
+std::cout << nbdof <<" "<< nbpt << " " <<nbdof * nbpt << std::endl;
   Real kappa=10;
 
   potential<P1_1D,SLP_2D> SLPop(kappa,n_);
@@ -705,8 +707,8 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
     rs[i]=0;
   }
 
-  htool::HMatrix hmat_SLP(vmat_SLP,xt,rt,tabt,xs,rs,tabs);
-  htool::HMatrix hmat_DLP(vmat_DLP,xt,rt,tabt,xs,rs,tabs);
+  htool::HMatrix hmat_SLP(vmat_SLP,xt,rt,tabt,xs,rs,tabs,1);
+  htool::HMatrix hmat_DLP(vmat_DLP,xt,rt,tabt,xs,rs,tabs,1);
 
 
   for (int l=0;l<harmonics.size();l++){
@@ -763,43 +765,43 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
     vect<Real> Out;resize(Out,nbpt);fill(Out,0.);
     vect<Real> Out_ref;resize(Out_ref,nbpt);fill(Out_ref,0.);
 
-    MvProdMPI(Sh,hmat_SLP,TraceNeumann);
-    MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
+    std::pair <double,double > mvp_stats_SLP = MvProdMPI(Sh,hmat_SLP,TraceNeumann);
+    std::pair <double,double > mvp_stats_DLP =MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
 
     for (int i=0;i<nbpt;i++){
       Out[i]= std::abs(Sh[i]+Dh[i]);
       Out_ref[i]= std::abs(Ref[i]);
     }
 
-    Real compression_SLP=CompressionRate(hmat_SLP);
-    Real compression_DLP=CompressionRate(hmat_DLP);
+	add_stats(hmat_SLP,"MvProd_SLP (mean)",std::get<0>(mvp_stats_SLP));
+	add_stats(hmat_SLP,"MvProd_SLP (max)",std::get<1>(mvp_stats_SLP));
+// 	add_stats(hmat_SLP,"MvProd err",norm(ua-ub)/norm(ua));
+	add_stats(hmat_SLP,"Compression_SLP",CompressionRate(hmat_SLP));
+	add_stats(hmat_SLP,"Nb dense mats SLP",nb_densemats(hmat_SLP));
+	add_stats(hmat_SLP,"Nb lr mats SLP",nb_lrmats(hmat_SLP));
+	add_stats(hmat_SLP,"Relative Frob error SLP",sqrt(squared_absolute_error(hmat_SLP, vmat_SLP))/NormFrob(vmat_SLP));
 
-    int nb_lr_SLP = nb_lrmats(hmat_SLP);
-    int nb_dense_SLP = nb_densemats(hmat_SLP);
-    Real err_frob_SLP = squared_absolute_error(hmat_SLP, vmat_SLP);
-    int nb_lr_DLP = nb_lrmats(hmat_DLP);
-    int nb_dense_DLP = nb_densemats(hmat_DLP);
-    Real err_frob_DLP = squared_absolute_error(hmat_DLP, vmat_DLP);
+	add_stats(hmat_DLP,"MvProd_SLP (mean)",std::get<0>(mvp_stats_DLP));
+	add_stats(hmat_DLP,"MvProd_SLP (max)",std::get<1>(mvp_stats_DLP));
+// 	add_stats(hmat_DLP,"MvProd err",norm(ua-ub)/norm(ua));
+	add_stats(hmat_DLP,"Compression_SLP",CompressionRate(hmat_DLP));
+	add_stats(hmat_DLP,"Nb dense mats SLP",nb_densemats(hmat_DLP));
+	add_stats(hmat_DLP,"Nb lr mats SLP",nb_lrmats(hmat_DLP));
+	add_stats(hmat_DLP,"Relative Frob error SLP",sqrt(squared_absolute_error(hmat_DLP, vmat_DLP))/NormFrob(vmat_DLP));
 
+	
+	std::cout<< "################# Harmonique n°"<<p<<" ###################"<<std::endl;
+	std::cout<< "## SLP"<<std::endl; 
+	print_stats(hmat_SLP);
+	std::cout<< "## DLP"<<std::endl;
+	print_stats(hmat_DLP);
+	std::cout << std::endl;
+	
+	
     if (rankWorld==0){
-      std::cout << "nb_lrmats_SLP : "<<nb_lr_SLP<<std::endl;
-      std::cout << "nb_densemats_SLP : "<<nb_dense_SLP<<std::endl;
-      std::cout << "err_frob_SLP : "<<err_frob_SLP<<std::endl;
-      std::cout<<std::endl;
-      std::cout << "nb_lrmats_DLP : "<<nb_lr_DLP<<std::endl;
-      std::cout << "nb_densemats_DLP : "<<nb_dense_DLP<<std::endl;
-      std::cout << "err_frob_DLP : "<<err_frob_SLP<<std::endl;
-      std::cout<<std::endl;
-
-      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_hmat");
-      write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
-
-      std::cout << "Compression_SLP : "<<compression_SLP << std::endl;
-      std::cout << "Compression_DLP : "<<compression_DLP << std::endl;
-
+    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_hmat");
+    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
     }
-
-
   }
   MPI_Finalize();
 }
@@ -808,7 +810,7 @@ void potential_hmat_2D(int argc, char* argv[], std::vector<Real> harmonics, Real
 ///=========================== potential_hmat_3D ====================================////
 ///==================================================================================////
 
-void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real lc, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int verbose=0){
+void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int MaxBlockSize, int verbose=0){
   ////=====================  Setting for htool  ===================////
 
   MPI_Init(&argc, &argv);
@@ -819,14 +821,15 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
   htool::SetEpsilon(Epsilon);
   htool::SetEta(Eta);
   htool::SetMinClusterSize(MinClusterSize);
-
+  htool::SetMaxBlockSize(MaxBlockSize);
+  
   ////=======================  Mesh building  =====================////
   if (rankWorld==0){
     if (verbose>0){
       std::cout<<"Construction du maillage"<<std::endl;
     }
-    gmsh_sphere(("sphere_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-    gmsh_ball  (("ball_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+    gmsh_sphere(("sphere_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+    gmsh_ball  (("ball_"+NbrToStr(lc_v)).c_str(),R*0.5,lc_v,verbose);
   }
 
   ////=======================  Mesh loading  ======================////
@@ -836,8 +839,8 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
   }
   MPI_Barrier(MPI_COMM_WORLD);
   geometry geom,vol;
-  load_node_gmsh(geom,("sphere_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("ball_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("sphere_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("ball_"+NbrToStr(lc_v)).c_str());
 
   mesh_2D Omega(geom);
   mesh_3D Vol(vol);
@@ -847,8 +850,8 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
   MPI_Barrier(MPI_COMM_WORLD);
 
   if (rankWorld==0){
-    gmsh_clean(("sphere_"+NbrToStr(lc)).c_str());
-    gmsh_clean(("ball_"+NbrToStr(lc)).c_str());
+    gmsh_clean(("sphere_"+NbrToStr(lc_s)).c_str());
+    gmsh_clean(("ball_"+NbrToStr(lc_v)).c_str());
   }
 
   ////================== Calcul de la normale =====================////
@@ -866,7 +869,7 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
   int nbelt = nb_elt(Omega);
   P1_2D dof(Omega);
   int nbdof = nb_dof(dof);
-
+std::cout << nbdof <<" "<< nbpt << " " <<nbdof * nbpt << std::endl;
   Real kappa=10;
 
   potential<P1_2D,SLP_3D> SLPop(kappa,n_);
@@ -983,8 +986,8 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
     vect<Real> Out;resize(Out,nbpt);fill(Out,0.);
     vect<Real> Out_ref;resize(Out_ref,nbpt);fill(Out_ref,0.);
 
-    MvProdMPI(Sh,hmat_SLP,TraceNeumann);
-    MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
+    std::pair <double,double > mvp_stats_SLP = MvProdMPI(Sh,hmat_SLP,TraceNeumann);
+    std::pair <double,double > mvp_stats_DLP = MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
 
     for (int i=0;i<nbpt;i++){
       Out[i]= std::abs(Sh[i]+Dh[i]);
@@ -992,33 +995,36 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
     }
 
 
-    Real compression_SLP=CompressionRate(hmat_SLP);
-    Real compression_DLP=CompressionRate(hmat_DLP);
+	add_stats(hmat_SLP,"MvProd_SLP (mean)",std::get<0>(mvp_stats_SLP));
+	add_stats(hmat_SLP,"MvProd_SLP (max)",std::get<1>(mvp_stats_SLP));
+// 	add_stats(hmat_SLP,"MvProd err",norm(ua-ub)/norm(ua));
+	add_stats(hmat_SLP,"Compression_SLP",CompressionRate(hmat_SLP));
+	add_stats(hmat_SLP,"Nb dense mats SLP",nb_densemats(hmat_SLP));
+	add_stats(hmat_SLP,"Nb lr mats SLP",nb_lrmats(hmat_SLP));
+	add_stats(hmat_SLP,"Relative Frob error SLP",sqrt(squared_absolute_error(hmat_SLP, vmat_SLP))/NormFrob(vmat_SLP));
 
-    int nb_lr_SLP = nb_lrmats(hmat_SLP);
-    int nb_dense_SLP = nb_densemats(hmat_SLP);
-    Real err_frob_SLP = squared_absolute_error(hmat_SLP, vmat_SLP);
-    int nb_lr_DLP = nb_lrmats(hmat_DLP);
-    int nb_dense_DLP = nb_densemats(hmat_DLP);
-    Real err_frob_DLP = squared_absolute_error(hmat_DLP, vmat_DLP);
+	add_stats(hmat_DLP,"MvProd_DLP (mean)",std::get<0>(mvp_stats_DLP));
+	add_stats(hmat_DLP,"MvProd_DLP (max)",std::get<1>(mvp_stats_DLP));
+// 	add_stats(hmat_DLP,"MvProd err",norm(ua-ub)/norm(ua));
+	add_stats(hmat_DLP,"Compression_DLP",CompressionRate(hmat_DLP));
+	add_stats(hmat_DLP,"Nb dense mats DLP",nb_densemats(hmat_DLP));
+	add_stats(hmat_DLP,"Nb lr mats DLP",nb_lrmats(hmat_DLP));
+	add_stats(hmat_DLP,"Relative Frob error DLP",sqrt(squared_absolute_error(hmat_DLP, vmat_DLP))/NormFrob(vmat_DLP));
+
+	
+	std::cout<< "################# Harmonique n°"<<p<<" ###################"<<std::endl;
+	std::cout<< "## SLP"<<std::endl; 
+	print_stats(hmat_SLP);
+	std::cout<< "## DLP"<<std::endl;
+	print_stats(hmat_DLP);
+	std::cout << std::endl;
 
     if (rankWorld==0){
-      std::cout << "nb_lrmats_SLP : "<<nb_lr_SLP<<std::endl;
-      std::cout << "nb_densemats_SLP : "<<nb_dense_SLP<<std::endl;
-      std::cout << "err_frob_SLP : "<<err_frob_SLP<<std::endl;
-      std::cout<<std::endl;
-      std::cout << "nb_lrmats_DLP : "<<nb_lr_DLP<<std::endl;
-      std::cout << "nb_densemats_DLP : "<<nb_dense_DLP<<std::endl;
-      std::cout << "err_frob_DLP : "<<err_frob_DLP<<std::endl;
 
 
 
-      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_hmat");
-      write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
-
-      std::cout << "Compression_SLP : "<<compression_SLP << std::endl;
-      std::cout << "Compression_DLP : "<<compression_DLP << std::endl;
-
+    write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_hmat");
+    write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
     }
 
   }
@@ -1029,7 +1035,7 @@ void potential_hmat_3D(int argc, char* argv[], std::vector<Real> harmonics, Real
 ///============================== compare_hmat_2D ===================================////
 ///==================================================================================////
 
-void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real lc, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int verbose=0){
+void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int MaxBlockSize, int verbose=0){
 
   ////=====================  Setting for htool  ===================////
 
@@ -1041,6 +1047,7 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   htool::SetEpsilon(Epsilon);
   htool::SetEta(Eta);
   htool::SetMinClusterSize(MinClusterSize);
+  htool::SetMaxBlockSize(MaxBlockSize);
 
   ////=======================  Mesh building  =====================////
 
@@ -1048,20 +1055,19 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
     if (verbose>0){
       std::cout<<"Construction du maillage"<<std::endl;
     }
-    gmsh_circle(("circle_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-    gmsh_disc  (("disc_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+    gmsh_circle(("circle_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+    gmsh_disc  (("disc_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
   }
 
   ////=======================  Mesh loading  ======================////
 
-  MPI_Barrier(MPI_COMM_WORLD);
   if (verbose>0){
     std::cout<<"Chargement du maillage"<<std::endl;
   }
-
+  MPI_Barrier(MPI_COMM_WORLD);
   geometry geom,vol;
-  load_node_gmsh(geom,("circle_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("disc_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("circle_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("disc_"+NbrToStr(lc_v)).c_str());
 
   mesh_1D Omega(geom);
   mesh_2D Vol(vol);
@@ -1069,9 +1075,10 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   load_elt_gmsh(Omega,0);
   load_elt_gmsh(Vol,0);
   MPI_Barrier(MPI_COMM_WORLD);
+
   if (rankWorld==0){
-    gmsh_clean(("circle_"+NbrToStr(lc)).c_str());
-    gmsh_clean(("disc_"+NbrToStr(lc)).c_str());
+    gmsh_clean(("circle_"+NbrToStr(lc_s)).c_str());
+    gmsh_clean(("disc_"+NbrToStr(lc_v)).c_str());
   }
 
   ////================== Calcul de la normale =====================////
@@ -1126,6 +1133,7 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   htool::HMatrix hmat_SLP(vmat_SLP,xt,rt,tabt,xs,rs,tabs);
   htool::HMatrix hmat_DLP(vmat_DLP,xt,rt,tabt,xs,rs,tabs);
   time=MPI_Wtime()-time;
+  
   if (rankWorld==0){
     std::cout << "Assembling time for h matrices : "<<time<<std::endl;
   }
@@ -1221,17 +1229,13 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
 
 
     if (rankWorld==0){
-      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_dense");
-      write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
+      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_dense");
+      write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
     }
 
-    time=MPI_Wtime();
-    MvProdMPI(Sh,hmat_SLP,TraceNeumann);
-    MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
-    time=MPI_Wtime()-time;
-    if (rankWorld==0){
-      std::cout << "H matrice vector product: "<<time<<std::endl;
-    }
+    std::pair <double,double > mvp_stats_SLP = MvProdMPI(Sh,hmat_SLP,TraceNeumann);
+    std::pair <double,double > mvp_stats_DLP = MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
+
 
     for (int i=0;i<nbpt;i++){
       Out[i]= std::abs(Sh[i]+Dh[i]);
@@ -1250,37 +1254,41 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
     err_SLP=std::sqrt(err_SLP/norm_SLP);
     err_DLP=std::sqrt(err_DLP/norm_DLP);
 
+	
+	
+	add_stats(hmat_SLP,"MvProd_SLP (mean)",std::get<0>(mvp_stats_SLP));
+	add_stats(hmat_SLP,"MvProd_SLP (max)",std::get<1>(mvp_stats_SLP));
+	add_stats(hmat_SLP,"MvProd err_SLP",err_SLP);
+	add_stats(hmat_SLP,"Compression_SLP",CompressionRate(hmat_SLP));
+	add_stats(hmat_SLP,"Nb dense mats SLP",nb_densemats(hmat_SLP));
+	add_stats(hmat_SLP,"Nb lr mats SLP",nb_lrmats(hmat_SLP));
+	add_stats(hmat_SLP,"Relative Frob error SLP",sqrt(squared_absolute_error(hmat_SLP, vmat_SLP))/NormFrob(vmat_SLP));
 
-    Real compression_SLP=CompressionRate(hmat_SLP);
-    Real compression_DLP=CompressionRate(hmat_DLP);
-
-    int nb_lr_SLP = nb_lrmats(hmat_SLP);
-    int nb_dense_SLP = nb_densemats(hmat_SLP);
-    Real err_frob_SLP = squared_absolute_error(hmat_SLP, vmat_SLP);
-    int nb_lr_DLP = nb_lrmats(hmat_DLP);
-    int nb_dense_DLP = nb_densemats(hmat_DLP);
-    Real err_frob_DLP = squared_absolute_error(hmat_DLP, vmat_DLP);
-
+	add_stats(hmat_DLP,"MvProd_DLP (mean)",std::get<0>(mvp_stats_DLP));
+	add_stats(hmat_DLP,"MvProd_DLP (max)",std::get<1>(mvp_stats_DLP));
+	add_stats(hmat_DLP,"MvProd err_DLP",err_DLP);
+	add_stats(hmat_DLP,"Compression_SLP",CompressionRate(hmat_DLP));
+	add_stats(hmat_DLP,"Nb dense mats DLP",nb_densemats(hmat_DLP));
+	add_stats(hmat_DLP,"Nb lr mats DLP",nb_lrmats(hmat_DLP));
+	add_stats(hmat_DLP,"Relative Frob error DLP",sqrt(squared_absolute_error(hmat_DLP, vmat_DLP))/NormFrob(vmat_DLP));
+	
     if (rankWorld==0){
-      std::cout << "nb_lrmats_SLP : "<<nb_lr_SLP<<std::endl;
-      std::cout << "nb_densemats_SLP : "<<nb_dense_SLP<<std::endl;
-      std::cout << "err_frob_SLP : "<<err_frob_SLP<<std::endl;
-      std::cout << "err_l2_SLP : "<<err_SLP<<std::endl;
-      std::cout<<std::endl;
-      std::cout << "nb_lrmats_DLP : "<<nb_lr_DLP<<std::endl;
-      std::cout << "nb_densemats_DLP : "<<nb_dense_DLP<<std::endl;
-      std::cout << "err_frob_DLP : "<<err_frob_DLP<<std::endl;
-      std::cout << "err_l2_DLP : "<<err_DLP<<std::endl;
-      std::cout<<std::endl;
+		write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_hmat");
+    
+	}
 
-      write_gmsh(Vol,Out,output_name+"h_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc));
-
-      std::cout << "Compression_SLP : "<<compression_SLP << std::endl;
-      std::cout << "Compression_DLP : "<<compression_DLP << std::endl;
-
-    }
-
-
+	if (rankWorld==0){
+	std::cout<< "################# Harmonique n°"<<p<<" ###################"<<std::endl;
+	std::cout<< "## SLP"<<std::endl;
+	}
+	print_stats(hmat_SLP);
+	if (rankWorld==0){
+		std::cout<< "## DLP"<<std::endl;
+	}
+	print_stats(hmat_DLP);
+	if (rankWorld==0){
+		std::cout << std::endl;
+	}
   }
   MPI_Finalize();
 }
@@ -1289,7 +1297,7 @@ void compare_hmat_2D  (int argc, char* argv[], std::vector<Real> harmonics, Real
 ///=========================== compare_hmat_3D ====================================////
 ///==================================================================================////
 
-void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real lc, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int verbose=0){
+void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real lc_s, Real lc_v, Real R, std::string output_name, Real Epsilon, Real Eta, int MinClusterSize, int MaxBlockSize, int verbose=0){
   ////=====================  Setting for htool  ===================////
 
   MPI_Init(&argc, &argv);
@@ -1300,14 +1308,15 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   htool::SetEpsilon(Epsilon);
   htool::SetEta(Eta);
   htool::SetMinClusterSize(MinClusterSize);
-
+  htool::SetMaxBlockSize(MaxBlockSize);
+  
   ////=======================  Mesh building  =====================////
   if (rankWorld==0){
     if (verbose>0){
       std::cout<<"Construction du maillage"<<std::endl;
     }
-    gmsh_sphere(("sphere_"+NbrToStr(lc)).c_str(),R,lc,verbose);
-    gmsh_ball  (("ball_"+NbrToStr(lc)).c_str(),R*0.9,lc,verbose);
+    gmsh_sphere(("sphere_"+NbrToStr(lc_s)).c_str(),R,lc_s,verbose);
+    gmsh_ball  (("ball_"+NbrToStr(lc_v)).c_str(),R*0.9,lc_v,verbose);
   }
 
   ////=======================  Mesh loading  ======================////
@@ -1317,8 +1326,8 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   }
   MPI_Barrier(MPI_COMM_WORLD);
   geometry geom,vol;
-  load_node_gmsh(geom,("sphere_"+NbrToStr(lc)).c_str());
-  load_node_gmsh(vol ,("ball_"+NbrToStr(lc)).c_str());
+  load_node_gmsh(geom,("sphere_"+NbrToStr(lc_s)).c_str());
+  load_node_gmsh(vol ,("ball_"+NbrToStr(lc_v)).c_str());
 
   mesh_2D Omega(geom);
   mesh_3D Vol(vol);
@@ -1328,8 +1337,8 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   MPI_Barrier(MPI_COMM_WORLD);
 
   if (rankWorld==0){
-    gmsh_clean(("sphere_"+NbrToStr(lc)).c_str());
-    gmsh_clean(("ball_"+NbrToStr(lc)).c_str());
+//     gmsh_clean(("sphere_"+NbrToStr(lc_s)).c_str());
+//     gmsh_clean(("ball_"+NbrToStr(lc_v)).c_str());
   }
 
   ////================== Calcul de la normale =====================////
@@ -1380,21 +1389,33 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
   }
 
 
+  Real time=MPI_Wtime();
   htool::HMatrix hmat_SLP(vmat_SLP,xt,rt,tabt,xs,rs,tabs);
   htool::HMatrix hmat_DLP(vmat_DLP,xt,rt,tabt,xs,rs,tabs);
-  progress bar("assembly", nbpt*nbelt,verbose);
+  time=MPI_Wtime()-time;
+  
+  if (rankWorld==0){
+    std::cout << "Assembling time for h matrices : "<<time<<std::endl;
+  }
+
+  time=MPI_Wtime();
   for (int j=0; j<nbpt ;j++){
     const N1& jj = j;
-    for (int k=0;k<nbdof;k++, bar++){
-      const N1&     kk = k;
+    for (int k=0;k<nbelt;k++){
+      const elt_2D& tk = Omega[k];
+      const N3&     kk = dof[k];
 
-      SLP (jj,kk) += SLPop(node[j],k) ;
-      DLP (jj,kk) += DLPop(node[j],k) ;
+      SLP (jj,kk) += SLPop(node[j],tk) ;
+      DLP (jj,kk) += DLPop(node[j],tk) ;
     }
 
   }
-  bar.end();
-
+  time=MPI_Wtime()-time;
+  
+  if (rankWorld==0){
+    std::cout << "Assembling time for regular matrices : "<<time<<std::endl;
+  }
+  
   for (int l=0;l<harmonics.size();l++){
     Real p = harmonics[l];
 
@@ -1479,10 +1500,14 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
     vect<Real> Out_ref;resize(Out_ref,nbpt);fill(Out_ref,0.);
 
 
-    Real time=MPI_Wtime();
+    time=MPI_Wtime();
     mv_prod(S,SLP,TraceNeumann);
     mv_prod(D,DLP,TraceDirichlet);
     time=MPI_Wtime()-time;
+
+    if (rankWorld==0){
+      std::cout << "Dense matrice vector product: "<<time<<std::endl;
+    }
 
     for (int i=0;i<nbpt;i++){
       Out[i]= std::abs(S[i]+D[i]);
@@ -1491,12 +1516,14 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
 
 
     if (rankWorld==0){
-      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_dense");
-      write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_ref");
+      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_dense");
+      write_gmsh(Vol,Out_ref,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_ref");
     }
 
-    MvProdMPI(Sh,hmat_SLP,TraceNeumann);
-    MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
+    std::pair <double,double > mvp_stats_SLP = MvProdMPI(Sh,hmat_SLP,TraceNeumann);
+    std::pair <double,double > mvp_stats_DLP = MvProdMPI(Dh,hmat_DLP,TraceDirichlet);
+
+
     for (int i=0;i<nbpt;i++){
       Out[i]= std::abs(Sh[i]+Dh[i]);
     }
@@ -1513,56 +1540,86 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
     }
     err_SLP=std::sqrt(err_SLP/norm_SLP);
     err_DLP=std::sqrt(err_DLP/norm_DLP);
+	
+	add_stats(hmat_SLP,"MvProd_SLP (mean)",std::get<0>(mvp_stats_SLP));
+	add_stats(hmat_SLP,"MvProd_SLP (max)",std::get<1>(mvp_stats_SLP));
+	add_stats(hmat_SLP,"MvProd err_SLP",err_SLP);
+	add_stats(hmat_SLP,"Compression_SLP",CompressionRate(hmat_SLP));
+	add_stats(hmat_SLP,"Nb dense mats SLP",nb_densemats(hmat_SLP));
+	add_stats(hmat_SLP,"Nb lr mats SLP",nb_lrmats(hmat_SLP));
+	add_stats(hmat_SLP,"Relative Frob error SLP",sqrt(squared_absolute_error(hmat_SLP, vmat_SLP))/NormFrob(vmat_SLP));
 
-
-    Real compression_SLP=CompressionRate(hmat_SLP);
-    Real compression_DLP=CompressionRate(hmat_DLP);
-
-    int nb_lr_SLP = nb_lrmats(hmat_SLP);
-    int nb_dense_SLP = nb_densemats(hmat_SLP);
-    Real err_frob_SLP = squared_absolute_error(hmat_SLP, vmat_SLP);
-    int nb_lr_DLP = nb_lrmats(hmat_DLP);
-    int nb_dense_DLP = nb_densemats(hmat_DLP);
-    Real err_frob_DLP = squared_absolute_error(hmat_DLP, vmat_DLP);
-
+	add_stats(hmat_DLP,"MvProd_DLP (mean)",std::get<0>(mvp_stats_DLP));
+	add_stats(hmat_DLP,"MvProd_DLP (max)",std::get<1>(mvp_stats_DLP));
+	add_stats(hmat_DLP,"MvProd err_DLP",err_DLP);
+	add_stats(hmat_DLP,"Compression_SLP",CompressionRate(hmat_DLP));
+	add_stats(hmat_DLP,"Nb dense mats DLP",nb_densemats(hmat_DLP));
+	add_stats(hmat_DLP,"Nb lr mats DLP",nb_lrmats(hmat_DLP));
+	add_stats(hmat_DLP,"Relative Frob error DLP",sqrt(squared_absolute_error(hmat_DLP, vmat_DLP))/NormFrob(vmat_DLP));
+	
     if (rankWorld==0){
-      std::cout << "nb_lrmats_SLP : "<<nb_lr_SLP<<std::endl;
-      std::cout << "nb_densemats_SLP : "<<nb_dense_SLP<<std::endl;
-      std::cout << "err_frob_SLP : "<<err_frob_SLP<<std::endl;
-      std::cout << "err_l2_SLP : "<<err_SLP<<std::endl;
-      std::cout<<std::endl;
-      std::cout << "nb_lrmats_DLP : "<<nb_lr_DLP<<std::endl;
-      std::cout << "nb_densemats_DLP : "<<nb_dense_DLP<<std::endl;
-      std::cout << "err_frob_DLP : "<<err_frob_DLP<<std::endl;
-      std::cout << "err_l2_DLP : "<<err_DLP<<std::endl;
+		write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc_s)+"_"+NbrToStr(lc_v)+"_hmat");
+    
+	}
 
-
-      write_gmsh(Vol,Out,output_name+"_"+NbrToStr<Real>(p)+"_"+NbrToStr(lc)+"_hmat");
-
-      std::cout << "Compression_SLP : "<<compression_SLP << std::endl;
-      std::cout << "Compression_DLP : "<<compression_DLP << std::endl;
-
-    }
-
+	if (rankWorld==0){
+	std::cout<< "################# Harmonique n°"<<p<<" ###################"<<std::endl;
+	std::cout<< "## SLP"<<std::endl; 
+	}
+	print_stats(hmat_SLP);
+	if (rankWorld==0){
+	std::cout<< "## DLP"<<std::endl;
+	}
+	print_stats(hmat_DLP);
+	if (rankWorld==0){
+		std::cout << std::endl;
+	}
   }
   MPI_Finalize();
 }
 
 int main(int argc, char* argv[]){
+	// Check the number of parameters
+	if (argc < 5) {
+		// Tell the user how to run the program
+		std::cerr << "Usage: " << argv[1] << " eps" << std::endl;
+		std::cerr << "Usage: " << argv[2] << " eta" << std::endl;
+		std::cerr << "Usage: " << argv[3] << " eta" << std::endl;
+		std::cerr << "Usage: " << argv[4] << " eta" << std::endl;
+		
+		/* "Usage messages" are a conventional way of telling the user
+		 * how to run a program if they enter the command incorrectly.
+		 */
+		return 1;
+	}
+
+	// Load the inputs
+	Real Epsilon = StrToNbr<Real>(argv[1]);
+	Real Eta = StrToNbr<Real>(argv[2]);
+	int MinClusterSize = StrToNbr<int>(argv[3]);
+	int MaxBlockSize = StrToNbr<int>(argv[4]);
+	
+	std::cout << Epsilon << " " << Eta <<" "<<MinClusterSize<<" "<<MaxBlockSize<< std::endl;
 
   std::vector<Real> harmonics(1);harmonics[0]=1;//harmonics[1]=2;harmonics[2]=3;
-  Real lc = 0.1;
-  Real R=5;
+  Real lc_s = 0.01;
+  Real lc_v = 0.05;
+  Real R=1;
 
 
-  // 	potential_elt_2D(harmonics,lc,  R, "potential_elt_2D",0);
-  // 	potential_node_2D(harmonics,lc,  R, "potential_node_2D",0);
-  // 	potential_elt_3D(harmonics,lc,  R, "potential_elt_3D",0);
-  // 	potential_node_3D(harmonics,lc,  R, "potential_node_3D",0);
-  potential_hmat_2D(argc,argv, harmonics,lc,  R, "potential_hmat_2D",0.9,0.5,1,0);
-  // potential_hmat_3D(argc,argv, harmonics,lc,  R, "potential_hmat_3D",0.1,0.9,100,1);
-  // compare_hmat_2D(argc,argv, harmonics,lc,  R, "compare_hmat_2D",0.1,0.9,1,1);
-  // compare_hmat_3D(argc,argv, harmonics,lc,  R, "compare_hmat_3D",0.1,0.9,1,1);
+//   	potential_elt_2D(harmonics, lc_s,lc_v,  R, "potential_2D",0);
+//   	potential_node_2D(harmonics,lc_s,lc_v,  R, "potential_2D",0);
+//   	potential_elt_3D(harmonics,lc_s,lc_v,  R, "potential_3D",0);
+//   	potential_node_3D(harmonics,lc_s,lc_v,  R, "potential_3D",0);
+//   potential_hmat_2D(argc,argv, harmonics,lc_s,lc_v,  R, "potential_2D",Epsilon,Eta,MinClusterSize,MaxBlockSize,0);
+//   compare_hmat_2D(argc,argv, harmonics,lc_s,lc_v,  R, "compare_2D",Epsilon,Eta,MinClusterSize,MaxBlockSize,0);
+
+  
+  lc_s = 0.07;
+  lc_v = 0.1;
+  R=0.5;
+//   potential_hmat_3D(argc,argv, harmonics,lc_s,lc_v,  R, "potential_3D",Epsilon,Eta,MinClusterSize,MaxBlockSize,0);
+  compare_hmat_3D(argc,argv, harmonics,lc_s,lc_v,  R, "compare_3D",Epsilon,Eta,MinClusterSize,MaxBlockSize,1);
 
 
 }

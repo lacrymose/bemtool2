@@ -1,21 +1,3 @@
-# GMM package - linear algebra
-find_package(GMM REQUIRED)
-if(NOT GMM_FOUND)
-    message("GMM not found, linear algebra not possible")
-endif()
-
-# Boost package - special functions
-find_package(Boost REQUIRED)
-if(NOT Boost_FOUND)
-    message("Boost not found, no access to special functions")
-endif()
-
-# BLAS
-find_package(BLAS REQUIRED)
-
-# LAPACK
-find_package(LAPACK REQUIRED)
-
 #=============================================================================#
 #=========================== Executables =====================================#
 #=============================================================================#
