@@ -4,5 +4,4 @@
 
 add_executable(Tests_gmsh tests_gmsh.cpp)
 
-target_include_directories(Tests_gmsh PRIVATE 
-								${bemtool_include_dir})
+target_link_libraries(Tests_gmsh bemtool)
