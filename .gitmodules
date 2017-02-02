@@ -1,6 +1,0 @@
-[submodule "externals/hpddm"]
-	path = externals/hpddm
-	url = git@github.com:hpddm/hpddm.git
-[submodule "externals/htool"]
-	path = externals/htool
-	url = git@github.com:PierreMarchand20/htool.git
