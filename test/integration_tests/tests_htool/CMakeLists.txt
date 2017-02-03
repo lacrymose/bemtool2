@@ -2,14 +2,8 @@
 #=========================== Executables =====================================#
 #=============================================================================#
 add_executable(Tests_htool tests_htool.cpp)
+target_link_libraries (Tests_htool bemtool htool)
 
-target_include_directories(Tests_htool PRIVATE 
-								${bemtool_include_dir}
-								${Boost_INCLUDE_DIRS}
-								${htool_include_dir}
-								${MPI_INCLUDE_PATH}
-								${EIGEN3_INCLUDE_DIR})
-								
-target_link_libraries (Tests_htool ${MPI_LIBRARIES}
-								${BLAS_LIBRARIES})
-								
+add_executable(Tests_htool_gui tests_htool_gui.cpp)
+target_link_libraries (Tests_htool_gui bemtool htool htool_visu)
+target_compile_options(Tests_htool_gui PUBLIC -DHTOOL_WITH_GUI)

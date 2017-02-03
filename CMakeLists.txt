@@ -4,6 +4,11 @@
 cmake_minimum_required(VERSION 3.0)
 Project(Bemtool)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 # Usefule variable
 set(bemtool_include_dir "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
@@ -83,24 +88,12 @@ else()
 endif()
 #===
 
-#=== HTOOL
-# find_path(htool_dir "${CMAKE_CURRENT_SOURCE_DIR}/externals/htool")
-# if(htool_dir)
-# 	add_library(htool INTERFACE)
-# 	target_include_directories(htool INTERFACE ${htool_include_dir})
-# 	add_subdirectory(externals)
-# else()
-# 	... # read on
-# endif()
-
 #=== HPDDM
-find_path(hpddm_include_dir "HPDDM.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/externals/hpddm/include")
+find_path(hpddm_include_dir "HPDDM.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/external/hpddm/include")
 if(hpddm_include_dir AND MPI_FOUND AND BLAS_FOUND AND LAPACK_FOUND)
 	message("-- HPDDM and dependencies found")
 elseif(NOT hpddm_include_dir)
-	execute_process(COMMAND git submodule init
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-	execute_process(COMMAND git submodule update
+	execute_process(COMMAND git submodule update --init --recursive
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     set(hpddm_include_dir "${CMAKE_CURRENT_SOURCE_DIR}/external/hpddm/include")
 endif()
@@ -110,27 +103,21 @@ target_link_libraries(hpddm INTERFACE
 					blas
 					lapack)
 #===
-					
-					
-					
-# get_property(test TARGET hpddm PROPERTY INTERFACE_LINK_LIBRARIES)
-# message(${test})
 
-# #OpenGL - htool/hpddm
-# find_package(OpenGL)
-# if(NOT OPENGL_FOUND)
-#     message(ERROR " OPENGL not found!")
-# endif(NOT OPENGL_FOUND)
-# 
-# #FreeGlut - htool/hpddm
-# find_package(GLUT)
-# if(NOT GLUT_FOUND)
-#     message(ERROR " GLUT not found!")
-# endif(NOT GLUT_FOUND)
-# 
-# configure_file(${htool_include_dir}/config.h.in ${CMAKE_BINARY_DIR}/generated/config.h )
-# include_directories( ${CMAKE_BINARY_DIR}/generated/ )
 
+
+#=== Htool and dependencies
+message("-- Htool and its dependencies will be built as submodules")
+execute_process(COMMAND git submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+                    
+    
+# Configuration options for htool
+set(HTOOL_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
+
+# Add the configurations from htool
+add_subdirectory(external/htool)
+#===
 
 #=============================================================================#
 #========================== Repertories ======================================#
