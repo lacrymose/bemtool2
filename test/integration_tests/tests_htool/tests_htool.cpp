@@ -1,6 +1,7 @@
 #include <bemtool2/tools.h>
 #include <mpi.h>
 #include <bemtool2/htool_wrap.h>
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace bemtool;
 
@@ -974,7 +975,7 @@ void compare_hmat_3D  (int argc, char* argv[], std::vector<Real> harmonics, Real
 
 
 
-int main(){
+int main (int argc, char *argv[]){
 	// Check the number of parameters
 	if (argc < 5) {
 		// Tell the user how to run the program
@@ -1002,12 +1003,7 @@ int main(){
   Real lc_v = 0.05;
   Real R=1;
 
-
-//   	potential_elt_2D(harmonics, lc_s,lc_v,  R, "potential_2D",0);
-//   	potential_node_2D(harmonics,lc_s,lc_v,  R, "potential_2D",0);
-//   	potential_elt_3D(harmonics,lc_s,lc_v,  R, "potential_3D",0);
-//   	potential_node_3D(harmonics,lc_s,lc_v,  R, "potential_3D",0);
-//   potential_hmat_2D(argc,argv, harmonics,lc_s,lc_v,  R, "potential_2D",Epsilon,Eta,MinClusterSize,MaxBlockSize,0);
+  potential_hmat_2D(argc,argv, harmonics,lc_s,lc_v,  R, "potential_2D",Epsilon,Eta,MinClusterSize,MaxBlockSize,0);
 //   compare_hmat_2D(argc,argv, harmonics,lc_s,lc_v,  R, "compare_2D",Epsilon,Eta,MinClusterSize,MaxBlockSize,0);
 
   

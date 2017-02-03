@@ -107,11 +107,13 @@ target_link_libraries(hpddm INTERFACE
 
 
 #=== Htool and dependencies
+find_path(htool_dir "htool.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/external/htool/include/htool")
 message("-- Htool and its dependencies will be built as submodules")
-execute_process(COMMAND git submodule update --init --recursive
+if (NOT htool_dir)
+	execute_process(COMMAND git submodule update --init --recursive
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-                    
-    
+endif()
+
 # Configuration options for htool
 set(HTOOL_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 
