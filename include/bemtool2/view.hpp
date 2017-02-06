@@ -31,7 +31,7 @@ void attach_ui(htool::Scene& s) {
 			std::cerr << "No active project" << std::endl;
 		else {
 			
-				gmsh_disc  ("disc",1,0.1,0);
+				gmsh_disc  ("disc",R,lc,0);
 				geometry vol;
 				load_node_gmsh(vol ,"disc");
 				mesh_2D Vol(vol);
@@ -53,9 +53,9 @@ void attach_ui(htool::Scene& s) {
 					
 				}
 				for (int i=0;i<nbelt;i++){
-					Elts[i][0]=&Vol[i][0]-&node[0] +1;
-					Elts[i][1]=&Vol[i][1]-&node[0] +1;
-					Elts[i][2]=&Vol[i][2]-&node[0] +1;
+					Elts[i][0]=&Vol[i][0]-&node[0];
+					Elts[i][1]=&Vol[i][1]-&node[0];
+					Elts[i][2]=&Vol[i][2]-&node[0];
 					Elts[i][3]=1;
 					
 					NbPts[i]=3;
@@ -65,10 +65,10 @@ void attach_ui(htool::Scene& s) {
 				
 				s.set_mesh(m);
 				
-				gv.active_project->set_ctrs(X);
+// 				gv.active_project->set_ctrs(X);
 // 				gv.active_project->set_rays(Rays);
 		
-				gv.screen->performLayout();
+// 				gv.screen->performLayout();
 			
 		}
    });
