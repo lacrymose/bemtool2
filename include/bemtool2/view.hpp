@@ -1,5 +1,6 @@
 
 #include <bemtool2/mesh.h>
+#include <bemtool2/normal.h>
 #include <bemtool2/gmsh_calls.h>
 #include <htool/view.hpp>
 
@@ -36,7 +37,7 @@ void attach_ui(htool::Scene& s) {
 				load_node_gmsh(vol ,"disc");
 				mesh_2D Vol(vol);
 				load_elt_gmsh(Vol,0);
-				
+
 				std::cout << "Mesh of a disc computed with radius "<< R<<" and mesh size "<<lc << std::endl;
 				
 				const vect<R3>& node = get_node(vol);
@@ -46,6 +47,7 @@ void attach_ui(htool::Scene& s) {
 				std::vector<htool::R3> X(nbnode);
 				std::vector<int> NbPts(nbelt);
 				std::vector<htool::N4>  Elts(nbelt);
+				std::vector<htool::R3> Normals(nbelt);
 
 				for (int i=0;i<nbnode;i++){
 					htool::R3 pt;pt[0]=node[i][0];pt[1]=node[i][1];pt[2]=node[i][2];
@@ -59,9 +61,14 @@ void attach_ui(htool::Scene& s) {
 					Elts[i][3]=1;
 					
 					NbPts[i]=3;
+
+					Normals[i][0] = 0;
+					Normals[i][1] = 0;
+					Normals[i][2] = 1;
+					
 				}
 
-				htool::GLMesh m(X,Elts,NbPts);
+				htool::GLMesh m(X,Elts,NbPts,Normals);
 				
 				s.set_mesh(m);
 				
