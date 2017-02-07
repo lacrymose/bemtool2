@@ -40,7 +40,8 @@ void attach_ui(htool::Scene& s) {
 				std::vector<int> NbPts;
 				std::vector<htool::N4>  Elts;
 				std::vector<htool::R3> Normals;
-						
+				std::vector<htool::Real> Rays;
+				
 				switch(enumval){
 					case Disc:
 					{
@@ -60,10 +61,13 @@ void attach_ui(htool::Scene& s) {
 						NbPts.resize(nbelt);
 						Elts.resize(nbelt);
 						Normals.resize(nbelt);
+						Rays.resize(nbnode);
+						
 
 						for (int i=0;i<nbnode;i++){
 							htool::R3 pt;pt[0]=node[i][0];pt[1]=node[i][1];pt[2]=node[i][2];
 							X[i]=pt;
+							Rays[i]=0;
 							
 						}
 						for (int i=0;i<nbelt;i++){
@@ -88,7 +92,7 @@ void attach_ui(htool::Scene& s) {
 						load_node_gmsh(vol ,"sphere");
 						mesh_2D Vol(vol);
 						load_elt_gmsh(Vol,0);
-
+						nrml_2D n_(Vol);
 						std::cout << "Mesh of a sphere computed with radius "<< R<<" and mesh size "<<lc << std::endl;
 				
 						const vect<R3>& node = get_node(vol);
@@ -99,11 +103,12 @@ void attach_ui(htool::Scene& s) {
 						NbPts.resize(nbelt);
 						Elts.resize(nbelt);
 						Normals.resize(nbelt);
-
+						Rays.resize(nbnode);
+						
 						for (int i=0;i<nbnode;i++){
 							htool::R3 pt;pt[0]=node[i][0];pt[1]=node[i][1];pt[2]=node[i][2];
 							X[i]=pt;
-							
+							Rays[i]=0;
 						}
 						for (int i=0;i<nbelt;i++){
 							Elts[i][0]=&Vol[i][0]-&node[0];
@@ -112,24 +117,20 @@ void attach_ui(htool::Scene& s) {
 							Elts[i][3]=1;
 							
 							NbPts[i]=3;
-
-							htool::R3 v1 = X[Elts[i][1]] - X[Elts[i][0]];
-							htool::R3 v2 = X[Elts[i][2]] - X[Elts[i][0]];
-							htool::R3 v3 =v1^v2;
-							Normals[i][0] = v3[0];
-							Normals[i][1] = v3[1];
-							Normals[i][2] = v3[2];
+							
+							Normals[i][0] = n_[i][0];
+							Normals[i][1] = n_[i][1];
+							Normals[i][2] = n_[i][2];
 							
 						}
 						break;
 					}
 					case Ball:
 					{
-						std::cout << "ok"<< std::endl;
 						gmsh_ball  ("ball",R,lc,0);
 						geometry vol;
 						load_node_gmsh(vol ,"ball");
-						mesh_2D Vol(vol);
+						mesh_3D Vol(vol);
 						load_elt_gmsh(Vol,0);
 
 						std::cout << "Mesh of a ball computed with radius "<< R<<" and mesh size "<<lc << std::endl;
@@ -142,11 +143,12 @@ void attach_ui(htool::Scene& s) {
 						NbPts.resize(nbelt);
 						Elts.resize(nbelt);
 						Normals.resize(nbelt);
-
+						Rays.resize(nbnode);
+						
 						for (int i=0;i<nbnode;i++){
 							htool::R3 pt;pt[0]=node[i][0];pt[1]=node[i][1];pt[2]=node[i][2];
 							X[i]=pt;
-							
+							Rays[i]=0;
 						}
 						for (int i=0;i<nbelt;i++){
 							Elts[i][0]=&Vol[i][0]-&node[0];
@@ -172,11 +174,28 @@ void attach_ui(htool::Scene& s) {
 		
 // 				gv.screen->performLayout();
 				}
-				
+// 				std::cout << "ok" << std::endl;
+				gv.active_project->set_ctrs(X);
+				gv.active_project->set_rays(Rays);
 				htool::GLMesh m(X,Elts,NbPts,Normals);
 				s.set_mesh(m);
 		}
    });
+	gui->addButton("Create cluster",[&]{
+		if (gv.active_project == NULL)
+			std::cerr << "No active project" << std::endl;
+		else{
+			const std::vector<htool::R3>& x = *(gv.active_project->get_ctrs());
+			const std::vector<htool::Real>& r = *(gv.active_project->get_rays());
+			htool::vectInt tab(x.size());
+   			for (int j=0;j<x.size();j++){
+   					tab[j]  = j;
+   				}
+   				 				
+			htool::Cluster *t = new htool::Cluster(x,r,tab);
+			gv.active_project->get_mesh()->set_cluster(t);
+		}
+	});
 	
 
 	gv.screen->performLayout();
