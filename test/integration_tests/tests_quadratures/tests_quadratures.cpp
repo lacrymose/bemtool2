@@ -1,6 +1,8 @@
-#include "bemtool2/mesh.h"
-#include "bemtool2/kernel.h"
+#include <bemtool2/mesh.h>
+#include <bemtool2/kernel.h>
+#include <bemtool2/dof.h>
 
+using namespace bemtool;
 ////=============================================================================////
 ////========================= quad1D_potential ==================================////
 ////=============================================================================////
@@ -26,6 +28,7 @@ void quad1D_potential(){
 	Real kappa=1;
 	
 	////================= Calcul de la quadrature ===================////
+	
 	potential<P1_1D,CST_2D> CSTop(kappa,n_);
 	mat<1,2,Cplx > CST = CSTop(C,mesh[0]);
 	
@@ -72,6 +75,10 @@ void quad2D_potential(){
 	std::cout <<"3D - calcul par noeuds "<< CSTop(D,0) <<"\t"<< CSTop(D,1)<<"\t"<<CSTop(D,2)<< std::endl;
 	
 }
+
+////=============================================================================////
+////============================= Main ==========================================////
+////=============================================================================////
 
 int main(){
 

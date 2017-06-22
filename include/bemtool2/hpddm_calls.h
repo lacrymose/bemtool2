@@ -4,6 +4,8 @@
 #define HPDDM_NUMBERING 'C'
 #include <HPDDM.hpp>
 #include "gmm_wrap.h"
+namespace bemtool{
+
 
 struct HPDDMOperator_GMM : HPDDM::EmptyOperator<std::complex<double>> {
   gmm_dense& _A;
@@ -29,4 +31,6 @@ struct HPDDMOperator_GMM : HPDDM::EmptyOperator<std::complex<double>> {
   }
 };
 
+
+}
 #endif

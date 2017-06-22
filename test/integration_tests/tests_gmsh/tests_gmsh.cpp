@@ -1,7 +1,8 @@
-#include "bemtool2/mesh.h"
-#include "bemtool2/gmsh_calls.h"
+#include <bemtool2/mesh.h>
+#include <bemtool2/gmsh_calls.h>
 #include <math.h>
 
+using namespace bemtool;
 ////=============================================================================////
 ////========================= plot_2D_data ======================================////
 ////=============================================================================////

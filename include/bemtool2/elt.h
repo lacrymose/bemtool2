@@ -4,6 +4,9 @@
 #include <cassert>
 #include "calculus.h"
 
+namespace bemtool{
+
+
 
 //==========================//
 //        Element           //
@@ -11,8 +14,8 @@
 
 // Liste des indices constituant
 // les faces de l'element
-template <int dim> bemtool::array< dim+1, bemtool::array<dim, int> > face_idx(){
-  bemtool::array< dim+1, bemtool::array<dim, int> > I;
+template <int dim> array< dim+1, array<dim, int> > face_idx(){
+  array< dim+1, array<dim, int> > I;
   for(int j=0; j<dim+1; j++)
     for(int k=0; k<dim; k++){
       I[j][k] = (j+1+k)%(dim+1);}
@@ -56,6 +59,7 @@ template <int dim, class val_t = R3>
  
  friend int get_dim(const this_t& elt){return dim;}
  
+
  friend bemtool::array< dim+1 ,elt_<dim-1> >
  faces_of(const this_t& e){
    bemtool::array< dim+1, elt_<dim-1> > f;
@@ -160,11 +164,11 @@ inline R3 normal_to(const elt_2D& e){
 //=============================//
 
 template <int dim>
-inline void compute_normal_to_faces(const elt_<dim>& e, bemtool::array<dim+1,R3>& n_){};
+inline void compute_normal_to_faces(const elt_<dim>& e, array<dim+1,R3>& n_){};
 
 
 template<>
-inline void  compute_normal_to_faces<dim1>(const elt_1D& e, bemtool::array<2,R3>& n_){
+inline void  compute_normal_to_faces<dim1>(const elt_1D& e, array<2,R3>& n_){
   n_[0] = e[1]-e[0];
   normalize(n_[0]);
   n_[1] = (-1.)*n_[0];
@@ -172,7 +176,7 @@ inline void  compute_normal_to_faces<dim1>(const elt_1D& e, bemtool::array<2,R3>
 
 
 template<>
-inline void  compute_normal_to_faces<dim2>(const elt_2D& e, bemtool::array<3,R3>& n_){
+inline void  compute_normal_to_faces<dim2>(const elt_2D& e, array<3,R3>& n_){
 
   R3 u1,u2;
   for(int k=0; k<3; k++){
@@ -195,7 +199,7 @@ inline void  compute_normal_to_faces<dim2>(const elt_2D& e, bemtool::array<3,R3>
 
 
 template<>
-inline void  compute_normal_to_faces<dim3>(const elt_3D& e, bemtool::array<4,R3>& n_){
+inline void  compute_normal_to_faces<dim3>(const elt_3D& e, array<4,R3>& n_){
 
   R3 u1,u2;
   for(int k=0; k<4; k++){
@@ -246,4 +250,6 @@ inline Real solid_angle(const R3& p, const elt_2D& e){
   return (-1.)*det(M);
 }
 
+
+}
 #endif

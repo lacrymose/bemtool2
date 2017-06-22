@@ -3,6 +3,9 @@
 
 #include "mesh.h"
 
+namespace bemtool{
+
+
 
 inline R2x2 StiffP1(const elt_1D& e){
   Real l = vol(e);
@@ -64,5 +67,5 @@ inline R4x4 MassP1(const elt_3D& e){
   return M;
 }
 
-
+}
 #endif

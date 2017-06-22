@@ -4,6 +4,10 @@
 #include "calculus.h"
 #include "triangle_dunavant_rule.hpp"
 
+namespace bemtool{
+
+
+
 /*=========================================
 ||  Quadrature dans le tetrahedre unite  ||
 =========================================*/
@@ -182,5 +186,6 @@ inline void hp_quad1D(const int& order, std::vector<Real>& x, std::vector<Real>&
   
 }
 
+}
 
 #endif

@@ -4,6 +4,9 @@
 #include "quad.h"
 #include <fstream>
 
+namespace bemtool{
+
+
 
 template <int dim>
 class quadBEM;
@@ -384,7 +387,7 @@ class quadBEM<1>{
 };
 
 
-
+}
 
 
 

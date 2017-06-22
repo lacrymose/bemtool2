@@ -7,6 +7,9 @@
 #include "calculus.h"
 #include "elt.h"
 
+namespace bemtool{
+
+
 
 //==========================//
 //   Numerotation locale    //  
@@ -406,7 +409,7 @@ template <class m_t>
 void load_elt_gmsh(m_t& m, int ref = -1){
   
   const int dim = m_t::Dim;
-  bemtool::array<dim+1,int> I;  
+  array<dim+1,int> I;  
   std::string filename = meshfile(m.geom);
   filename += ".msh";
 
@@ -463,6 +466,6 @@ template <class m_t, class i_t> void load_elt_hand(m_t& m, const i_t& i){
 
 
 
-
+}
 
 #endif

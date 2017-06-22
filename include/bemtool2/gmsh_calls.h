@@ -5,6 +5,9 @@
 #include "calculus.h"
 #include "misc.h"
 
+namespace bemtool{
+
+
 
 ////=============================================================////
 ////===========================  Circle =========================////
@@ -305,4 +308,5 @@ template <class m_t, class f_t> void write_gmsh(const m_t & m, const f_t & f, st
 	file.close();
 }
 
+}
 #endif

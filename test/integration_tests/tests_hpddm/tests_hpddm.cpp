@@ -1,7 +1,7 @@
-#include "tests_hpddm.hpp"
+#include <bemtool2/tools.h>
+#include <bemtool2/hpddm_calls.h>
 
-
-
+using namespace bemtool;
 void hpddm_gmm_test(std::vector<Real> harmonics, Real lc, Real R, int verbose){
   ////=============================================================////
   ////=======================  Mesh building  =====================////
@@ -34,17 +34,6 @@ void hpddm_gmm_test(std::vector<Real> harmonics, Real lc, Real R, int verbose){
   }
   nrml_1D n_(Omega);
 
-  // 	for (int j=0;j < nb_elt(Omega);j++){
-  // 		elt_1D seg = Omega[j];
-  // 		R3 G;
-  // 		G[0]= 0.5 * ( seg[0][0] + seg[1][0] );
-  // 		G[1]= 0.5 * ( seg[0][1] + seg[1][1] );
-  // 		G[2]= 0;
-  //
-  // 		std::cout<<(G,n_[j])<<std::endl;
-  // 	}
-
-  // swap(n_);
   ////=============================================================////
   ////================ Assemblage de la matrice ===================////
   ////=============================================================////
@@ -204,4 +193,14 @@ void hpddm_gmm_test(std::vector<Real> harmonics, Real lc, Real R, int verbose){
 
     }
   }
+}
+
+int main(int argc, char const *argv[]) {
+  HPDDM::Option::get()->parse(argc, argv, 1);
+
+  //// Harmoniques
+  std::vector<Real> harmoniques;harmoniques.push_back(1);harmoniques.push_back(2);harmoniques.push_back(3);harmoniques.push_back(4);harmoniques.push_back(5);
+
+  hpddm_gmm_test(harmoniques, 0.1, 1., 1);
+  return 0;
 }
