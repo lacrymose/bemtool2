@@ -28,8 +28,8 @@ class loc_{
  private:
   
   typedef const void*        admesh_t; 
-  std::vector<admesh_t>           admesh;
-  std::vector<int>                num;
+  std::vector<admesh_t>      admesh;
+  std::vector<int>           num;
   static const int           none; 
   
  public:
@@ -38,8 +38,8 @@ class loc_{
   admesh(nl.admesh), num(nl.num) {};
   
   template <class m_t>
-    loc_<dim>(const m_t& m_, const int& num0):
-  admesh(1,&m_), num(1,num0) {};
+  loc_<dim>(const m_t& m_, const int& num0):
+  admesh(1,&m_),num(1,num0) {};
   
   template <class m_t>
     void push(const m_t& m_, const int& num0){
