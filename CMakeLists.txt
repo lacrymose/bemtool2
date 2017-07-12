@@ -26,6 +26,11 @@ set(bemtool_include_dir "${CMAKE_CURRENT_SOURCE_DIR}/include")
 # Files to do find_package for some module
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
 
+# Options
+option(BEMTOOL_WITH_EXAMPLES "Build htool examples ?" ON)
+option(BEMTOOL_WITH_TESTS    "Build htool tests ?" ON)
+
+
 #=============================================================================#
 #========================== External Libraries ===============================#
 #=============================================================================#
@@ -45,7 +50,7 @@ endif()
 
 # Htool
 message("-- Htool and its dependencies will be built as submodules")
-execute_process(COMMAND git submodule update --init --remote external/htool
+execute_process(COMMAND git submodule update --init external/htool
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(external/htool)
 
@@ -71,6 +76,19 @@ endif()
 #=============================================================================#
 #========================== Repertories ======================================#
 #=============================================================================#
+
+if (BEMTOOL_WITH_EXAMPLES)
+	enable_testing()
+	add_custom_target(build-examples)
+	add_subdirectory(examples EXCLUDE_FROM_ALL)
+endif()
+if (BEMTOOL_WITH_TESTS)
+	enable_testing()
+	add_custom_target(build-tests)
+	add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif()
+
+
 
 # Add documentation
 # add_subdirectory(doc)
