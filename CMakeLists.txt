@@ -41,34 +41,32 @@ option(BEMTOOL_WITH_TESTS    "Build htool tests ?" ON)
 # endif()
 # set (GMM_INCLUDE_DIR "external" )
 # set (GMM_FOUND 1)
+
+
+# EIGEN3
+find_package(EIGEN3)
+
 # Boost package - special functions
 find_package(Boost REQUIRED)
-if(NOT Boost_FOUND)
-    message("Boost not found, no access to special functions")
-endif()
-
 
 # Htool
-message("-- Htool and its dependencies will be built as submodules")
-execute_process(COMMAND git submodule update --init external/htool
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_subdirectory(external/htool)
+find_package(Htool)
+
+# Htool
+find_package(HPDDM)
 
 #=============================================================================#
 #=========================== Libraries =======================================#
 #=============================================================================#
 #=== BEMTOOL
-if(Boost_FOUND)
-	message("-- Bemtool and dependencies found")
-	add_library(bemtool INTERFACE)
-	target_include_directories(bemtool INTERFACE
-						${bemtool_include_dir}
-						${Boost_INCLUDE_DIRS})
-  target_link_libraries(bemtool INTERFACE htool)
+add_library(bemtool INTERFACE)
+target_include_directories(bemtool INTERFACE
+					${bemtool_include_dir}
+					${Boost_INCLUDE_DIRS}
+					${HTOOL_INCLUDE_DIR}
+					${HPDDM_INCLUDE_DIR})
+target_link_libraries(bemtool INTERFACE htool)
 
-else()
-	message("Bemtool and dependencies not found")
-endif()
 #===
 
 
@@ -80,7 +78,7 @@ endif()
 if (BEMTOOL_WITH_EXAMPLES)
 	enable_testing()
 	add_custom_target(build-examples)
-	add_subdirectory(examples EXCLUDE_FROM_ALL)
+	# add_subdirectory(examples EXCLUDE_FROM_ALL)
 endif()
 if (BEMTOOL_WITH_TESTS)
 	enable_testing()
