@@ -1,4 +1,4 @@
-#ifndef ELT_H
+#ifndef	 ELT_H
 #define ELT_H
 
 #include <cassert>
@@ -42,10 +42,11 @@ template <int dim, class val_t = R3>
    for(int j=0; j<dim+1;j++){v_[j] = &r_[j];} }
 
  const v_t& operator[](const int& j) const {return *v_[j];}
-
- template <class i_t> subarray<const this_t,i_t> operator[] (const i_t& i_) const {
+ 
+ template <class i_t>
+ subarray<const this_t,i_t> operator[] (const i_t& i_) const {
    return subarray<const this_t,i_t>(*this,i_);}
-
+ 
  friend std::ostream& operator<<(std::ostream& os, const this_t& e){
    for(int j=0; j<dim+1; j++){os << e[j] << std::endl;} return os;}
 
@@ -58,9 +59,11 @@ template <int dim, class val_t = R3>
  
  friend int get_dim(const this_t& elt){return dim;}
  
- friend array< dim+1 ,elt_<dim-1> > faces_of(const this_t& e){
-   array< dim+1, elt_<dim-1> > f;
-   array<dim, int> I;
+
+ friend bemtool::array< dim+1 ,elt_<dim-1> >
+ faces_of(const this_t& e){
+   bemtool::array< dim+1, elt_<dim-1> > f;
+   bemtool::array<dim, int> I;
    for(int k=0; k<dim+1; k++){
      for(int p=0; p<dim; p++){
        I[p] = (k+1+p)%(dim+1);}

@@ -1,0 +1,50 @@
+
+
+Resume:
+Ceci est un fichier texte qui a vocation a lister l'ensemble des tests
+que l'on souhaite maintenir dans BEMTOOL. Ces tests sont ranges par
+thematiques.
+
+
+
+
+
+
+=================
+THEMATIQUE 1
+LE MAILLAGE
+=================
+
+* Tous les tests sont a realiser en 2D et en 3D
+* Pour un cube, verifier la numerotation des noeuds et des triangles
+* Pour un cube, puis deux cubes separes, calcul des composantes connexes
+* Pour un cube, puis deux cubes separes, calcul du vecteur normal
+* Calcul d'aire pour le maillage d'une sphere
+
+================
+THEMATIQUE 2
+QUADRATURE
+================
+
+* Tous les tests sont a realiser en 2D et en 3D
+* Calcul des interactions elementaires entre deux elements
+  - base sur la boite noire d'Igor
+  - pour commencer avec du P1 et du P0
+  - pour le noyau constant 
+  - pour les autres operateurs integraux 
+* Tests sur les poteniels (surface -> volume)
+  - base sur la separation de variable (appel de fonctions special via boost)
+* Test  sur les operateurs integraux (surface -> surface) 
+  - base sur la separation de variable (appel de fonctions special via boost) sur la sphere
+  - base sur la boite noire d'Igor sur un cube avec 12 triangles
+
+================
+THEMATIQUE 3
+ALGEBRE LINEAIRE
+================
+
+* Tests sur eigen
+  - produit matrice-vecteur
+  - resolution d'un proçbleme Ax = b
+  - resolution d'un pobleme aux valeurs propres
+  - calcul d'une decomposition en valeurs singulieres
