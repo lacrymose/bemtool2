@@ -44,7 +44,7 @@ option(BEMTOOL_WITH_TESTS    "Build htool tests ?" ON)
 
 
 # EIGEN3
-find_package(EIGEN3)
+find_package(EIGEN3 REQUIRED)
 
 # Boost package - special functions
 find_package(Boost REQUIRED)
