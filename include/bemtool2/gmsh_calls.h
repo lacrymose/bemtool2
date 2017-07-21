@@ -284,7 +284,7 @@ template <class m_t, class f_t> void write_gmsh(const m_t & m, const f_t & f, st
 			file << &m[j][2]-&node[0] +1<<" ";
 			file << &m[j][3]-&node[0] +1<<" "<<std::endl;
 		}
-		
+
 
 
 	}
@@ -301,6 +301,78 @@ template <class m_t, class f_t> void write_gmsh(const m_t & m, const f_t & f, st
 	file <<"1"<<std::endl;
 	file <<nbnode<<std::endl;
 	for (int j=0;j<nbnode;j++){
+		file << j+1 <<" " <<f[j]<<std::endl; // number type_elt (triangle) nbr_tags
+	}
+	file << "$EndNodeData\n";
+
+	file.close();
+}
+
+template <class m_t, class space, class f_t> void write_gmsh_2(const m_t& Omega, const space & dof, const f_t & f, std::string filename, std::string name="\"\""){
+	int nbdof = nb_dof(dof);
+  int nbelt = nb_elt(dof);
+
+	std::vector<R3> node(nbdof);
+	for (int i =0 ; i<nbelt;i++){
+		for (int j =0;j<dof.dim_loc;j++){
+			node[dof[i][j]]=Omega[i][j];
+		}
+	}
+
+
+
+	std::ofstream file; file.open((filename+".msh").c_str());
+	file << "$MeshFormat\n";
+	file << "2.2 0 8\n";
+	file << "$EndMeshFormat\n";
+
+	//== Nodes
+	file << "$Nodes\n";
+	file << nbdof << std::endl;
+	for(int j=0; j<nbdof; j++){
+		file << j+1 <<" "<< node[j][0]<<" "<<node[j][1]<<" "<<node[j][2] << "\n";
+	}
+	file << "$EndNodes\n";
+
+	//== Elements
+	file << "$Elements\n";
+	file << nbelt << std::endl;
+	for (int j=0;j<nbelt;j++){
+		if (get_dim(Omega[j])==1){
+			file << j+1 <<" " <<1 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (ligne) nbr_tags
+			file << dof[j][0] +1<<" ";
+			file << dof[j][1] +1<<" "<<std::endl;
+		}
+		if (get_dim(Omega[j])==2){
+			file << j+1 <<" " <<2 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (triangle) nbr_tags
+			file << dof[j][0] +1<<" ";
+			file << dof[j][1] +1<<" ";
+			file << dof[j][2] +1<<" "<<std::endl;
+		}
+		if (get_dim(Omega[j])==3){
+			file << j+1 <<" " <<4 <<" "<<2<<" "<<0<<" "<<0<<" "; // number type_elt (tetrahedron) nbr_tags
+			file << dof[j][0] +1<<" ";
+			file << dof[j][1] +1<<" ";
+			file << dof[j][2] +1<<" ";
+			file << dof[j][3] +1<<" "<<std::endl;
+		}
+
+
+
+	}
+	file << "$EndElements\n";
+
+	//== Nodedata
+	file << "$NodeData\n";
+	file << 1<<std::endl; // number-of-string-tags
+	file <<name<<std::endl;
+	file <<"1"<<std::endl; // number-of-real-tags
+	file <<"0.0"<<std::endl;
+	file <<"3"<<std::endl; // number-of-int-tags
+	file <<"0"<<std::endl;
+	file <<"1"<<std::endl;
+	file <<nbdof<<std::endl;
+	for (int j=0;j<nbdof;j++){
 		file << j+1 <<" " <<f[j]<<std::endl; // number type_elt (triangle) nbr_tags
 	}
 	file << "$EndNodeData\n";

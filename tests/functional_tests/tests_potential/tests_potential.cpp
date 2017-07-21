@@ -1,4 +1,5 @@
 #include <bemtool2/tools.h>
+#include <bemtool2/gmm_wrap.h>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 using namespace bemtool;
@@ -619,7 +620,7 @@ int main(int argc, char* argv[]){
 
   	potential_elt_2D(harmonics, lc_s,lc_v,  R, "potential_2D",0);
   	potential_node_2D(harmonics,lc_s,lc_v,  R, "potential_2D",0);
-  
+
 	lc_s = 0.07;
 	lc_v = 0.1;
 	R=0.5;

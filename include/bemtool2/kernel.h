@@ -5,6 +5,8 @@
 #include "quadBEM.h"
 #include "quadPOT.h"
 
+#include <map>
+
 #include <boost/math/special_functions/bessel.hpp>
 
 namespace bemtool{
@@ -130,18 +132,18 @@ class SLP_3D{
  SLP_3D(const Real& k0): k(k0) {};
 
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
-    r = norm2(x_y); return val = exp(iu*k*r)/(4*pi*r); }
+    r = norm2(x_y); return val = exp(-k*r)/(4*pi*r); }
 
   inline Cplx& ker(const R3& ny, const R3& x_y){
-    r = norm2(x_y); return val = exp(iu*k*r)/(4*pi*r); }
-    
+    r = norm2(x_y); return val = exp(-k*r)/(4*pi*r); }
+
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
 			    const phiy_t& phiy, const qp_t& t, const int& jy, const int& ky,
 			    const R3& nx, const R3& ny,   const R3& x_y,
 			    const Real& h, const Real& w, const Cplx& z, const N3& px, const N3& py)
   {return val = phix(s,jx,kx)*phiy(t,jy,ky)*z;}
-  
+
   template <class phi_t>
     inline Cplx& operator()(const phi_t& phi, const qp_t& t, const int& jy, const int& ky,
 			    const R3& ny,   const R3& x_y,
@@ -205,11 +207,11 @@ class DLP_3D{
   inline Cplx& ker(const R3& nx, const R3& ny, const R3& x_y){
     r = norm2(x_y); r3 = r*r*r;
     return val = (ny,x_y)*(iu*k*r-1.)*exp(iu*k*r)/(4*pi*r3); }
-    
+
   inline Cplx& ker(const R3& ny, const R3& x_y){
     r = norm2(x_y); r3 = r*r*r;
     return val = (ny,x_y)*(iu*k*r-1.)*exp(iu*k*r)/(4*pi*r3); }
-    
+
   template <class phix_t, class phiy_t>
     inline Cplx& operator()(const phix_t& phix, const qp_t& s, const int& jx, const int& kx,
 			    const phiy_t& phiy, const qp_t& t, const int& jy, const int& ky,
@@ -448,13 +450,13 @@ template <class space_x, class space_y, class kernel_t> class bem{
       z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
 
       for(int kx=0; kx<dim_loc_x; kx++){
-	for(int ky=0; ky<dim_loc_y; ky++){
-	  Melt(px[kx],py[ky]) += kernel(phix, s[j], jx, kx,
+        for(int ky=0; ky<dim_loc_y; ky++){
+	        Melt(px[kx],py[ky]) += kernel(phix, s[j], jx, kx,
 					phiy, t[j], jy, ky,
 					nx[jx], ny[jy], x_y,
 					h, w[j], z, px, py);
 
-	}
+	      }
       }
     }
 
@@ -462,6 +464,136 @@ template <class space_x, class space_y, class kernel_t> class bem{
 
   }
 
+
+
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  Cplx operator()(int i, int j){
+
+  	const std::vector<std::pair<const elt_t*,int> >& elts_i = get_elts_of_dof(phix, i);
+  	const std::vector<std::pair<const elt_t*,int> >& elts_j = get_elts_of_dof(phiy, j);
+    Cplx out =0;
+
+    for (int k=0;k<elts_i.size();k++){
+      for (int l=0;l<elts_j.size();l++){
+
+        const elt_t& ex = *(elts_i[k].first);
+        const elt_t& ey = *(elts_j[l].first);
+
+        // Calcul de la regle de quadrature
+        choose_quad(ex,ey);
+        h     = det_jac(x)*det_jac(y);
+        x0_y0 = x[0]-y[0];
+        dx    = mat_jac(x);
+        dy    = mat_jac(y);
+        const std::vector<qp_t>& s = qr.x(rule);
+        const std::vector<qp_t>& t = qr.y(rule);
+        const std::vector<Real>& w = qr.w(rule);
+
+        // numeros locaux des triangles
+        jx    = loc[ &ex-&elt[0] ][meshx];
+        jy    = loc[ &ey-&elt[0] ][meshy];
+
+        // Boucle sur les points de quadrature
+        for(int j=0; j<s.size(); j++) {
+
+          x_y = x0_y0 + dx*s[j] - dy*t[j];
+          z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
+          out += kernel(phix, s[j], jx, elts_i[k].second,
+          phiy, t[j], jy, elts_j[l].second,
+          nx[jx], ny[jy], x_y,
+          h, w[j], z, px, py);;
+
+        }
+      }
+    }
+
+    return out;
+
+  }
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  template<class M>
+  void operator()(std::vector<int> I, std::vector<int> J, M& mat){
+
+    std::map<const elt_t*, std::vector <int> > elts_I;
+    std::map<const elt_t*, std::vector <int> > elts_J;
+    std::map<int , int > map_I;
+    std::map<int , int > map_J;
+
+
+    for (int i =0;i<I.size();i++){
+      const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phix, I[i]);
+
+      map_I[I[i]]=i;
+      for (int j =0 ; j <elts.size();j++){
+          elts_I[elts[j].first].push_back(elts[j].second);
+      }
+    }
+
+
+    for (int i =0;i<J.size();i++){
+      const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phiy, J[i]);
+
+      map_J[J[i]]=i;
+      for (int j =0 ; j <elts.size();j++){
+          elts_J[elts[j].first].push_back(elts[j].second);
+      }
+    }
+
+    for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
+      // std::cout <<"pouet_x : " <<(*iter_I).second.size()<<std::endl;
+      for (auto iter_J = elts_J.begin(); iter_J!=elts_J.end();++iter_J){
+        // std::cout <<"pouet_y : " <<(*iter_J).second.size()<<std::endl;
+        const elt_t& ex = *((*iter_I).first);
+        const elt_t& ey = *((*iter_J).first);
+// std::cout << &ey-&elt[0] << std::endl;
+        // Calcul de la regle de quadrature
+        choose_quad(ex,ey);
+        h     = det_jac(x)*det_jac(y);
+        x0_y0 = x[0]-y[0];
+        dx    = mat_jac(x);
+        dy    = mat_jac(y);
+        const std::vector<qp_t>& s = qr.x(rule);
+        const std::vector<qp_t>& t = qr.y(rule);
+        const std::vector<Real>& w = qr.w(rule);
+
+        // numeros globaux des elements
+        int jx_global = &ex-&elt[0];
+        int jy_global = &ey-&elt[0];
+
+        // numeros locaux des triangles
+        if (&ex-&elt[0]>893 ||&ex-&elt[0]<0 ) std::cout << "X : "<< &ex-&elt[0]<< std::endl;
+        if (&ex-&elt[0]>893 ||&ey-&elt[0]<0 ) std::cout << "X : "<< &ey-&elt[0]<< std::endl;
+        jx    = loc[ &ex-&elt[0] ][meshx];
+        jy    = loc[ &ey-&elt[0] ][meshy];
+
+        //
+        const N3&     jj = phix[jx_global];
+        const N3&     kk = phiy[jy_global];
+
+        // Boucle sur les points de quadrature
+        for(int j=0; j<s.size(); j++) {
+
+          x_y = x0_y0 + dx*s[j] - dy*t[j];
+          z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
+
+          for(int kx=0; kx<(*iter_I).second.size(); kx++){
+            for(int ky=0; ky<(*iter_J).second.size(); ky++){
+
+             mat(map_I[jj[px[(*iter_I).second[kx]]]],map_J[kk[py[(*iter_J).second[ky]]]]) += kernel(phix, s[j], jx, (*iter_I).second[kx],
+              phiy, t[j], jy, (*iter_J).second[ky],
+              nx[jx], ny[jy], x_y,
+              h, w[j], z, px, py);
+
+            }
+          }
+        }
+      }
+    }
+  }
 
 };
 
@@ -579,17 +711,17 @@ template <class space, class kernel_t> class potential{
 	return Melt;
 
 	}
-	
+
   //=====================================//
   // Calcul des interactions elementaires
   const Cplx operator()(R3 x, int j){
 // 	std::cout <<"Noeuds "<<j<<std::endl;
 	const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phi, j);
-	  
+
 	Cplx out=0;
-	  
+
 	for (int i=0;i<elts.size();i++){
-		
+
 		const elt_t& y = *(elts[i].first);
 		h     = det_jac(y);
 		x_y0 = x-y[0];
@@ -604,7 +736,7 @@ template <class space, class kernel_t> class potential{
 			x_y = x_y0 - dy*t[j];
 			out += kernel(phi, t[j], jy, elts[i].second, n[jy], x_y, h, w[j]);
 		}
-		
+
 	}
 
 	return out;

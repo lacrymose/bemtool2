@@ -50,10 +50,23 @@ find_package(EIGEN3 REQUIRED)
 find_package(Boost REQUIRED)
 
 # Htool
-find_package(Htool)
+find_package(Htool QUIET)
 
-# Htool
-find_package(HPDDM)
+# HPDDM
+find_package(HPDDM QUIET)
+
+# MPI
+find_package (MPI REQUIRED QUIET)
+message("-- MPI libraries found in " "${MPI_LIBRARIES}")
+message("-- MPI include files found in " "${MPI_INCLUDE_PATH}")
+
+# BLAS
+find_package(BLAS REQUIRED QUIET)
+message("-- Found Blas implementation:" "${BLAS_LIBRARIES}")
+
+# LAPACK
+find_package(LAPACK REQUIRED QUIET)
+message("-- Found Lapack:" "${LAPACK_LIBRARIES}")
 
 #=============================================================================#
 #=========================== Libraries =======================================#
@@ -64,9 +77,12 @@ target_include_directories(bemtool INTERFACE
 					${bemtool_include_dir}
 					${Boost_INCLUDE_DIRS}
 					${HTOOL_INCLUDE_DIR}
+					${MPI_INCLUDE_PATH}
 					${HPDDM_INCLUDE_DIR})
-target_link_libraries(bemtool INTERFACE htool)
-
+target_link_libraries(bemtool INTERFACE
+					${MPI_LIBRARIES}
+					${BLAS_LIBRARIES}
+					${LAPACK_LIBRARIES})
 #===
 
 

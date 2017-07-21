@@ -10,12 +10,19 @@ using namespace std;
 
 
 
-class MyMatrix: public htool::IMatrix<double>{
-	const vector<htool::R3>& p;
+class MyMatrix: public htool::IMatrix<Cplx>{
+	bem<P1_2D,P1_2D, SLP_3D>& Vop;
 
 public:
-	MyMatrix(const vector<htool::R3>& p0 ):IMatrix(p0.size(),p0.size()),p(p0) {}
-	 double get_coef(const int& i, const int& j)const {return 1;}
+	MyMatrix(bem<P1_2D,P1_2D, SLP_3D>& Vop0,int nbdof0):IMatrix(nbdof0,nbdof0),Vop(Vop0){}
+
+	Cplx get_coef(const int& i, const int& j)const {return Vop(i,j);}
+
+	htool::SubMatrix<Cplx> get_submatrix(const std::vector<int>& J, const std::vector<int>& K) const{
+		htool::SubMatrix<Cplx> submat(J,K);
+		Vop(J,K,submat);
+		return submat;
+	}
 
 
 };
@@ -43,6 +50,8 @@ int main(int argc, char const *argv[]) {
 	// htool::SetEpsilon(1e-6);
 	htool::SetEta(0);
   htool::SetMinClusterSize(10);
+	// htool::SetMaxBlockSize(100);
+	// htool::SetNdofPerElt(3);
 
 
   ////=======================  Mesh building  =====================////
@@ -87,36 +96,42 @@ int main(int argc, char const *argv[]) {
 //   const vect<R3>& node = get_nodes(dof);
 //   int nbpt = size(node);
 // cout << "TESTB : "<<nbpt << endl;
-	htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
+	// htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
 	bem<P1_2D,P1_2D, SLP_3D>   Vop(kappa,n_,n_);
 	bem<P1_2D,P1_2D, DLP_3D>   Kop(kappa,n_,n_);
 
-	progress bar("assembly", nbelt*nbelt);
-	for(int j=0; j<nbelt; j++){
-			const elt_2D& tj = Omega[j];
-			const N3&     jj = dof[j];
-
-			for(int k=0; k<nbelt; k++,bar++){
-					const elt_2D& tk = Omega[k];
-					const N3&     kk = dof[k];
-					mat<3,3, Cplx>  vmat;
-					mat<3,3, Cplx>	kmat;
-					vmat = Vop (tj,tk);
-					kmat = Kop (tj,tk);
-
-					for (int j=0;j<3;j++){
-						for (int k=0;k<3;k++){
-							V(jj[j],kk[k])+= vmat(j,k);
-							K(jj[j],kk[k])+= kmat(j,k);
-						}
-					}
-
-
-			}
-
-			// M(jj,jj) += MassP1(tj);
-	}
-
+	// progress bar("assembly", nbelt*nbelt);
+	// for(int j=0; j<nbelt; j++){
+	// 		const elt_2D& tj = Omega[j];
+	// 		const N3&     jj = dof[j];
+	//
+	// 		for(int k=0; k<nbelt; k++,bar++){
+	// 				const elt_2D& tk = Omega[k];
+	// 				const N3&     kk = dof[k];
+	// 				mat<3,3, Cplx>  vmat;
+	// 				mat<3,3, Cplx>	kmat;
+	// 				vmat = Vop (tj,tk);
+	// 				kmat = Kop (tj,tk);
+	//
+	// 				for (int j=0;j<3;j++){
+	// 					for (int k=0;k<3;k++){
+	// 						V(jj[j],kk[k])+= vmat(j,k);
+	// 						K(jj[j],kk[k])+= kmat(j,k);
+	// 					}
+	// 				}
+	//
+	//
+	// 		}
+	//
+	// 		// M(jj,jj) += MassP1(tj);
+	// }
+	// std::vector<int> I(nbdof);
+	// std::vector<int> J(nbdof);
+	// for (int i=0;i<nbdof;i++){
+	// 	I[i]=i;
+	// 	J[i]=i;
+	// }
+	// Vop(I,J,V);
   std::vector<int> tab(nbdof);
   std::vector<htool::R3> x(nbdof);
 
@@ -136,7 +151,7 @@ for (int i =0 ; i<nbelt;i++){
   for (int i=0;i<nbdof;i++){
     tab[i]=i;
   }
-  // MyMatrix A(x);
+  MyMatrix V(Vop,nbdof);
   htool::HMatrix<htool::fullACA,complex<double>> HA(V,x,tab);
 MPI_Barrier(MPI_COMM_WORLD);
 
@@ -177,7 +192,7 @@ MPI_Barrier(MPI_COMM_WORLD);
 	}
 	write_gmsh_2(Omega,dof,part_overlap,"part_ovlerap_"+NbrToStr(rankWorld));
 
-	htool::Preconditioner P(
+	htool::Preconditioner<Cplx> P(
 		V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
 
 	P.num_fact();
