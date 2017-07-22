@@ -9,8 +9,6 @@
 
 namespace bemtool{
 
-
-
 //==========================//
 //   Numerotation locale    //  
 //   d'un element           //
@@ -155,7 +153,6 @@ template <int dim> struct get_loc_{
 //  Données géométriques    //
 //==========================//
 
-
 class geometry{
   
  private:
@@ -171,7 +168,6 @@ class geometry{
   
  public:
   geometry ();
-  
   
   friend void load_node_gmsh(geometry& , std::string);
   template <class r_t> friend void load_node_hand(geometry& , const r_t&);
@@ -209,9 +205,7 @@ class geometry{
   
   
 // Initialisation et instanciation
-inline geometry::geometry(){
-  meshfile = "";
-}
+inline geometry::geometry(){meshfile = "";}
 
 // Definition des methodes
 inline std::string         meshfile(const geometry& geom) {return geom.meshfile;}
@@ -242,12 +236,10 @@ template <> inline const std::vector<loc_1D>& get_loc_<1>::apply(const geometry&
 template <> inline const std::vector<loc_2D>& get_loc_<2>::apply(const geometry& geom){return get_loc2D(geom);}
 template <> inline const std::vector<loc_3D>& get_loc_<3>::apply(const geometry& geom){return get_loc3D(geom);}
 
-
 // Ajout d'elt sans doublonnage
 inline int push(geometry& geom, const mesh_1D& m, elt_1D e){return geom.elt1D.push(m,e);}
 inline int push(geometry& geom, const mesh_2D& m, elt_2D e){return geom.elt2D.push(m,e);}
 inline int push(geometry& geom, const mesh_3D& m, elt_3D e){return geom.elt3D.push(m,e);}
-
 
 // Chargement des noeuds du maillage
 inline void load_node_gmsh(geometry& geom, std::string filename){
@@ -337,8 +329,8 @@ class mesh_{
   //_________________________
   // Instances pre-existantes
   geometry&       geom;
-//   const vect<R3>&       node;
-//   const vect<elt_t>&    elt;
+  // const vect<R3>&       node;
+  // const vect<elt_t>&    elt;
   
   //_______________
   // Donnee membres
@@ -349,7 +341,7 @@ class mesh_{
   template <class r_t> void operator<<(const r_t& r_){
     int J = push(geom, *this,elt_t(r_));
     num_elt.push_back(J);
-} 
+  }
   
  public:
   
@@ -441,11 +433,11 @@ void load_elt_gmsh(m_t& m, int ref = -1){
     iss >> elt_type;      
     iss >> nb_tags;
     iss >> tag;      
-	
+    
     if((elt_type==dim || (dim==3 && elt_type==4)) && tag == ref){
       for(int j=0; j<nb_tags-1; j++){
 	iss >> poubelle;}      
-      
+
       // acquisition des numeros              
       iss >> I; I--;
       // ajout de l'elt dans le mesh

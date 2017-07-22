@@ -27,12 +27,9 @@ void quad1D_potential(){
 	nrml_1D n_(mesh);
 	Real kappa=1;
 	
-	////================= Calcul de la quadrature ===================////
-	
+	////================= Calcul de la quadrature ===================////	
 	potential<P1_1D,CST_2D> CSTop(kappa,n_);
 	mat<1,2,Cplx > CST = CSTop(C,mesh[0]);
-	
-	
 	
 	////========================= Comparaison =======================////
 	// 0.5 attendu
