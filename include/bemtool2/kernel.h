@@ -523,35 +523,69 @@ template <class space_x, class space_y, class kernel_t> class bem{
     std::map<int , int > map_I;
     std::map<int , int > map_J;
 
-
+    std::cout << "======== I ========"<<std::endl;
     for (int i =0;i<I.size();i++){
       const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phix, I[i]);
-
+std::cout << "noeuds : "<<i << std::endl ;
       map_I[I[i]]=i;
       for (int j =0 ; j <elts.size();j++){
+        std::cout << "element : "<<j<<std::endl;
+std::cout << *(elts[j].first) << " " << elts[j].second << std::endl;
           elts_I[elts[j].first].push_back(elts[j].second);
       }
     }
 
-
+    std::cout << "======== J ========"<<std::endl;
     for (int i =0;i<J.size();i++){
       const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phiy, J[i]);
-
+std::cout << "noeuds : "<<i << std::endl ;
       map_J[J[i]]=i;
       for (int j =0 ; j <elts.size();j++){
+        std::cout << "element : "<<j<<std::endl;
+std::cout << *(elts[j].first) << " " << elts[j].second << std::endl;
           elts_J[elts[j].first].push_back(elts[j].second);
       }
     }
 
+std::cout << "======== elts_I ========"<<std::endl;
+for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
+  std::cout << "element : "<<std::endl<<*((*iter_I).first)<< std::endl;
+  std::cout << "dofs : ";
+  for (int i =0; i<(*iter_I).second.size();i++){
+  std::cout<<(*iter_I).second[i]<<" ";
+  }
+  std::cout << std::endl;
+}
+
+std::cout << "======== elts_J ========"<<std::endl;
+for (auto iter_J = elts_J.begin(); iter_J!=elts_J.end();++iter_J){
+  std::cout << "element : "<<std::endl<<*((*iter_J).first)<< std::endl;
+  std::cout << "dofs : ";
+  for (int i =0; i<(*iter_J).second.size();i++){
+  std::cout<<(*iter_J).second[i]<<" ";
+  }
+  std::cout << std::endl;
+}
+
+std::cout << "======== Calculs ========"<<std::endl;
+bool count =0;
     for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
       // std::cout <<"pouet_x : " <<(*iter_I).second.size()<<std::endl;
       for (auto iter_J = elts_J.begin(); iter_J!=elts_J.end();++iter_J){
         // std::cout <<"pouet_y : " <<(*iter_J).second.size()<<std::endl;
         const elt_t& ex = *((*iter_I).first);
         const elt_t& ey = *((*iter_J).first);
+// std::cout << "élément x" << std::endl;
+// std::cout << ex << std::endl;
+// std::cout << "élément y" << std::endl;
+// std::cout << ey << std::endl;
 // std::cout << &ey-&elt[0] << std::endl;
         // Calcul de la regle de quadrature
         choose_quad(ex,ey);
+// std::cout << "px" << std::endl;
+// std::cout << px << std::endl;
+// std::cout << "py" << std::endl;
+// std::cout << py << std::endl;
         h     = det_jac(x)*det_jac(y);
         x0_y0 = x[0]-y[0];
         dx    = mat_jac(x);
@@ -565,14 +599,14 @@ template <class space_x, class space_y, class kernel_t> class bem{
         int jy_global = &ey-&elt[0];
 
         // numeros locaux des triangles
-        if (&ex-&elt[0]>893 ||&ex-&elt[0]<0 ) std::cout << "X : "<< &ex-&elt[0]<< std::endl;
-        if (&ex-&elt[0]>893 ||&ey-&elt[0]<0 ) std::cout << "X : "<< &ey-&elt[0]<< std::endl;
+        // if (&ex-&elt[0]>893 ||&ex-&elt[0]<0 ) std::cout << "X : "<< &ex-&elt[0]<< std::endl;
+        // if (&ex-&elt[0]>893 ||&ey-&elt[0]<0 ) std::cout << "X : "<< &ey-&elt[0]<< std::endl;
         jx    = loc[ &ex-&elt[0] ][meshx];
         jy    = loc[ &ey-&elt[0] ][meshy];
 
         //
-        const N3&     jj = phix[jx_global];
-        const N3&     kk = phiy[jy_global];
+        const N2&     jj = phix[jx_global];
+        const N2&     kk = phiy[jy_global];
 
         // Boucle sur les points de quadrature
         for(int j=0; j<s.size(); j++) {
@@ -583,16 +617,38 @@ template <class space_x, class space_y, class kernel_t> class bem{
           for(int kx=0; kx<(*iter_I).second.size(); kx++){
             for(int ky=0; ky<(*iter_J).second.size(); ky++){
 
-             mat(map_I[jj[px[(*iter_I).second[kx]]]],map_J[kk[py[(*iter_J).second[ky]]]]) += kernel(phix, s[j], jx, (*iter_I).second[kx],
-              phiy, t[j], jy, (*iter_J).second[ky],
-              nx[jx], ny[jy], x_y,
-              h, w[j], z, px, py);
+            Cplx test =kernel(phix, s[j], jx, (*iter_I).second[kx],
+             phiy, t[j], jy, (*iter_J).second[ky],
+             nx[jx], ny[jy], x_y,
+             h, w[j], z, px, py);
+            //  if (ky==0){
+            //  std::cout << "kx : "<<kx<<" ky : "<<ky<<" mat : "<< test <<std::endl;}
+            if (map_I[jj[px[(*iter_I).second[kx]]]]==1 && map_J[kk[py[(*iter_J).second[ky]]]]==0){
+              std::cout << "élément ex" << std::endl;
+              std::cout << ex << std::endl;
+              std::cout << "élément ey" << std::endl;
+              std::cout << ey << std::endl;
+              std::cout << "élément x" << std::endl;
+              std::cout << x << std::endl;
+              std::cout << "élément y" << std::endl;
+              std::cout << y << std::endl;
+              std::cout << " kx : "<<(*iter_I).second[kx]<<" ky : "<<(*iter_J).second[ky]<<std::endl;
+              std::cout << " px[kx] : "<<px[(*iter_I).second[kx]]<<" py[ky] : "<<py[(*iter_J).second[ky]]<<std::endl;
+              std::cout << " px : "<<px<<" py : "<<py<<std::endl;
+              std::cout << "jj : "<<jj << std::endl;
+              std::cout << "kk : "<<kk << std::endl;
+              std::cout << " jj[px[(*iter_I).second[kx]]] "<<jj[px[(*iter_I).second[kx]]] <<std::endl;
+              std::cout << "kk[py[(*iter_J).second[ky]]] "<<kk[py[(*iter_J).second[ky]]]<< std::endl;
+
+            }
+             mat(map_I[jj[px[(*iter_I).second[kx]]]],map_J[kk[py[(*iter_J).second[ky]]]]) += test;
 
             }
           }
         }
       }
     }
+    std::cout << "result in (1,0) : "<< mat(1,0)<<std::endl;
   }
 
 };
