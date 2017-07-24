@@ -1,6 +1,5 @@
 #include <bemtool2/tools.h>
 #include <bemtool2/overlap.hpp>
-#include <set>
 #include <mpi.h>
 #include <htool/htool.hpp>
 
@@ -43,15 +42,14 @@ int main(int argc, char const *argv[]) {
   ////======================= Some variables  =====================////
   bool test =0;
   Real kappa=1.;
-  Real lc = 0.1;
+  Real lc = 0.06;
   Real R=0.5;
   std::vector<Real> harmonics(3);harmonics[0]=1;harmonics[1]=2;harmonics[2]=3;
-  // htool::SetNdofPerElt(1);
-	// htool::SetEpsilon(1e-6);
-	htool::SetEta(0);
-  htool::SetMinClusterSize(10);
-	// htool::SetMaxBlockSize(100);
-	// htool::SetNdofPerElt(3);
+  htool::SetNdofPerElt(1);
+	htool::SetEpsilon(1e-6);
+	htool::SetEta(10);
+  htool::SetMinClusterSize(30);
+	htool::SetMaxBlockSize(1000);
 
 
   ////=======================  Mesh building  =====================////
@@ -111,12 +109,12 @@ int main(int argc, char const *argv[]) {
 	// 				mat<3,3, Cplx>  vmat;
 	// 				mat<3,3, Cplx>	kmat;
 	// 				vmat = Vop (tj,tk);
-	// 				// kmat = Kop (tj,tk);
+	// 				kmat = Kop (tj,tk);
 	//
 	// 				for (int j=0;j<3;j++){
 	// 					for (int k=0;k<3;k++){
 	// 						V(jj[j],kk[k])+= vmat(j,k);
-	// 						// K(jj[j],kk[k])+= kmat(j,k);
+	// 						K(jj[j],kk[k])+= kmat(j,k);
 	// 					}
 	// 				}
 	//
@@ -154,7 +152,15 @@ for (int i =0 ; i<nbelt;i++){
   MyMatrix V(Vop,nbdof);
   htool::HMatrix<htool::fullACA,complex<double>> HA(V,x,tab);
 MPI_Barrier(MPI_COMM_WORLD);
-
+HA.print_stats();
+double compression = HA.compression();
+int nb_lrmat = HA.get_nlrmat();
+int nb_dmat  = HA.get_ndmat();
+if (rankWorld==0){
+	cout << "Compression rate : "<<compression<<endl;
+	cout << "nbr lr : "<<nb_lrmat<<endl;
+	cout << "nbr dense : "<<nb_dmat<<endl;
+}
   ////================ Partition ===================////
 
   const std::vector<std::vector<int>>& MasterClusters=HA.get_MasterClusters();
@@ -168,20 +174,20 @@ MPI_Barrier(MPI_COMM_WORLD);
 	std::vector<std::vector<int> > intersections;
 
 	Partition(MasterClusters,dof,cluster_to_ovr_subdomain,ovr_subdomain_to_global,neighbors,intersections);
-	int count=0;
-	cout << "proc : "<<rankWorld<<endl;
-	for(auto iter=neighbors.begin(); iter!=neighbors.end();++iter) {
-		// if (rankWorld==0){
-
-			cout << "voisin : "<<*iter<<" | "<<intersections[count].size();
-			// for (int i=0;i<intersections[count].size();i++){
-			// 	cout << intersections[count][i]<<" ";
-			// }
-			cout<<endl;
-		// }
-		count+=1;
-  }
-	cout << "=================="<<endl;
+	// int count=0;
+	// cout << "proc : "<<rankWorld<<endl;
+	// for(auto iter=neighbors.begin(); iter!=neighbors.end();++iter) {
+	// 	// if (rankWorld==0){
+	//
+	// 		cout << "voisin : "<<*iter<<" | "<<intersections[count].size();
+	// 		// for (int i=0;i<intersections[count].size();i++){
+	// 		// 	cout << intersections[count][i]<<" ";
+	// 		// }
+	// 		cout<<endl;
+	// 	// }
+	// 	count+=1;
+  // }
+	// cout << "=================="<<endl;
 
 	std::vector<int> part_overlap(nbdof,0);
 	for (int i=0;i<ovr_subdomain_to_global.size();i++){

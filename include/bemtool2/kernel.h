@@ -483,6 +483,12 @@ template <class space_x, class space_y, class kernel_t> class bem{
 
         // Calcul de la regle de quadrature
         choose_quad(ex,ey);
+        N3      invpx,invpy;
+        for (int i=0;i<3;i++){
+          invpx[px[i]]=i;
+          invpy[py[i]]=i;
+
+        }
         h     = det_jac(x)*det_jac(y);
         x0_y0 = x[0]-y[0];
         dx    = mat_jac(x);
@@ -500,8 +506,8 @@ template <class space_x, class space_y, class kernel_t> class bem{
 
           x_y = x0_y0 + dx*s[j] - dy*t[j];
           z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
-          out += kernel(phix, s[j], jx, px[elts_i[k].second],
-          phiy, t[j], jy, py[elts_j[l].second],
+          out += kernel(phix, s[j], jx, invpx[elts_i[k].second],
+          phiy, t[j], jy, invpy[elts_j[l].second],
           nx[jx], ny[jy], x_y,
           h, w[j], z, px, py);;
 
@@ -568,7 +574,6 @@ template <class space_x, class space_y, class kernel_t> class bem{
 // }
 
 // std::cout << "======== Calculs ========"<<std::endl;
-bool count =0;
     for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
       // std::cout <<"pouet_x : " <<(*iter_I).second.size()<<std::endl;
       for (auto iter_J = elts_J.begin(); iter_J!=elts_J.end();++iter_J){
@@ -659,7 +664,7 @@ bool count =0;
         }
       }
     }
-    std::cout << "result in (1,0) : "<< mat(1,0)<<std::endl;
+    // std::cout << "result in (1,0) : "<< mat(1,0)<<std::endl;
   }
 
 };

@@ -10,13 +10,19 @@ using namespace std;
 
 
 
-class MyMatrix: public htool::IMatrix<double>{
-	const vector<htool::R3>& p;
+class MyMatrix: public htool::IMatrix<complex<double>>{
+	bem<P1_1D,P1_1D, SLP_2D>& Vop;
 
 public:
-	MyMatrix(const vector<htool::R3>& p0 ):IMatrix(p0.size(),p0.size()),p(p0) {}
-	 double get_coef(const int& i, const int& j)const {return 1;}
+	MyMatrix(bem<P1_1D,P1_1D, SLP_2D>& Vop0, int nbdof0 ):IMatrix(nbdof0,nbdof0),Vop(Vop0){}
 
+	Cplx get_coef(const int& i, const int& j)const {return Vop(i,j);}
+
+ 	htool::SubMatrix<Cplx> get_submatrix(const std::vector<int>& J, const std::vector<int>& K) const{
+ 		htool::SubMatrix<Cplx> submat(J,K);
+ 		Vop(J,K,submat);
+ 		return submat;
+ 	}
 
 };
 
@@ -43,7 +49,7 @@ int main(int argc, char const *argv[]) {
   bool test =0;
   Real kappa=1.;
   Real lc = 0.01;
-  Real R=0.9;
+  Real R=0.5;
   std::vector<Real> harmonics(3);harmonics[0]=1;harmonics[1]=2;harmonics[2]=3;
   // htool::SetNdofPerElt(1);
 	// htool::SetEpsilon(1e-6);
@@ -85,42 +91,42 @@ int main(int argc, char const *argv[]) {
   int nbelt = nb_elt(Omega);
   P1_1D dof(Omega);
   int nbdof = nb_dof(dof);
-  const vect<R3>& node = get_node(geom);
-  int nbpt = size(node);
+  // const vect<R3>& node = get_node(geom);
+  // int nbpt = size(node);
 
-	htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof);
+	// htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof);
 	bem<P1_1D,P1_1D, SLP_2D>   Vop(kappa,n_,n_);
-	bem<P1_1D,P1_1D, DLP_2D>   Kop(kappa,n_,n_);
+	// bem<P1_1D,P1_1D, DLP_2D>   Kop(kappa,n_,n_);
+	//
+	// progress bar("assembly", nbelt*nbelt);
+	// for(int j=0; j<nbelt; j++){
+	// 		const elt_1D& tj = Omega[j];
+	// 		const N2&     jj = dof[j];
+	//
+	// 		for(int k=0; k<nbelt; k++,bar++){
+	// 				const elt_1D& tk = Omega[k];
+	// 				const N2&     kk = dof[k];
+	// 				mat<2,2, Cplx> vmat;
+	// 				mat<2,2, Cplx>	kmat;
+	// 				vmat = Vop (tj,tk);
+	// 				kmat = Kop (tj,tk);
+	//
+	// 				for (int j=0;j<2;j++){
+	// 					for (int k=0;k<2;k++){
+	// 						V(jj[j],kk[k])+= vmat(j,k);
+	// 						K(jj[j],kk[k])+= kmat(j,k);
+	// 					}
+	// 				}
+	//
+	//
+	// 		}
+	//
+	// 		// M(jj,jj) += MassP1(tj);
+	// }
+	// bar.end();
 
-	progress bar("assembly", nbelt*nbelt);
-	for(int j=0; j<nbelt; j++){
-			const elt_1D& tj = Omega[j];
-			const N2&     jj = dof[j];
-
-			for(int k=0; k<nbelt; k++,bar++){
-					const elt_1D& tk = Omega[k];
-					const N2&     kk = dof[k];
-					mat<2,2, Cplx> vmat;
-					mat<2,2, Cplx>	kmat;
-					vmat = Vop (tj,tk);
-					kmat = Kop (tj,tk);
-
-					for (int j=0;j<2;j++){
-						for (int k=0;k<2;k++){
-							V(jj[j],kk[k])+= vmat(j,k);
-							K(jj[j],kk[k])+= kmat(j,k);
-						}
-					}
-
-
-			}
-
-			// M(jj,jj) += MassP1(tj);
-	}
-	bar.end();
-
-  std::vector<int> tab(nbpt);
-  std::vector<htool::R3> x(nbpt);
+  std::vector<int> tab(nbdof);
+  std::vector<htool::R3> x(nbdof);
 
 // if (rankWorld==0){
 // 	for(int j=0; j<nbpt; j++){
@@ -135,13 +141,21 @@ for (int i =0 ; i<nbelt;i++){
 	}
 }
 
-  for (int i=0;i<nbpt;i++){
+  for (int i=0;i<nbdof;i++){
     tab[i]=i;
   }
-
+	MyMatrix V(Vop,nbdof);
   htool::HMatrix<htool::fullACA,complex<double>> HA(V,x,tab);
 MPI_Barrier(MPI_COMM_WORLD);
-
+HA.print_stats();
+double compression = HA.compression();
+int nb_lrmat = HA.get_nlrmat();
+int nb_dmat  = HA.get_ndmat();
+if (rankWorld==0){
+	cout << "Compression rate : "<<compression<<endl;
+	cout << "nbr lr : "<<nb_lrmat<<endl;
+	cout << "nbr dense : "<<nb_dmat<<endl;
+}
   ////================ Partition ===================////
 
   const std::vector<std::vector<int>>& MasterClusters=HA.get_MasterClusters();
@@ -153,20 +167,20 @@ MPI_Barrier(MPI_COMM_WORLD);
 	std::vector<std::vector<int> > intersections;
 
 	Partition(MasterClusters,dof,cluster_to_ovr_subdomain,ovr_subdomain_to_global,neighbors,intersections);
-	int count=0;
-	cout << "proc : "<<rankWorld<<endl;
-	for(auto iter=neighbors.begin(); iter!=neighbors.end();++iter) {
-		// if (rankWorld==0){
-
-			cout << "voisin : "<<*iter<<" | ";
-			for (int i=0;i<intersections[count].size();i++){
-				cout << intersections[count][i]<<" ";
-			}
-			cout<<endl;
-		// }
-		count+=1;
-  }
-	cout << "=================="<<endl;
+	// int count=0;
+	// cout << "proc : "<<rankWorld<<endl;
+	// for(auto iter=neighbors.begin(); iter!=neighbors.end();++iter) {
+	// 	// if (rankWorld==0){
+	//
+	// 		cout << "voisin : "<<*iter<<" | ";
+	// 		for (int i=0;i<intersections[count].size();i++){
+	// 			cout << intersections[count][i]<<" ";
+	// 		}
+	// 		cout<<endl;
+	// 	// }
+	// 	count+=1;
+  // }
+	// cout << "=================="<<endl;
 
 
 	std::vector<int> part_overlap(nbdof,0);
@@ -178,19 +192,36 @@ MPI_Barrier(MPI_COMM_WORLD);
 	}
 	write_gmsh_2(Omega,dof,part_overlap,"part_ovlerap_"+NbrToStr(rankWorld));
 
-	htool::Preconditioner P(
+	htool::Preconditioner<Cplx> P(
 		V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
 
 	P.num_fact();
 
-	// Right-hand side
-	std::vector<complex<double>> f(nbdof,1),sol(nbdof,0);
+	// Global vectors
+	std::vector<complex<double>> x_ref(nbdof,1),f_global(nbdof,0);
+	HA.mvprod_global(x_ref.data(),f_global.data());
+
+	// Local vectors
+	int n_local= HA.get_local_size_cluster();
+	std::vector<complex<double>> x_ref_local(n_local,1),x_local(n_local,0),f_local(n_local,1);
+	for (int i=0;i<n_local;i++){
+		f_local[i]=f_global[MasterClusters[rankWorld][i]];
+	}
 
 	// Solve
   htool::HPDDMOperator<htool::fullACA,complex<double>> A_HPDDM(HA,P);
-  complex<double>* const rhs = &(f[0]);
-  complex<double>* solx = &(sol[0]);
-  HPDDM::IterativeMethod::solve(A_HPDDM, rhs, solx, 1,HA.get_comm());
+  complex<double>* const f = &(f_local[0]);
+  complex<double>* sol = &(x_local[0]);
+  HPDDM::IterativeMethod::solve(A_HPDDM, f, sol, 1,HA.get_comm());
+
+	double error2=0;
+	for (int i=0;i<x_local.size();i++){
+		error2+=pow(std::abs(x_local[i]-x_ref_local[i]),2);
+	}
+	MPI_Allreduce(MPI_IN_PLACE, &error2, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	if (rankWorld==0){
+		cout << "Test "<<sqrt(error2)<<endl;
+	}
 
   // gmm_dense V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
   // bem<P1_1D,P1_1D, SLP_2D>   Vop(kappa,n_,n_);
