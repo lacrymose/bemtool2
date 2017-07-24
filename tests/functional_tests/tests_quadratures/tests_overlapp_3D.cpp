@@ -98,7 +98,7 @@ int main(int argc, char const *argv[]) {
 // cout << "TESTB : "<<nbpt << endl;
 	// htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
 	bem<P1_2D,P1_2D, SLP_3D>   Vop(kappa,n_,n_);
-	bem<P1_2D,P1_2D, DLP_3D>   Kop(kappa,n_,n_);
+	// bem<P1_2D,P1_2D, DLP_3D>   Kop(kappa,n_,n_);
 
 	// progress bar("assembly", nbelt*nbelt);
 	// for(int j=0; j<nbelt; j++){
@@ -111,12 +111,12 @@ int main(int argc, char const *argv[]) {
 	// 				mat<3,3, Cplx>  vmat;
 	// 				mat<3,3, Cplx>	kmat;
 	// 				vmat = Vop (tj,tk);
-	// 				kmat = Kop (tj,tk);
+	// 				// kmat = Kop (tj,tk);
 	//
 	// 				for (int j=0;j<3;j++){
 	// 					for (int k=0;k<3;k++){
 	// 						V(jj[j],kk[k])+= vmat(j,k);
-	// 						K(jj[j],kk[k])+= kmat(j,k);
+	// 						// K(jj[j],kk[k])+= kmat(j,k);
 	// 					}
 	// 				}
 	//
