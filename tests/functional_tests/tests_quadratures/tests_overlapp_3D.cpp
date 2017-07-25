@@ -198,10 +198,12 @@ if (rankWorld==0){
 	}
 	write_gmsh_2(Omega,dof,part_overlap,"part_ovlerap_"+NbrToStr(rankWorld));
 
-	htool::Preconditioner<Cplx> P(
+	htool::ASM<Cplx> P(
 		V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
 
 	P.num_fact();
+
+// 	htool::Identity<Cplx> P(ovr_subdomain_to_global.size());
 
 	// Global vectors
 std::vector<complex<double>> x_ref(nbdof,1),f_global(nbdof,0);
