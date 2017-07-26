@@ -10,10 +10,10 @@ using namespace std;
 
 
 class MyMatrix: public htool::IMatrix<Cplx>{
-	bem<P1_2D,P1_2D, SLP_3D>& Vop;
+	bem<P1_2D,P1_2D, SLP_DH_3D>& Vop;
 
 public:
-	MyMatrix(bem<P1_2D,P1_2D, SLP_3D>& Vop0,int nbdof0):IMatrix(nbdof0,nbdof0),Vop(Vop0){}
+	MyMatrix(bem<P1_2D,P1_2D, SLP_DH_3D>& Vop0,int nbdof0):IMatrix(nbdof0,nbdof0),Vop(Vop0){}
 
 	Cplx get_coef(const int& i, const int& j)const {return Vop(i,j);}
 
@@ -95,7 +95,7 @@ int main(int argc, char const *argv[]) {
 //   int nbpt = size(node);
 // cout << "TESTB : "<<nbpt << endl;
 	// htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
-	bem<P1_2D,P1_2D, SLP_3D>   Vop(kappa,n_,n_);
+	bem<P1_2D,P1_2D, SLP_DH_3D>   Vop(kappa,n_,n_);
 	// bem<P1_2D,P1_2D, DLP_3D>   Kop(kappa,n_,n_);
 
 	// progress bar("assembly", nbelt*nbelt);
@@ -200,10 +200,10 @@ if (rankWorld==0){
 
 	htool::ASM<Cplx> P(
 		V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
-
+	
 	P.num_fact();
 
-// 	htool::Identity<Cplx> P(ovr_subdomain_to_global.size());
+	// htool::Identity<Cplx> P(cluster_to_ovr_subdomain.size());
 
 	// Global vectors
 std::vector<complex<double>> x_ref(nbdof,1),f_global(nbdof,0);
