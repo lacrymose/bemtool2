@@ -117,6 +117,7 @@ void quad1D_bem(){
 	mat<3,3,Cplx > CST1;
 	mat<3,3,Cplx > CST2;
 	mat<3,1,Cplx > CST3;
+	// mat<3,1,Cplx > CST4;
 
 	for(int j=0; j<2; j++){
 			const elt_1D& tj = mesh[j];
@@ -137,15 +138,19 @@ void quad1D_bem(){
 
 CSTop(dofs_I,dofs_J,CST2);
 CSTop(dofs_I_sub,dofs_J_sub,CST3);
-
+// for (int i=0;i<dofs_I.size();i++){
+// 	for (int j=0;j<dofs_J.size();j++){
+// 		CST4(i,j)=CSTop(i,j);
+// 	}
+// }
 	////========================= Comparaison =======================////
 	// 0.5 attendu
 
 
 	std::cout <<"2D - calcul par elt    "<<std::endl<< CST1 << std::endl;
-	std::cout <<"2D - calcul par noeuds "<<std::endl<< CST2 << std::endl;
-	std::cout <<"2D - calcul par noeuds - sous matrice "<<std::endl<< CST3 << std::endl;
-
+	std::cout <<"2D - calcul par nuage de noeuds "<<std::endl<< CST2 << std::endl;
+	std::cout <<"2D - calcul par nuage de noeuds - sous matrice "<<std::endl<< CST3 << std::endl;
+	// std::cout <<"2D - calcul noeuds - sous matrice "<<std::endl<< CST4 << std::endl;
 }
 
 ////=============================================================================////

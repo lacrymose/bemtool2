@@ -22,8 +22,8 @@ int main(int argc, char const *argv[]) {
   ////======================= Some variables  =====================////
   bool test =0;
   Real kappa=1.;
-  Real lc = 0.01;
-  Real R=0.9;
+  Real lc = 0.1;
+  Real R=1;
   std::vector<Real> harmonics(3);harmonics[0]=1;harmonics[1]=2;harmonics[2]=3;
   // htool::SetNdofPerElt(1);
 	// htool::SetEpsilon(1e-6);
@@ -65,8 +65,8 @@ int main(int argc, char const *argv[]) {
 
 
   gmm_dense V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
-  bem<P1_1D,P1_1D, SLP_2D>   Vop(kappa,n_,n_);
-  bem<P1_1D,P1_1D, DLP_2D>   Kop(kappa,n_,n_);
+  bem<P1_1D,P1_1D, SLP_PH_2D>   Vop(kappa,n_,n_);
+  bem<P1_1D,P1_1D, DLP_PH_2D>   Kop(kappa,n_,n_);
 
   progress bar("assembly", nbelt*nbelt);
   for(int j=0; j<nbelt; j++){
@@ -86,7 +86,7 @@ int main(int argc, char const *argv[]) {
   }
   bar.end();
 
-  for (int l=0;l<harmonics.size();l++){
+  for (int l=0;l<1;l++){
     Real p = harmonics[l];
 
     ////================== Harmonique de Fourier ====================////
@@ -142,9 +142,10 @@ int main(int argc, char const *argv[]) {
 
     mv_prod(F,K,gD);
     mv_prod(Ftemp,M,gD);
-
-    for(int j=0; j<nbelt; j++){
+    cout << "nbdof : "<<nbdof<< endl;
+    for(int j=0; j<nbdof; j++){
         F[j] = 0.5*Ftemp[j] - F[j];
+        cout << F[j] << endl;
     }
 
     ////================ Résolution système linéaire ================////
@@ -168,6 +169,7 @@ int main(int argc, char const *argv[]) {
 		resize(Err2,nbdof);
 		resize(Norme,nbdof);
 		for(int j=0; j<nbdof; j++){
+      cout << U[j] <<" "<<Ref[j]<< endl;
 			Err[j] =  U[j]-Ref[j];
 		}
 		mv_prod(Err2,M,Err);

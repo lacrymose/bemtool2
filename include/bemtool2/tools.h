@@ -9,5 +9,6 @@
 #include "misc.h"
 // #include "gmm_wrap.h"
 #include "gmsh_calls.h"
+#include "htool_wrap.h"
 
 #endif

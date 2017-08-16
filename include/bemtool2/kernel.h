@@ -403,7 +403,353 @@ template <class space_x, class space_y, class kernel_t> class bem{
 
 };
 
+/*===============================
+||  CLASSE OPERATEUR INTEGRAL  ||
+===============================*/
 
+
+template <class space_x, class space_y, class kernel_t> class modified_bem{
+
+ public:
+
+  static const int dim        = kernel_t::dim;
+  static const int dim_loc_x  = space_x::dim_loc;
+  static const int dim_loc_y  = space_y::dim_loc;
+
+  typedef normal<dim>                     normal_t;
+  typedef mesh_<dim>                      mesh_t;
+  typedef loc_<dim>                       loc_t;
+  typedef elt_<dim>                       elt_t;
+  typedef mat<dim_loc_x,dim_loc_y, Cplx>  mat_t;
+  typedef typename quadBEM<dim>::qp_t     qp_t;
+  typedef typename jac_<dim>::type        jac_t;
+  typedef const quadBEM<dim>              quad_t;
+  typedef space_x                         phix_t;
+  typedef space_y                         phiy_t;
+
+ private:
+
+  const std::vector<loc_t>&   loc;
+  const vect<elt_t>&     elt;
+  const normal_t&        nx;
+  const normal_t&        ny;
+  const mesh_t&          meshx;
+  const mesh_t&          meshy;
+
+  const Real    k2;
+  quad_t        qr;
+  kernel_t      kernel;
+  phix_t        phix;
+  phiy_t        phiy;
+  mat_t         Melt;
+  Cplx          alpha;
+
+  //=========================//
+  // Variables intermediaires
+
+  elt_t   x,y;       // sommets des elts permutes
+  jac_t   dx,dy;     // jacobien paire elt-ref -> paire elt permutes
+  Real    h;         // 2^d * volume paire elt
+  int     jx,jy;     // numero des elts (no. local au maillage)
+  int     rule;      // regle de quadrature (gestion singularite)
+  R3      x_y,x0_y0; // x-y et x0-y0
+  N3      px,py;     // permutations des indices dans les triangles
+  Cplx    z;
+
+  //_______________
+  // Données auxilaires
+  get_elt_<dim> temp_elt;
+  get_loc_<dim> temp_loc;
+
+  //====================================//
+  //  Choix de la regle de quadrature
+
+  void choose_quad(const elt_t& ex, const elt_t& ey){
+    rule = 0; Melt=0.; x=ex; y=ey;
+    px[0]=0; px[1]=1; px[2]=2;
+    py[0]=0; py[1]=1; py[2]=2;
+    for(int p=0; p<dim+1; p++){
+      for(int q=rule; q<dim+1; q++){
+	if( &x[p]==&y[q] ){
+	  swap(x,rule,p); swap(px,rule,p);
+	  swap(y,rule,q); swap(py,rule,q);
+	  rule++; break;
+	}
+      }
+    }
+
+  }
+
+ public:
+
+  //=========================//
+  //      Constructeur
+  modified_bem(const Real& k, const normal_t& nx0, const normal_t& ny0, Cplx alpha0, int order=6):
+  k2(k*k), kernel(k), qr(order),meshx(mesh_of(nx0)) , meshy(mesh_of(ny0)), loc(temp_loc.apply(get_geometry(mesh_of(nx0)))), elt(temp_elt.apply(get_geometry(mesh_of(nx0)))),phix(mesh_of(nx0)), phiy(mesh_of(ny0)),nx(nx0), ny(ny0),temp_loc(), temp_elt(),alpha(alpha0){
+	 };
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  const mat_t& operator()(const elt_t& ex, const elt_t& ey){
+
+    // Calcul de la regle de quadrature
+    choose_quad(ex,ey);
+    h     = det_jac(x)*det_jac(y);
+    x0_y0 = x[0]-y[0];
+    dx    = mat_jac(x);
+    dy    = mat_jac(y);
+    const std::vector<qp_t>& s = qr.x(rule);
+    const std::vector<qp_t>& t = qr.y(rule);
+    const std::vector<Real>& w = qr.w(rule);
+
+    // numeros locaux des triangles
+    jx    = loc[ &ex-&elt[0] ][meshx];
+    jy    = loc[ &ey-&elt[0] ][meshy];
+
+    // Boucle sur les points de quadrature
+    for(int j=0; j<s.size(); j++) {
+
+      x_y = x0_y0 + dx*s[j] - dy*t[j];
+      z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
+
+      for(int kx=0; kx<dim_loc_x; kx++){
+        for(int ky=0; ky<dim_loc_y; ky++){
+	        Melt(px[kx],py[ky]) += kernel(phix, s[j], jx, kx,
+					phiy, t[j], jy, ky,
+					nx[jx], ny[jy], x_y,
+					h, w[j], z, px, py);
+
+	      }
+      }
+    }
+    if (ex==ey){
+      Melt+= alpha*MassP1(ex);
+    }
+    return Melt;
+
+  }
+
+
+
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  Cplx operator()(int i, int j){
+
+  	const std::vector<std::pair<const elt_t*,int> >& elts_i = get_elts_of_dof(phix, i);
+  	const std::vector<std::pair<const elt_t*,int> >& elts_j = get_elts_of_dof(phiy, j);
+    Cplx out =0;
+
+    for (int k=0;k<elts_i.size();k++){
+      for (int l=0;l<elts_j.size();l++){
+
+        const elt_t& ex = *(elts_i[k].first);
+        const elt_t& ey = *(elts_j[l].first);
+
+        // Calcul de la regle de quadrature
+        choose_quad(ex,ey);
+        N3      invpx,invpy;
+        for (int i=0;i<3;i++){
+          invpx[px[i]]=i;
+          invpy[py[i]]=i;
+
+        }
+        h     = det_jac(x)*det_jac(y);
+        x0_y0 = x[0]-y[0];
+        dx    = mat_jac(x);
+        dy    = mat_jac(y);
+        const std::vector<qp_t>& s = qr.x(rule);
+        const std::vector<qp_t>& t = qr.y(rule);
+        const std::vector<Real>& w = qr.w(rule);
+
+        // numeros locaux des triangles
+        jx    = loc[ &ex-&elt[0] ][meshx];
+        jy    = loc[ &ey-&elt[0] ][meshy];
+
+        // Boucle sur les points de quadrature
+        for(int j=0; j<s.size(); j++) {
+
+          x_y = x0_y0 + dx*s[j] - dy*t[j];
+          z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
+          out += kernel(phix, s[j], jx, invpx[elts_i[k].second],
+          phiy, t[j], jy, invpy[elts_j[l].second],
+          nx[jx], ny[jy], x_y,
+          h, w[j], z, px, py);;
+
+        }
+        if (ex==ey){
+          // std::cout << MassP1(ex) << std::endl;
+          mat<dim_loc_x,dim_loc_y, Real> Mass( MassP1(ex));
+          out += alpha* Mass(invpx[elts_i[k].second],invpy[elts_j[l].second]);
+          std::cout << alpha* Mass(invpx[elts_i[k].second],invpy[elts_j[l].second]) << std::endl;
+
+          std::cout << Mass << std::endl;
+          std::cout << Mass(invpx[elts_i[k].second],invpy[elts_j[l].second]) << " "<<invpx[elts_i[k].second]<<" "<<invpy[elts_j[l].second]<<" "<<alpha<<std::endl;
+        }
+      }
+    }
+
+    return out;
+
+  }
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  template<class M>
+  void operator()(std::vector<int> I, std::vector<int> J, M& in_mat){
+
+    std::map<const elt_t*, std::vector <int> > elts_I;
+    std::map<const elt_t*, std::vector <int> > elts_J;
+    std::map<int , int > map_I;
+    std::map<int , int > map_J;
+
+    // std::cout << "======== I ========"<<std::endl;
+    for (int i =0;i<I.size();i++){
+      const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phix, I[i]);
+// std::cout << "noeuds : "<<i << std::endl ;
+      map_I[I[i]]=i;
+      for (int j =0 ; j <elts.size();j++){
+        // std::cout << "element : "<<j<<std::endl;
+// std::cout << *(elts[j].first) << " " << elts[j].second << std::endl;
+          elts_I[elts[j].first].push_back(elts[j].second);
+      }
+    }
+
+    // std::cout << "======== J ========"<<std::endl;
+    for (int i =0;i<J.size();i++){
+      const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phiy, J[i]);
+// std::cout << "noeuds : "<<i << std::endl ;
+      map_J[J[i]]=i;
+      for (int j =0 ; j <elts.size();j++){
+        // std::cout << "element : "<<j<<std::endl;
+// std::cout << *(elts[j].first) << " " << elts[j].second << std::endl;
+          elts_J[elts[j].first].push_back(elts[j].second);
+      }
+    }
+
+// std::cout << "======== elts_I ========"<<std::endl;
+// for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
+//   std::cout << "element : "<<std::endl<<*((*iter_I).first)<< std::endl;
+//   // std::cout << "dofs : ";
+//   for (int i =0; i<(*iter_I).second.size();i++){
+//   std::cout<<(*iter_I).second[i]<<" ";
+//   }
+//   std::cout << std::endl;
+// }
+
+// std::cout << "======== elts_J ========"<<std::endl;
+// for (auto iter_J = elts_J.begin(); iter_J!=elts_J.end();++iter_J){
+//   std::cout << "element : "<<std::endl<<*((*iter_J).first)<< std::endl;
+//   std::cout << "dofs : ";
+//   for (int i =0; i<(*iter_J).second.size();i++){
+//   std::cout<<(*iter_J).second[i]<<" ";
+//   }
+//   std::cout << std::endl;
+// }
+
+// std::cout << "======== Calculs ========"<<std::endl;
+    for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
+      // std::cout <<"pouet_x : " <<(*iter_I).second.size()<<std::endl;
+      for (auto iter_J = elts_J.begin(); iter_J!=elts_J.end();++iter_J){
+        // std::cout <<"pouet_y : " <<(*iter_J).second.size()<<std::endl;
+        const elt_t& ex = *((*iter_I).first);
+        const elt_t& ey = *((*iter_J).first);
+// std::cout << "élément x" << std::endl;
+// std::cout << ex << std::endl;
+// std::cout << "élément y" << std::endl;
+// std::cout << ey << std::endl;
+// std::cout << &ey-&elt[0] << std::endl;
+        // Calcul de la regle de quadrature
+        choose_quad(ex,ey);
+        N3      invpx,invpy;
+        for (int i=0;i<3;i++){
+          invpx[px[i]]=i;
+          invpy[py[i]]=i;
+
+        }
+
+// std::cout << "px" << std::endl;
+// std::cout << px << std::endl;
+// std::cout << "py" << std::endl;
+// std::cout << py << std::endl;
+// std::cout << "invpx" << std::endl;
+// std::cout << invpx << std::endl;
+// std::cout << "invpy" << std::endl;
+// std::cout << invpy << std::endl;
+        h     = det_jac(x)*det_jac(y);
+        x0_y0 = x[0]-y[0];
+        dx    = mat_jac(x);
+        dy    = mat_jac(y);
+        const std::vector<qp_t>& s = qr.x(rule);
+        const std::vector<qp_t>& t = qr.y(rule);
+        const std::vector<Real>& w = qr.w(rule);
+
+        // numeros globaux des elements
+        int jx_global = &ex-&elt[0];
+        int jy_global = &ey-&elt[0];
+
+        // numeros locaux des triangles
+        // if (&ex-&elt[0]>893 ||&ex-&elt[0]<0 ) std::cout << "X : "<< &ex-&elt[0]<< std::endl;
+        // if (&ex-&elt[0]>893 ||&ey-&elt[0]<0 ) std::cout << "X : "<< &ey-&elt[0]<< std::endl;
+        jx    = loc[ &ex-&elt[0] ][meshx];
+        jy    = loc[ &ey-&elt[0] ][meshy];
+
+        //
+        const N3&     jj = phix[jx_global];
+        const N3&     kk = phiy[jy_global];
+
+        // Boucle sur les points de quadrature
+        for(int j=0; j<s.size(); j++) {
+
+          x_y = x0_y0 + dx*s[j] - dy*t[j];
+          z = h*w[j]*kernel.ker(nx[jx],ny[jy],x_y);
+
+          for(int kx=0; kx<(*iter_I).second.size(); kx++){
+            for(int ky=0; ky<(*iter_J).second.size(); ky++){
+
+            Cplx test =kernel(phix, s[j], jx, invpx[(*iter_I).second[kx]],
+             phiy, t[j], jy, invpy[(*iter_J).second[ky]],
+             nx[jx], ny[jy], x_y,
+             h, w[j], z, px, py);
+            //  if (ky==0){
+            //  std::cout << "kx : "<<kx<<" ky : "<<ky<<" mat : "<< test <<std::endl;}
+            // if (map_I[jj[px[(*iter_I).second[kx]]]]==1 && map_J[kk[py[(*iter_J).second[ky]]]]==0){
+            //   std::cout << "élément ex" << std::endl;
+            //   std::cout << ex << std::endl;
+            //   std::cout << "élément ey" << std::endl;
+            //   std::cout << ey << std::endl;
+            //   std::cout << "élément x" << std::endl;
+            //   std::cout << x << std::endl;
+            //   std::cout << "élément y" << std::endl;
+            //   std::cout << y << std::endl;
+            //   std::cout << " kx : "<<(*iter_I).second[kx]<<" ky : "<<(*iter_J).second[ky]<<std::endl;
+            //   std::cout << " px[kx] : "<<px[(*iter_I).second[kx]]<<" py[ky] : "<<py[(*iter_J).second[ky]]<<std::endl;
+            //   std::cout << " px : "<<px<<" py : "<<py<<std::endl;
+            //   std::cout << "jj : "<<jj << std::endl;
+            //   std::cout << "kk : "<<kk << std::endl;
+            //   std::cout << " jj[px[(*iter_I).second[kx]]] "<<jj[px[(*iter_I).second[kx]]] <<std::endl;
+            //   std::cout << "kk[py[(*iter_J).second[ky]]] "<<kk[py[(*iter_J).second[ky]]]<< std::endl;
+            //
+            // }
+             in_mat(map_I[jj[(*iter_I).second[kx]]],map_J[kk[(*iter_J).second[ky]]]) += test;
+
+            }
+          }
+        }
+        if (ex==ey){
+          mat<dim_loc_x,dim_loc_y, Real> Mass= MassP1(ex);
+          for(int kx=0; kx<(*iter_I).second.size(); kx++){
+            for(int ky=0; ky<(*iter_J).second.size(); ky++){
+              in_mat(map_I[jj[(*iter_I).second[kx]]],map_J[kk[(*iter_J).second[ky]]])+= alpha*Mass(invpx[(*iter_I).second[kx]],invpy[(*iter_J).second[ky]]);
+            }
+          }
+        }
+      }
+    }
+    // std::cout << "result in (1,0) : "<< mat(1,0)<<std::endl;
+  }
+
+};
 
 
 /*====================================
@@ -550,6 +896,145 @@ template <class space, class kernel_t> class potential{
 
 };
 
+/*===============================
+||  CLASSE OPERATEUR MASS      ||
+===============================*/
+
+
+template <class space> class mass{
+
+ public:
+
+  static const int dim        = space::dim_loc-1;
+  static const int dim_loc  = space::dim_loc;
+
+  typedef normal<dim>                     normal_t;
+  typedef mesh_<dim>                      mesh_t;
+  typedef loc_<dim>                       loc_t;
+  typedef elt_<dim>                       elt_t;
+  typedef mat<dim_loc,dim_loc, Real>  mat_t;
+  typedef space                          phi_t;
+
+ private:
+
+  const std::vector<loc_t>&   loc;
+  const vect<elt_t>&     elt;
+  const mesh_t&          mesh;
+
+  phi_t        phi;
+  mat_t         Melt;
+
+  //=========================//
+  // Variables intermediaires
+
+  elt_t   x,y;       // sommets des elts permutes
+  Real    h;         // 2^d * volume paire elt
+  int     jx,jy;     // numero des elts (no. local au maillage)
+
+  //_______________
+  // Données auxilaires
+  get_elt_<dim> temp_elt;
+  get_loc_<dim> temp_loc;
+
+ public:
+
+  //=========================//
+  //      Constructeur
+  mass( const normal_t& n0):
+   mesh(mesh_of(n0)), loc(temp_loc.apply(get_geometry(mesh_of(n0)))), elt(temp_elt.apply(get_geometry(mesh_of(n0)))),phi(mesh_of(n0)),temp_loc(), temp_elt(){
+	 };
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  const mat_t& operator()(const elt_t& elt){
+
+    Melt+= MassP1(elt);
+
+    return Melt;
+
+  }
+
+
+
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  Cplx operator()(int i, int j){
+
+  	const std::vector<std::pair<const elt_t*,int> >& elts_i = get_elts_of_dof(phi, i);
+
+    Cplx out =0;
+
+    for (int k=0;k<elts_i.size();k++){
+      for (int l=0;l<elts_i.size();l++){
+
+        const elt_t& ex = *(elts_i[k].first);
+        const elt_t& ey = *(elts_i[l].first);
+
+
+        // numeros locaux des triangles
+        jx    = loc[ &ex-&elt[0] ][mesh];
+        jy    = loc[ &ey-&elt[0] ][mesh];
+
+        if (ex==ey){
+          // std::cout << MassP1(ex) << std::endl;
+          mat<dim_loc,dim_loc, Real> Mass( MassP1(ex));
+          out +=  Mass(elts_i[k].second,elts_i[l].second);
+        }
+      }
+    }
+
+    return out;
+
+  }
+
+  //=====================================//
+  // Calcul des interactions elementaires
+  template<class M>
+  void operator()(std::vector<int> I, M& in_mat){
+
+    std::map<const elt_t*, std::vector <int> > elts_I;
+    std::map<int , int > map_I;
+
+    for (int i =0;i<I.size();i++){
+      const std::vector<std::pair<const elt_t*,int> >& elts = get_elts_of_dof(phi, I[i]);
+      map_I[I[i]]=i;
+      for (int j =0 ; j <elts.size();j++){
+          elts_I[elts[j].first].push_back(elts[j].second);
+      }
+    }
+
+    for (auto iter_I = elts_I.begin(); iter_I!=elts_I.end();++iter_I){
+      for (auto iter_J = elts_I.begin(); iter_J!=elts_I.end();++iter_J){
+        const elt_t& ex = *((*iter_I).first);
+        const elt_t& ey = *((*iter_J).first);
+
+
+        // numeros globaux des elements
+        int jx_global = &ex-&elt[0];
+        int jy_global = &ey-&elt[0];
+
+        // numeros locaux des triangles
+        jx    = loc[ &ex-&elt[0] ][mesh];
+        jy    = loc[ &ey-&elt[0] ][mesh];
+
+        //
+        const N3&     jj = phi[jx_global];
+        const N3&     kk = phi[jy_global];
+
+        if (ex==ey){
+          mat<dim_loc,dim_loc, Real> Mass= MassP1(ex);
+          for(int kx=0; kx<(*iter_I).second.size(); kx++){
+            for(int ky=0; ky<(*iter_J).second.size(); ky++){
+              in_mat(map_I[jj[(*iter_I).second[kx]]],map_I[kk[(*iter_J).second[ky]]])+= Mass((*iter_I).second[kx],(*iter_J).second[ky]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+};
 }
 
 #endif

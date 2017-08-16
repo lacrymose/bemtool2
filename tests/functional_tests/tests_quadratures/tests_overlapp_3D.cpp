@@ -9,22 +9,22 @@ using namespace std;
 
 
 
-class MyMatrix: public htool::IMatrix<Cplx>{
-	bem<P1_2D,P1_2D, SLP_DH_3D>& Vop;
-
-public:
-	MyMatrix(bem<P1_2D,P1_2D, SLP_DH_3D>& Vop0,int nbdof0):IMatrix(nbdof0,nbdof0),Vop(Vop0){}
-
-	Cplx get_coef(const int& i, const int& j)const {return Vop(i,j);}
-
-	htool::SubMatrix<Cplx> get_submatrix(const std::vector<int>& J, const std::vector<int>& K) const{
-		htool::SubMatrix<Cplx> submat(J,K);
-		Vop(J,K,submat);
-		return submat;
-	}
-
-
-};
+// class MyMatrix: public htool::IMatrix<Cplx>{
+// 	bem<P1_2D,P1_2D, SLP_DH_3D>& Vop;
+//
+// public:
+// 	MyMatrix(bem<P1_2D,P1_2D, SLP_DH_3D>& Vop0,int nbdof0):IMatrix(nbdof0,nbdof0),Vop(Vop0){}
+//
+// 	Cplx get_coef(const int& i, const int& j)const {return Vop(i,j);}
+//
+// 	htool::SubMatrix<Cplx> get_submatrix(const std::vector<int>& J, const std::vector<int>& K) const{
+// 		htool::SubMatrix<Cplx> submat(J,K);
+// 		Vop(J,K,submat);
+// 		return submat;
+// 	}
+//
+//
+// };
 
 int main(int argc, char const *argv[]) {
   ////====================== Initialization MPI ===================////
@@ -49,7 +49,7 @@ int main(int argc, char const *argv[]) {
 	htool::SetEpsilon(1e-6);
 	htool::SetEta(10);
   htool::SetMinClusterSize(30);
-	htool::SetMaxBlockSize(1000);
+	htool::SetMaxBlockSize(10000000);
 
 
   ////=======================  Mesh building  =====================////
@@ -149,7 +149,9 @@ for (int i =0 ; i<nbelt;i++){
   for (int i=0;i<nbdof;i++){
     tab[i]=i;
   }
-  MyMatrix V(Vop,nbdof);
+  HMatrix<bem<P1_2D,P1_2D, SLP_DH_3D> > V(Vop,nbdof);
+	// HMatrix V(Vop,nbdof);
+
   htool::HMatrix<htool::fullACA,complex<double>> HA(V,x,tab);
 MPI_Barrier(MPI_COMM_WORLD);
 HA.print_stats();
@@ -200,7 +202,7 @@ if (rankWorld==0){
 
 	htool::ASM<Cplx> P(
 		V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
-	
+
 	P.num_fact();
 
 	// htool::Identity<Cplx> P(cluster_to_ovr_subdomain.size());
