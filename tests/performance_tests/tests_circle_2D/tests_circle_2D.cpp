@@ -62,8 +62,8 @@ void first_kind_dirichlet_2D(std::vector<Real> harmonics, Real lc, Real R, std::
 
 
     gmm_dense V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
-    bem<P1_1D,P1_1D, SLP_2D>   Vop(kappa,n_,n_);
-    bem<P1_1D,P1_1D, DLP_2D>   Kop(kappa,n_,n_);
+    bem<P1_1D,P1_1D, SLP_PH_2D>   Vop(kappa,n_,n_);
+    bem<P1_1D,P1_1D, DLP_PH_2D>   Kop(kappa,n_,n_);
 
     progress bar("assembly", nbelt*nbelt, verbose);
     for(int j=0; j<nbelt; j++){
@@ -264,8 +264,8 @@ void first_kind_neumann_2D(std::vector<Real> harmonics, Real lc, Real R, std::st
 
 
     gmm_dense W(nbdof,nbdof),TK(nbdof,nbdof),M(nbdof,nbdof);
-    bem<P1_1D,P1_1D, HSP_2D>    Wop (kappa,n_,n_);
-    bem<P1_1D,P1_1D, TDLP_2D>   TKop(kappa,n_,n_);
+    bem<P1_1D,P1_1D, HSP_PH_2D>    Wop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, TDLP_PH_2D>   TKop(kappa,n_,n_);
 
     progress bar("assembly", nbelt*nbelt,verbose);
     for(int j=0; j<nbelt; j++){
@@ -466,8 +466,8 @@ void second_kind_dirichlet_2D(std::vector<Real> harmonics, Real lc, Real R, std:
 
 
     gmm_dense W(nbdof,nbdof),TT(nbdof,nbdof),M(nbdof,nbdof);
-    bem<P1_1D,P1_1D, HSP_2D>    Wop (kappa,n_,n_);
-    bem<P1_1D,P1_1D, TDLP_2D>   TKop(kappa,n_,n_);
+    bem<P1_1D,P1_1D, HSP_PH_2D>    Wop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, TDLP_PH_2D>   TKop(kappa,n_,n_);
 
     progress bar("assembly", nbelt*nbelt,verbose);
     for(int j=0; j<nbelt; j++){
@@ -666,8 +666,8 @@ void second_kind_neumann_2D(std::vector<Real> harmonics, Real lc, Real R, std::s
 
 
     gmm_dense V(nbdof,nbdof),T(nbdof,nbdof),M(nbdof,nbdof);
-    bem<P1_1D,P1_1D, SLP_2D>   Vop(kappa,n_,n_);
-    bem<P1_1D,P1_1D, DLP_2D>   Kop(kappa,n_,n_);
+    bem<P1_1D,P1_1D, SLP_PH_2D>   Vop(kappa,n_,n_);
+    bem<P1_1D,P1_1D, DLP_PH_2D>   Kop(kappa,n_,n_);
 
     progress bar("assembly", nbelt*nbelt,verbose);
     for(int j=0; j<nbelt; j++){
@@ -865,9 +865,9 @@ void fourier_harmonic_2D(std::vector<Real> harmonics, Real lc, Real R, std::stri
     int nbdof = nb_dof(dof);
 
     gmm_dense V(nbdof,nbdof),W(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
-    bem<P1_1D,P1_1D, SLP_2D>   Vop (kappa,n_,n_);
-    bem<P1_1D,P1_1D, HSP_2D>   Wop (kappa,n_,n_);
-    bem<P1_1D,P1_1D, DLP_2D>   Kop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, SLP_PH_2D>   Vop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, HSP_PH_2D>   Wop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, DLP_PH_2D>   Kop (kappa,n_,n_);
 
     progress bar("assembly", nbelt*nbelt,verbose);
     for(int j=0; j<nbelt; j++){
@@ -1082,9 +1082,9 @@ void plane_wave_harmonics_2D(std::vector<Real> harmonics, Real lc, Real R, std::
     int nbdof = nb_dof(dof);
 
     gmm_dense V(nbdof,nbdof),W(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
-    bem<P1_1D,P1_1D, SLP_2D>   Vop (kappa,n_,n_);
-    bem<P1_1D,P1_1D, HSP_2D>   Wop (kappa,n_,n_);
-    bem<P1_1D,P1_1D, DLP_2D>   Kop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, SLP_PH_2D>   Vop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, HSP_PH_2D>   Wop (kappa,n_,n_);
+    bem<P1_1D,P1_1D, DLP_PH_2D>   Kop (kappa,n_,n_);
 
     progress bar("assembly", nbelt*nbelt,verbose);
     for(int j=0; j<nbelt; j++){
@@ -1250,5 +1250,3 @@ void plane_wave_harmonics_2D(std::vector<Real> harmonics, Real lc, Real R, std::
         output.close();
     }
 }
-
-

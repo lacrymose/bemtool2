@@ -1,1 +1,2 @@
+add_subdirectory(kernel_tests)
 add_subdirectory(tests_circle_2D)
