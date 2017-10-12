@@ -68,6 +68,10 @@ message("-- Found Blas implementation:" "${BLAS_LIBRARIES}")
 find_package(LAPACK REQUIRED QUIET)
 message("-- Found Lapack:" "${LAPACK_LIBRARIES}")
 
+#MUMPS
+find_package(MUMPS)
+
+
 #=============================================================================#
 #=========================== Libraries =======================================#
 #=============================================================================#
@@ -76,13 +80,17 @@ add_library(bemtool INTERFACE)
 target_include_directories(bemtool INTERFACE
 					${bemtool_include_dir}
 					${Boost_INCLUDE_DIRS}
-					${HTOOL_INCLUDE_DIR}
+					${HTOOL_INCLUDE_DIRS}
 					${MPI_INCLUDE_PATH}
-					${HPDDM_INCLUDE_DIR})
+					${HPDDM_INCLUDE_DIRS}
+					${MUMPS_INCLUDE_DIRS}
+				)
 target_link_libraries(bemtool INTERFACE
 					${MPI_LIBRARIES}
 					${BLAS_LIBRARIES}
-					${LAPACK_LIBRARIES})
+					${LAPACK_LIBRARIES}
+					${MUMPS_LIBRARIES}
+				)
 #===
 
 

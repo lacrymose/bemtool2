@@ -3,7 +3,6 @@
 #include <mpi.h>
 #include <htool/htool.hpp>
 
-
 using namespace bemtool;
 using namespace std;
 
@@ -42,8 +41,8 @@ int main(int argc, char const *argv[]) {
   ////======================= Some variables  =====================////
   bool test =0;
   Real kappa=1.;
-  Real lc = 0.06;
-  Real R=0.5;
+  Real lc = 0.5;
+  Real R=1;
   std::vector<Real> harmonics(3);harmonics[0]=1;harmonics[1]=2;harmonics[2]=3;
   htool::SetNdofPerElt(1);
 	htool::SetEpsilon(1e-6);
@@ -132,7 +131,7 @@ int main(int argc, char const *argv[]) {
 	// Vop(I,J,V);
   std::vector<int> tab(nbdof);
   std::vector<htool::R3> x(nbdof);
-
+std::cout << "WARNING : "<< nbdof << std::endl;
 // if (rankWorld==0){
 // 	for(int j=0; j<nbpt; j++){
 //     cout << j<<" "<<dof[j][0]<<" "<<dof[j][1]<< endl;
@@ -149,10 +148,10 @@ for (int i =0 ; i<nbelt;i++){
   for (int i=0;i<nbdof;i++){
     tab[i]=i;
   }
-  HMatrix<bem<P1_2D,P1_2D, SLP_DH_3D> > V(Vop,nbdof);
+  MyBEM<bem<P1_2D,P1_2D, SLP_DH_3D> > V(Vop,nbdof);
 	// HMatrix V(Vop,nbdof);
 
-  htool::HMatrix<htool::fullACA,complex<double>> HA(V,x,tab);
+  htool::HMatrix<htool::fullACA,complex<double>> HA(V,x);
 MPI_Barrier(MPI_COMM_WORLD);
 HA.print_stats();
 double compression = HA.compression();
@@ -165,7 +164,6 @@ if (rankWorld==0){
 }
   ////================ Partition ===================////
 
-  const std::vector<std::vector<int>>& MasterClusters=HA.get_MasterClusters();
 
 
 
@@ -175,7 +173,7 @@ if (rankWorld==0){
 	std::vector<int> neighbors;
 	std::vector<std::vector<int> > intersections;
 
-	Partition(MasterClusters,dof,cluster_to_ovr_subdomain,ovr_subdomain_to_global,neighbors,intersections);
+	Partition(HA.get_MasterOffset_t(), HA.get_permt(),dof,cluster_to_ovr_subdomain,ovr_subdomain_to_global,neighbors,intersections);
 	// int count=0;
 	// cout << "proc : "<<rankWorld<<endl;
 	// for(auto iter=neighbors.begin(); iter!=neighbors.end();++iter) {
@@ -200,38 +198,66 @@ if (rankWorld==0){
 	}
 	write_gmsh_2(Omega,dof,part_overlap,"part_ovlerap_"+NbrToStr(rankWorld));
 
-	htool::ASM<Cplx> P(
-		V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
+  std::vector<Cplx> sol(nbdof,0),sol_ref(nbdof,1);
+  std::vector<Cplx> rhs(nbdof,1);
+  HA.mvprod_global(sol_ref.data(),rhs.data());
+  htool::DDM<htool::fullACA,Cplx> ddm(V,HA,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
 
-	P.num_fact();
+  ddm.solve(rhs.data(),sol.data());
+double err2 =0;
+  for (int i=0;i<sol.size();i++){
+    err2 += std::pow(std::abs(sol[i]-sol_ref[i]),2);
+  }
+
+  std::cout << std::sqrt(err2) << std::endl;
+  std::vector<double> sol_real(nbdof);
+  for (int i=0;i<nbdof;i++){
+    sol_real[i]=std::real(sol[i]);
+  }
+
+
+
+  // write_gmsh_2(Omega,dof,sol,"solution");
+  write_gmsh(Omega,sol_real,"solution");
+
+
+
+
+  // std::vector<Cplx> p;
+  // htool::HPDDMOperator<htool::fullACA,complex<double>> A_HPDDM(HA,p);
+
+	// htool::Preconditioner<Cplx> P(
+		// V,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
+
+	// P.num_fact();
 
 	// htool::Identity<Cplx> P(cluster_to_ovr_subdomain.size());
 
 	// Global vectors
-std::vector<complex<double>> x_ref(nbdof,1),f_global(nbdof,0);
-HA.mvprod_global(x_ref.data(),f_global.data());
-
-// Local vectors
-int n_local= HA.get_local_size_cluster();
-std::vector<complex<double>> x_ref_local(n_local,1),x_local(n_local,0),f_local(n_local,1);
-for (int i=0;i<n_local;i++){
-	f_local[i]=f_global[MasterClusters[rankWorld][i]];
-}
-
-	// Solve
-  htool::HPDDMOperator<htool::fullACA,complex<double>> A_HPDDM(HA,P);
-  complex<double>* const f = &(f_local[0]);
-  complex<double>* sol = &(x_local[0]);
-  HPDDM::IterativeMethod::solve(A_HPDDM, f, sol, 1,HA.get_comm());
-
-	double error2=0;
-	for (int i=0;i<x_local.size();i++){
-		error2+=pow(std::abs(x_local[i]-x_ref_local[i]),2);
-	}
-	MPI_Allreduce(MPI_IN_PLACE, &error2, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-	if (rankWorld==0){
-		cout << "Test "<<sqrt(error2)<<endl;
-	}
+// std::vector<complex<double>> x_ref(nbdof,1),f_global(nbdof,0);
+// HA.mvprod_global(x_ref.data(),f_global.data());
+//
+// // Local vectors
+// int n_local= HA.get_local_size_cluster();
+// std::vector<complex<double>> x_ref_local(n_local,1),x_local(n_local,0),f_local(n_local,1);
+// for (int i=0;i<n_local;i++){
+// 	f_local[i]=f_global[MasterClusters[rankWorld][i]];
+// }
+//
+// 	// Solve
+//   // htool::HPDDMOperator<htool::fullACA,complex<double>> A_HPDDM(HA,P);
+//   complex<double>* const f = &(f_local[0]);
+//   complex<double>* sol = &(x_local[0]);
+//   HPDDM::IterativeMethod::solve(A_HPDDM, f, sol, 1,HA.get_comm());
+//
+	// double error2=0;
+	// for (int i=0;i<x_local.size();i++){
+	// 	error2+=pow(std::abs(x_local[i]-x_ref_local[i]),2);
+	// }
+// 	MPI_Allreduce(MPI_IN_PLACE, &error2, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+// 	if (rankWorld==0){
+// 		cout << "Test "<<sqrt(error2)<<endl;
+// 	}
 
   // gmm_dense V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
   // bem<P1_1D,P1_1D, SLP_2D>   Vop(kappa,n_,n_);
@@ -370,6 +396,6 @@ for (int i=0;i<n_local;i++){
 	// 	// output.close();
 	// }
 
-MPI_Barrier(MPI_COMM_WORLD);
+// MPI_Barrier(MPI_COMM_WORLD);
   return test;
 }

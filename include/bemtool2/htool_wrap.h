@@ -30,15 +30,15 @@ public:
 };
 
 template<typename bem>
-class HMatrix: public htool::IMatrix<Cplx>{
+class MyBEM: public htool::IMatrix<Cplx>{
 	bem& Op;
 
 public:
-	HMatrix(bem& Op0,int nbdof0):IMatrix(nbdof0,nbdof0),Op(Op0){}
+	MyBEM(bem& Op0,int nbdof0):IMatrix(nbdof0,nbdof0),Op(Op0){}
 
 	Cplx get_coef(const int& i, const int& j)const {return Op(i,j);}
 
-	htool::SubMatrix<Cplx> get_submatrix(const std::vector<int>& J, const std::vector<int>& K) const{
+	htool::SubMatrix<Cplx> get_submatrix(const std::vector<int>& J, const std::vector<int>& K ) const{
 		htool::SubMatrix<Cplx> submat(J,K);
 		Op(J,K,submat);
 		return submat;

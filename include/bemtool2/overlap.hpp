@@ -7,7 +7,7 @@
 #include <numeric>
 
 template<class space>
-void Partition(const std::vector<std::vector<int>>& MasterClusters, const space& dof, std::vector<int>& cluster_to_ovr_subdomain, std::vector<int>& ovr_subdomain_to_global, std::vector<int>& neighbors, std::vector<std::vector<int> >& intersections){
+void Partition(const std::vector<std::pair<int,int>>& MasterOffset, const std::vector<int>& perm, const space& dof, std::vector<int>& cluster_to_ovr_subdomain, std::vector<int>& ovr_subdomain_to_global, std::vector<int>& neighbors, std::vector<std::vector<int> >& intersections){
 
   // Get the number of processes
   int sizeWorld;
@@ -21,12 +21,13 @@ void Partition(const std::vector<std::vector<int>>& MasterClusters, const space&
   int nbdof = nb_dof(dof);
   int nbelt = nb_elt(dof);
   std::vector<bool> part_overlap(nbdof);
-
+std::cout << "nbdof : "<<nbdof << std::endl;
   // Partitionnement des dofs sans overlap
   std::vector<int> part(nbdof);
   for (int i=0; i<sizeWorld; i++)
-	for (int j=0; j< MasterClusters[i].size(); j++)
-		part[MasterClusters[i][j]] = i;
+	for (int j=0; j< MasterOffset[i].second; j++)
+		part[perm[MasterOffset[i].first+j]] = i;
+    // part[MasterClusters[i][j]] = i;
 
   // Tag des elements qui contiennent mes dofs: P1 -> P0
   std::vector<int> elts(nbelt,0);
@@ -86,9 +87,9 @@ void Partition(const std::vector<std::vector<int>>& MasterClusters, const space&
   }
 
   // Get the cluster to overlapping subdomain numbering
-  cluster_to_ovr_subdomain.resize(MasterClusters[rankWorld].size());
-  for (int j=0; j< MasterClusters[rankWorld].size(); j++)
-		cluster_to_ovr_subdomain[j] = temp[MasterClusters[rankWorld][j]];
+  cluster_to_ovr_subdomain.resize(MasterOffset[rankWorld].second);
+  for (int j=0; j< MasterOffset[rankWorld].second; j++)
+		cluster_to_ovr_subdomain[j] = temp[perm[MasterOffset[rankWorld].first+j]];
 
   // Get the overlapping subdomain to global numbering
   int size_ovr_subdomain = std::accumulate(part_overlap.begin(),part_overlap.end(),0,[](int a, bool b){ return a+(std::size_t)(b);});
@@ -125,19 +126,46 @@ void Partition(const std::vector<std::vector<int>>& MasterClusters, const space&
 	    }
 	  }
 
-  		std::transform(part_overlap_neighbors.begin(),part_overlap_neighbors.end(),part_overlap.begin(),part_overlap_neighbors.begin(),[](bool a,bool b){return a&&b;});
+		std::transform(part_overlap_neighbors.begin(),part_overlap_neighbors.end(),part_overlap.begin(),part_overlap_neighbors.begin(),[](bool a,bool b){return a&&b;});
 
-  		std::size_t size_intersection = std::accumulate(part_overlap_neighbors.begin(),part_overlap_neighbors.end(),0,[](int a, bool b){return a+(std::size_t)(b);});
+		std::size_t size_intersection = std::accumulate(part_overlap_neighbors.begin(),part_overlap_neighbors.end(),0,[](int a, bool b){return a+(std::size_t)(b);});
 
-  		std::vector<int> intersection;
-  		intersection.reserve(size_intersection);
-  		for (int i = 0; i < nbdof; i++) {
-  			if (part_overlap_neighbors[i]){
-  				intersection.push_back(temp[i]);
-  			}
-  		}
-  		intersections.push_back(intersection);
+		std::vector<int> intersection;
+		intersection.reserve(size_intersection);
+		for (int i = 0; i < nbdof; i++) {
+			if (part_overlap_neighbors[i]){
+				intersection.push_back(temp[i]);
+			}
+		}
+		intersections.push_back(intersection);
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
+  if (rankWorld==0){
+    std::cout << size_ovr_subdomain << std::endl;
+    std::cout << intersections[0].size() << std::endl;
+    for (int i=0 ; i<intersections[0].size();i++){
+      std::cout << intersections[0][i] << " ";
     }
+    for (int i =0;i<neighbors.size();i++){
+      std::cout << neighbors[i] << std::endl;
+    }
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
+  if (rankWorld==1){
+    std::cout << size_ovr_subdomain << std::endl;
+    std::cout << intersections[0].size() << std::endl;
+    for (int i=0 ; i<intersections[0].size();i++){
+      std::cout << intersections[0][i] << " ";
+    }
+    for (int i =0;i<neighbors.size();i++){
+      std::cout << neighbors[i] << std::endl;
+    }
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 
