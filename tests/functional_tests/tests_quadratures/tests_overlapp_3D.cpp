@@ -29,7 +29,7 @@ int main(int argc, char const *argv[]) {
   ////====================== Initialization MPI ===================////
   // Initialize the MPI environment
   MPI_Init(NULL, NULL);
-
+{
   // Get the number of processes
   int sizeWorld;
   MPI_Comm_size(MPI_COMM_WORLD, &sizeWorld);
@@ -395,7 +395,8 @@ double err2 =0;
 	// 	// }
 	// 	// output.close();
 	// }
-
+}
+MPI_Finalize();
 // MPI_Barrier(MPI_COMM_WORLD);
-  return test;
+  // return test;
 }

@@ -44,7 +44,7 @@ option(BEMTOOL_WITH_TESTS    "Build htool tests ?" ON)
 
 
 # EIGEN3
-find_package(EIGEN3 REQUIRED)
+# find_package(EIGEN3 REQUIRED)
 
 # Boost package - special functions
 find_package(Boost REQUIRED)
@@ -70,7 +70,7 @@ message("-- Found Lapack:" "${LAPACK_LIBRARIES}")
 
 #MUMPS
 find_package(MUMPS)
-
+message(${MUMPS_LIBRARIES})
 
 #=============================================================================#
 #=========================== Libraries =======================================#

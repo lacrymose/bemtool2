@@ -139,33 +139,33 @@ std::cout << "nbdof : "<<nbdof << std::endl;
 		}
 		intersections.push_back(intersection);
   }
-  MPI_Barrier(MPI_COMM_WORLD);
-  if (rankWorld==0){
-    std::cout << size_ovr_subdomain << std::endl;
-    std::cout << intersections[0].size() << std::endl;
-    for (int i=0 ; i<intersections[0].size();i++){
-      std::cout << intersections[0][i] << " ";
-    }
-    for (int i =0;i<neighbors.size();i++){
-      std::cout << neighbors[i] << std::endl;
-    }
-    std::cout<<std::endl;
-    std::cout<<std::endl;
-  }
-  MPI_Barrier(MPI_COMM_WORLD);
-  if (rankWorld==1){
-    std::cout << size_ovr_subdomain << std::endl;
-    std::cout << intersections[0].size() << std::endl;
-    for (int i=0 ; i<intersections[0].size();i++){
-      std::cout << intersections[0][i] << " ";
-    }
-    for (int i =0;i<neighbors.size();i++){
-      std::cout << neighbors[i] << std::endl;
-    }
-    std::cout<<std::endl;
-    std::cout<<std::endl;
-  }
-  MPI_Barrier(MPI_COMM_WORLD);
+  // MPI_Barrier(MPI_COMM_WORLD);
+  // if (rankWorld==0){
+  //   std::cout << size_ovr_subdomain << std::endl;
+  //   std::cout << intersections[0].size() << std::endl;
+  //   for (int i=0 ; i<intersections[0].size();i++){
+  //     std::cout << intersections[0][i] << " ";
+  //   }
+  //   for (int i =0;i<neighbors.size();i++){
+  //     std::cout << neighbors[i] << std::endl;
+  //   }
+  //   std::cout<<std::endl;
+  //   std::cout<<std::endl;
+  // }
+  // MPI_Barrier(MPI_COMM_WORLD);
+  // if (rankWorld==1){
+  //   std::cout << size_ovr_subdomain << std::endl;
+  //   std::cout << intersections[0].size() << std::endl;
+  //   for (int i=0 ; i<intersections[0].size();i++){
+  //     std::cout << intersections[0][i] << " ";
+  //   }
+  //   for (int i =0;i<neighbors.size();i++){
+  //     std::cout << neighbors[i] << std::endl;
+  //   }
+  //   std::cout<<std::endl;
+  //   std::cout<<std::endl;
+  // }
+  // MPI_Barrier(MPI_COMM_WORLD);
 }
 
 
