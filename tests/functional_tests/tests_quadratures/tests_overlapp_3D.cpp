@@ -201,6 +201,8 @@ if (rankWorld==0){
   std::vector<Cplx> sol(nbdof,0),sol_ref(nbdof,1);
   std::vector<Cplx> rhs(nbdof,1);
   HA.mvprod_global(sol_ref.data(),rhs.data());
+
+
   htool::DDM<htool::fullACA,Cplx> ddm(V,HA,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
 
   ddm.solve(rhs.data(),sol.data());
@@ -210,15 +212,15 @@ double err2 =0;
   }
 
   std::cout << std::sqrt(err2) << std::endl;
-  std::vector<double> sol_real(nbdof);
-  for (int i=0;i<nbdof;i++){
-    sol_real[i]=std::real(sol[i]);
-  }
-
-
-
-  // write_gmsh_2(Omega,dof,sol,"solution");
-  write_gmsh(Omega,sol_real,"solution");
+//   std::vector<double> sol_real(nbdof);
+//   for (int i=0;i<nbdof;i++){
+//     sol_real[i]=std::real(sol[i]);
+//   }
+//
+//
+//
+//   // write_gmsh_2(Omega,dof,sol,"solution");
+//   write_gmsh(Omega,sol_real,"solution");
 
 
 
