@@ -25,10 +25,10 @@ using namespace std;
 //
 // };
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
   ////====================== Initialization MPI ===================////
   // Initialize the MPI environment
-  MPI_Init(NULL, NULL);
+  MPI_Init(&argc, &argv);
 {
   // Get the number of processes
   int sizeWorld;
@@ -45,9 +45,9 @@ int main(int argc, char const *argv[]) {
   Real R=1;
   std::vector<Real> harmonics(3);harmonics[0]=1;harmonics[1]=2;harmonics[2]=3;
   htool::SetNdofPerElt(1);
-	htool::SetEpsilon(1e-6);
+	htool::SetEpsilon(1e-3);
 	htool::SetEta(10);
-  htool::SetMinClusterSize(30);
+  htool::SetMinClusterSize(1);
 	htool::SetMaxBlockSize(10000000);
 
 
@@ -89,54 +89,13 @@ int main(int argc, char const *argv[]) {
   int nbelt = nb_elt(Omega);
   P1_2D dof(Omega);
   int nbdof = nb_dof(dof);
-// cout << "TESTA : "<<nbdof << endl;
-//   const vect<R3>& node = get_nodes(dof);
-//   int nbpt = size(node);
-// cout << "TESTB : "<<nbpt << endl;
-	// htool::Matrix<Cplx> V(nbdof,nbdof),K(nbdof,nbdof),M(nbdof,nbdof);
+
 	bem<P1_2D,P1_2D, SLP_DH_3D>   Vop(kappa,n_,n_);
 	// bem<P1_2D,P1_2D, DLP_3D>   Kop(kappa,n_,n_);
 
-	// progress bar("assembly", nbelt*nbelt);
-	// for(int j=0; j<nbelt; j++){
-	// 		const elt_2D& tj = Omega[j];
-	// 		const N3&     jj = dof[j];
-	//
-	// 		for(int k=0; k<nbelt; k++,bar++){
-	// 				const elt_2D& tk = Omega[k];
-	// 				const N3&     kk = dof[k];
-	// 				mat<3,3, Cplx>  vmat;
-	// 				mat<3,3, Cplx>	kmat;
-	// 				vmat = Vop (tj,tk);
-	// 				kmat = Kop (tj,tk);
-	//
-	// 				for (int j=0;j<3;j++){
-	// 					for (int k=0;k<3;k++){
-	// 						V(jj[j],kk[k])+= vmat(j,k);
-	// 						K(jj[j],kk[k])+= kmat(j,k);
-	// 					}
-	// 				}
-	//
-	//
-	// 		}
-	//
-	// 		// M(jj,jj) += MassP1(tj);
-	// }
-	// std::vector<int> I(nbdof);
-	// std::vector<int> J(nbdof);
-	// for (int i=0;i<nbdof;i++){
-	// 	I[i]=i;
-	// 	J[i]=i;
-	// }
-	// Vop(I,J,V);
   std::vector<int> tab(nbdof);
   std::vector<htool::R3> x(nbdof);
-std::cout << "WARNING : "<< nbdof << std::endl;
-// if (rankWorld==0){
-// 	for(int j=0; j<nbpt; j++){
-//     cout << j<<" "<<dof[j][0]<<" "<<dof[j][1]<< endl;
-// 	}
-// }
+
 for (int i =0 ; i<nbelt;i++){
 	for (int j =0;j<dof.dim_loc;j++){
 		x[dof[i][j]][0]=Omega[i][j][0];
@@ -149,23 +108,19 @@ for (int i =0 ; i<nbelt;i++){
     tab[i]=i;
   }
   MyBEM<bem<P1_2D,P1_2D, SLP_DH_3D> > V(Vop,nbdof);
-	// HMatrix V(Vop,nbdof);
 
   htool::HMatrix<htool::fullACA,complex<double>> HA(V,x);
-MPI_Barrier(MPI_COMM_WORLD);
-HA.print_stats();
-double compression = HA.compression();
-int nb_lrmat = HA.get_nlrmat();
-int nb_dmat  = HA.get_ndmat();
-if (rankWorld==0){
-	cout << "Compression rate : "<<compression<<endl;
-	cout << "nbr lr : "<<nb_lrmat<<endl;
-	cout << "nbr dense : "<<nb_dmat<<endl;
-}
+  MPI_Barrier(MPI_COMM_WORLD);
+  HA.print_stats();
+// double compression = HA.compression();
+// int nb_lrmat = HA.get_nlrmat();
+// int nb_dmat  = HA.get_ndmat();
+// if (rankWorld==0){
+// 	cout << "Compression rate : "<<compression<<endl;
+// 	cout << "nbr lr : "<<nb_lrmat<<endl;
+// 	cout << "nbr dense : "<<nb_dmat<<endl;
+// }
   ////================ Partition ===================////
-
-
-
 
 
 	std::vector<int> cluster_to_ovr_subdomain;
@@ -202,7 +157,7 @@ if (rankWorld==0){
   std::vector<Cplx> rhs(nbdof,1);
   HA.mvprod_global(sol_ref.data(),rhs.data());
 
-
+    std::cout << "OK" << std::endl;
   htool::DDM<htool::fullACA,Cplx> ddm(V,HA,ovr_subdomain_to_global,cluster_to_ovr_subdomain,neighbors,intersections);
 
   ddm.solve(rhs.data(),sol.data());
